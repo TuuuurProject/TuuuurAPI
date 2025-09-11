@@ -13,7 +13,7 @@ internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
     private readonly TContext m_DbContext;
     private readonly IMapper m_Mapper;
     private readonly ILoggerFactory m_LoggerFactory;
-    //private readonly Lazy<IRepository> m_Repository;
+    private readonly Lazy<IUserRepository> m_UserRepository;
 
     public UnitOfWork(TContext p_DbContext, IMapper p_Mapper, ILoggerFactory p_LoggerFactory)
     {
@@ -21,8 +21,7 @@ internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
         m_DbContext = p_DbContext ?? throw new ArgumentNullException(nameof(p_DbContext));
         m_Mapper = p_Mapper ?? throw new ArgumentNullException(nameof(p_Mapper));
         m_LoggerFactory = p_LoggerFactory ?? throw new ArgumentNullException(nameof(p_LoggerFactory));
-
-        //m_Repository = CreateLazy<IRepository, ProjectRepository>();
+        m_UserRepository = CreateLazy<IUserRepository, UserRepository>();
     }
 
     public void Dispose()
@@ -31,7 +30,7 @@ internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
         GC.SuppressFinalize(this);
     }
 
-    //public IRepository Repository => m_Repository.Value;
+    public IUserRepository UserRepository => m_UserRepository.Value;
 
     public int Save()
     {

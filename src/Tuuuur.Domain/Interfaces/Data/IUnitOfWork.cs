@@ -4,7 +4,7 @@ namespace Tuuuur.Domain.Interfaces.Data;
 
 public interface IUnitOfWork : IDisposable
 {
-    //IRepository Repository { get; }
+    IUserRepository UserRepository { get; }
 
     int Save();
 

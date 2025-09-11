@@ -2,7 +2,7 @@
 {
     public static class DomainErrors
     {
-        private const string DOMAIN_PREFIX = "Tuuuur.";
+        private const string DOMAIN_PREFIX = "tuuuur.";
 
         public const string UnknowError = DOMAIN_PREFIX + "unknown-error";
 
@@ -16,12 +16,42 @@
 
             public const string IsNull = DATA_PREFIX + "isnull";
         }
+
+        public static class Authentication
+        {
+            private const string AUTHENT_PREFIX = DOMAIN_PREFIX + "authentication.";
+
+            public const string Missmatch = AUTHENT_PREFIX + "missmatch";
+            public const string Invalid = AUTHENT_PREFIX + "invalid";
+
+            public static class Login
+            {
+                private const string LOGIN_PREFIX = AUTHENT_PREFIX + "login.";
+
+                public const string Empty = LOGIN_PREFIX + GeneralErrors.Empty;
+                public const string InvalidEmail = LOGIN_PREFIX + GeneralErrors.InvalidFormat.InvalidEmail;
+                public const string Duplicated = LOGIN_PREFIX + GeneralErrors.Duplicated;
+                public const string NotExist = LOGIN_PREFIX + GeneralErrors.NotExist;
+            }
+
+            public static class Password
+            {
+                private const string PASSWORD_PREFIX = AUTHENT_PREFIX + "password.";
+
+                public const string Empty = PASSWORD_PREFIX + GeneralErrors.Empty;
+                public const string InvalidLength = PASSWORD_PREFIX + GeneralErrors.InvalidFormat.InvalidLength;
+                public const string InvalidUppercase = PASSWORD_PREFIX + GeneralErrors.InvalidFormat.InvalidUppercase;
+                public const string InvalidLowercase = PASSWORD_PREFIX + GeneralErrors.InvalidFormat.InvalidLowercase;
+                public const string InvalidNumber = PASSWORD_PREFIX + GeneralErrors.InvalidFormat.InvalidNumber;
+            }
+        }
     }
 
     internal static class GeneralErrors
     {
         public const string Empty = "empty";
         public const string Duplicated = "duplicated";
+        public const string NotExist = "not-exist";
 
         public static class InvalidFormat
         {

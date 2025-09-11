@@ -9,13 +9,15 @@ public partial class User_USR
 {
     public int Id { get; set; }
 
-    public string Firstname { get; set; }
+    public string FirstName { get; set; }
 
-    public string Lastname { get; set; }
+    public string LastName { get; set; }
 
-    public string Nickname { get; set; }
+    public string NickName { get; set; }
 
     public string Email { get; set; }
 
     public string Password { get; set; }
+
+    public bool IsAdmin { get; set; }
 }

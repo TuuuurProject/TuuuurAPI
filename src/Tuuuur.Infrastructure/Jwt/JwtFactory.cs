@@ -28,11 +28,7 @@ internal class JwtFactory : IJwtFactory
         Guard.Against.Null(p_UserInfos);
 
         string v_Role;
-        if (p_UserInfos.IsSuperAdmin)
-        {
-            v_Role = RolesType.SuperAdmin;
-        }
-        else if (p_UserInfos.IsAdmin)
+        if (p_UserInfos.IsAdmin)
         {
             v_Role = RolesType.Admin;
         }

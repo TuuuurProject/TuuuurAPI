@@ -24,9 +24,9 @@ public class InfrastructureModule : Module
     /// <param name="p_Builder"></param>
     private static void CustomLoad(ContainerBuilder p_Builder)
     {
-/*        p_Builder.RegisterType<UnitOfWork<TuuuurContext>>()
+        p_Builder.RegisterType<UnitOfWork<TuuuurContext>>()
                  .As<IUnitOfWork>()
-                 .InstancePerLifetimeScope();*/
+                 .InstancePerLifetimeScope();
         p_Builder.RegisterType<JwtFactory>()
                  .As<IJwtFactory>()
                  .InstancePerLifetimeScope();

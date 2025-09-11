@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity.Data;
 using Tuuuur.Domain.Bo;
-using System.Text.Json;
 
 namespace Tuuuur.API.Requests.Mapping
 {
@@ -14,7 +14,10 @@ namespace Tuuuur.API.Requests.Mapping
         /// </summary>
         public BodyRequestProfile()
         {
-            // Mapping here
+            CreateMap<RegisterRequest, User>()
+                .ForMember(p_Trg => p_Trg.Id, p_Opt => p_Opt.Ignore())
+                .ForMember(p_Trg => p_Trg.IsAdmin, p_Opt => p_Opt.Ignore())
+            .ReverseMap();
         }
     }
 }

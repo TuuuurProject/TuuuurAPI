@@ -59,6 +59,6 @@
     <Folder Include="dbo" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="dbo\User.sql" />
+    <Build Include="dbo\User_USR.sql" />
   </ItemGroup>
 </Project>

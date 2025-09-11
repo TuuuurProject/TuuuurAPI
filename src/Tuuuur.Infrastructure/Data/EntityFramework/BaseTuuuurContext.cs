@@ -26,15 +26,15 @@ public partial class BaseTuuuurContext : DbContext
                 .IsRequired()
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            entity.Property(e => e.Firstname)
+            entity.Property(e => e.FirstName)
                 .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
-            entity.Property(e => e.Lastname)
+            entity.Property(e => e.LastName)
                 .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
-            entity.Property(e => e.Nickname)
+            entity.Property(e => e.NickName)
                 .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
