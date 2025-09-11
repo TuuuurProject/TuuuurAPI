@@ -15,8 +15,8 @@
       <DataCollector friendlyName="XPlat Code Coverage">
         <Configuration>
           <Format>json,opencover,cobertura</Format>
-          <Exclude>.*\\[Bb]et[Dd]\.[Tt]ools\.[Ll]ocalization\.[^\\]*\.[Tt]ests$</Exclude>
-          <Include>.*\\[Bb]et[Dd]\.[Tt]ools\.[Ll]ocalization\.[^\\]*$</Include>
+          <Exclude>.*\\[Tt]uuuur\.[^\\]*\.[Tt]ests$</Exclude>
+          <Include>.*\\[Tt]uuuur\.[^\\]*$</Include>
           <!-- [Assembly-Filter]Type-Filter -->
           <!-- [Assembly-Filter]Type-Filter -->
           <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute, ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
@@ -52,13 +52,13 @@
             <!-- Match assembly file paths: -->
             <ModulePaths>
               <Include>
-                <ModulePath>.*\\[Bb]et[Dd]\.[Tt]ools\.[Ll]ocalization\.[^\\]*\.dll$</ModulePath>
-                <ModulePath>.*\\[Bb]et[Dd]\.[Tt]ools\.[Ll]ocalization\.[^\\]*\.exe$</ModulePath>
+                <ModulePath>.*\\[Tt]uuuur\.[^\\]*\.dll$</ModulePath>
+                <ModulePath>.*\\[Tt]uuuur\.[^\\]*\.exe$</ModulePath>
               </Include>
               <Exclude>
                 <ModulePath>.*CPPUnitTestFramework.*</ModulePath>
                 <ModulePath>.*Moq.*</ModulePath>
-                <ModulePath>.*\\[Bb]et[Dd]\.[Tt]ools\.[Ll]ocalization\.[^\\]*\.[Tt]ests\.dll$</ModulePath>
+                <ModulePath>.*\\[Tt]uuuur\.[^\\]*\.[Tt]ests\.dll$</ModulePath>
               </Exclude>
             </ModulePaths>
 

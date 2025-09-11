@@ -74,7 +74,7 @@ namespace Tuuuur.Core.Tests.UseCases.Authentication
 
             // Assert
             Assert.False(v_Result.Success);
-            Assert.Equal(new ErrorDto(DomainErrors.Authentication.Missmatch, "Invalid login and/or password"), v_Result.Errors.First());
+            Assert.Equal(new ErrorDto(DomainErrors.Authentication.Invalid, "Invalid login and/or password"), v_Result.Errors.First());
         }
 
         [Fact]
@@ -96,7 +96,7 @@ namespace Tuuuur.Core.Tests.UseCases.Authentication
 
             // Assert
             Assert.False(v_Result.Success);
-            Assert.Equal(new ErrorDto(DomainErrors.Authentication.Missmatch, "Invalid login and/or password"), v_Result.Errors.First());
+            Assert.Equal(new ErrorDto(DomainErrors.Authentication.Invalid, "Invalid login and/or password"), v_Result.Errors.First());
         }
     }
 }
