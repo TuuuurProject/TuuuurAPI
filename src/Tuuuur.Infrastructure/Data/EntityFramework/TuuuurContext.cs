@@ -6,8 +6,8 @@ public class TuuuurContext : BaseTuuuurContext
 {
     public const string ConnectionStringName = "Tuuuur";
 
-    public TuuuurContext(DbContextOptions<TuuuurContext> options)
-        : base(options)
+    public TuuuurContext(DbContextOptions<TuuuurContext> p_DbContextOptions)
+        : base(p_DbContextOptions)
     {
     }
 }
