@@ -1,0 +1,49 @@
+services:
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    environment:
+      ConnectionStrings__Tuuuur: "${DB_CONNECTION_STRING}"
+      JwtSettings__Key: "${JWT_KEY}"
+    ports:
+      - "7260:8080"
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      SA_PASSWORD: "${SA_PASSWORD}"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+
+  db-migrations:
+    image: mcr.microsoft.com/dotnet/sdk:8.0.414
+    depends_on:
+      - db
+    volumes:
+      - ./Database:/db
+    environment:
+      SA_PASSWORD: "${SA_PASSWORD}"
+    entrypoint: >
+      /bin/bash -c "
+        dotnet build /db/Database.sqlproj -c Release &&
+        dotnet tool install -g microsoft.sqlpackage &&
+        /root/.dotnet/tools/sqlpackage
+          /Action:Publish
+          /SourceFile:/db/bin/Release/Database.dacpac
+          /TargetServerName=db
+          /TargetDatabaseName=MyDb
+          /TargetUser:sa
+          /TargetPassword=$SA_PASSWORD
+          /p:TrustServerCertificate=true
+          /p:Encrypt=false
+      "
+
+volumes:
+  sql_data:

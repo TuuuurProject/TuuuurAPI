@@ -25,9 +25,9 @@ namespace Tuuuur.API;
 internal static class Program
 {
     private const string HealthUrl = "/health";
-    private static readonly string[] m_SqlServerTags = ["db", "sql", "sqlserver"];
-    private static readonly string[] m_DbContextCheckTags = ["ef", "dbcontext"];
-    private static readonly string[] m_ProcessAllocatedMemoryHealthCheckTags = ["allocatedmemory", "memory"];
+    private static readonly string[] m_SqlServerTags = new string[] { "db", "sql", "sqlserver" };
+    private static readonly string[] m_DbContextCheckTags = new string[] { "ef", "dbcontext" };
+    private static readonly string[] m_ProcessAllocatedMemoryHealthCheckTags = new string[] { "allocatedmemory", "memory" };
 
     [SuppressMessage("Style", "IDE1006:Styles d'affectation de noms", Justification = "Inherited named")]
     public static async Task Main(string[] p_Args)
@@ -185,9 +185,6 @@ internal static class Program
                 }
             );
         });
-
-        // Razor
-        v_Builder.Services.AddRazorTemplating();
 
         WebApplication v_App = v_Builder.Build();
 

@@ -9,6 +9,8 @@
 *.user
 *.userosscache
 *.sln.docstates
+.idea
+.env
 
 # macOS system files
 .DS_Store
