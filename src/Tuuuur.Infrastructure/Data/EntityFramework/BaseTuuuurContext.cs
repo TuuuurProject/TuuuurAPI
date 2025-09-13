@@ -7,10 +7,14 @@ namespace Tuuuur.Infrastructure.Data.EntityFramework;
 
 public partial class BaseTuuuurContext : DbContext
 {
-    public BaseTuuuurContext(DbContextOptions p_DbContextOptions)
-        : base(p_DbContextOptions)
+    public BaseTuuuurContext(DbContextOptions options)
+        : base(options)
     {
     }
+
+    public virtual DbSet<Difficulty_DFT> Difficulty_DFT { get; set; }
+
+    public virtual DbSet<PartyType_PTT> PartyType_PTT { get; set; }
 
     public virtual DbSet<Theme_THM> Theme_THM { get; set; }
 
@@ -18,6 +22,32 @@ public partial class BaseTuuuurContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Difficulty_DFT>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("Difficulty_DFT", "ref");
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Label)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<PartyType_PTT>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("PartyType_PTT", "ref");
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Label)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<Theme_THM>(entity =>
         {
             entity.Property(e => e.Label)

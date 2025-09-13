@@ -6,4 +6,10 @@
         <DSP>Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider</DSP>
         <ModelCollation>1033, CI</ModelCollation>
     </PropertyGroup>
+    <ItemGroup>
+      <PreDeploy Include="Script.PreDeployment.sql" />
+    </ItemGroup>
+    <ItemGroup>
+      <PostDeploy Include="Script.PostDeployment.sql" />
+    </ItemGroup>
 </Project>
