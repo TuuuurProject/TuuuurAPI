@@ -6,4 +6,8 @@
         <DSP>Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider</DSP>
         <ModelCollation>1033, CI</ModelCollation>
     </PropertyGroup>
+    <ItemGroup>
+        <Folder Include="dbo\" />
+        <Folder Include="ref\" />
+    </ItemGroup>
 </Project>
