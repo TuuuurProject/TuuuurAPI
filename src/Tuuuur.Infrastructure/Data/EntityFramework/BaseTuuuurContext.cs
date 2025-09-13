@@ -24,11 +24,8 @@ public partial class BaseTuuuurContext : DbContext
     {
         modelBuilder.Entity<Difficulty_DFT>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("Difficulty_DFT", "ref");
+            entity.ToTable("Difficulty_DFT", "ref");
 
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
             entity.Property(e => e.Label)
                 .IsRequired()
                 .HasMaxLength(50)
@@ -37,11 +34,8 @@ public partial class BaseTuuuurContext : DbContext
 
         modelBuilder.Entity<PartyType_PTT>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("PartyType_PTT", "ref");
+            entity.ToTable("PartyType_PTT", "ref");
 
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
             entity.Property(e => e.Label)
                 .IsRequired()
                 .HasMaxLength(50)
