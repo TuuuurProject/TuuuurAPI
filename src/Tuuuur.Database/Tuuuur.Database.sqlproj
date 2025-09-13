@@ -8,6 +8,5 @@
     </PropertyGroup>
     <ItemGroup>
         <Folder Include="dbo\" />
-        <Folder Include="ref\" />
     </ItemGroup>
 </Project>
