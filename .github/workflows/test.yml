@@ -30,15 +30,12 @@ jobs:
             $outputPath = Join-Path -Path "./TestResults" -ChildPath $projectName
             if (-Not (Test-Path $outputPath)) { New-Item -ItemType Directory -Path $outputPath }
 
-          dotnet test $_.FullName `
+          dotnet test `
             --configuration Release `
             --verbosity normal `
-            /p:CollectCoverage=true `
-            /p:CoverletOutputFormat=cobertura `
-            /p:CoverletOutput="$outputPath/coverage.xml" `
-            /p:DebugType=full `
-            /p:DebugSymbols=true
-          }
+            --collect:"XPlat Code Coverage" `
+            --results-directory TestResults `
+            /p:CoverletOutput="$outputPath/coverage.xml"
 
       - name: Check coverage files exist
         run: |
