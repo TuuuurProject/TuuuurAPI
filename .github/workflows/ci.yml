@@ -8,19 +8,19 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/templates/build.yml
+    uses: ./.github/workflows/build.yml
     with:
       configuration: Release
 
   test:
     needs: build
-    uses: ./.github/workflows/templates/test.yml
+    uses: ./.github/workflows/test.yml
     with:
       configuration: Release
 
   sonar:
     needs: test
-    uses: ./.github/workflows/templates/sonar.yml
+    uses: ./.github/workflows/sonar.yml
     with:
       projectKey: TuuuurAPI
     secrets:
