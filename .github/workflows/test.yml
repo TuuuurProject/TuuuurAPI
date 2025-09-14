@@ -11,7 +11,8 @@ jobs:
   test:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -20,14 +21,22 @@ jobs:
 
       - name: Run unit tests with coverage
         run: |
+          # Crée le dossier central pour les résultats
+          if (-Not (Test-Path "./TestResults")) { New-Item -ItemType Directory -Path "./TestResults" }
+
+          # Parcourt tous les projets *.Tests.csproj et lance les tests
           Get-ChildItem -Path tests -Recurse -Filter *.Tests.csproj | ForEach-Object {
+            $projectName = $_.BaseName
+            $outputPath = Join-Path -Path "./TestResults" -ChildPath $projectName
+            if (-Not (Test-Path $outputPath)) { New-Item -ItemType Directory -Path $outputPath }
+
             dotnet test $_.FullName `
               --configuration ${{ inputs.configuration }} `
               --no-build `
               --verbosity normal `
               /p:CollectCoverage=true `
               /p:CoverletOutputFormat=cobertura `
-              /p:CoverletOutput=TestResults/
+              /p:CoverletOutput="$outputPath/"
           }
 
       - name: Publish coverage report

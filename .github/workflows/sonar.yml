@@ -34,8 +34,12 @@ jobs:
             /d:sonar.token="${{ secrets.sonarToken }}" `
             /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/*.cobertura.xml"
 
+      - name: Restore NuGet packages
+        run: dotnet restore
+
       - name: Build for Sonar
         run: dotnet build --configuration Release --no-restore
 
       - name: End SonarQube analysis
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.sonarToken }}"
+
