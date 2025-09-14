@@ -48,27 +48,36 @@ jobs:
         run: dotnet tool install --global coverlet.console
 
       # ---------------------
-      # Build + Test + Coverage
+      # Build, Test and Collect Coverage
       # ---------------------
-      - name: Build and Test with Coverage
+      - name: Build, Test and Collect Coverage
         shell: powershell
         run: |
-          # Build solution
+          # List of test projects
+          $testProjects = @(
+              "tests/Tuuuur.Domain.Tests/Tuuuur.Domain.Tests.csproj",
+              "tests/Tuuuur.Core.Tests/Tuuuur.Core.Tests.csproj",
+              "tests/Tuuuur.Infrastructure.Tests/Tuuuur.Infrastructure.Tests.csproj",
+              "tests/Tuuuur.API.Tests/Tuuuur.API.Tests.csproj",
+              "tests/Tuuuur.Factory.Tests/Tuuuur.Factory.Tests.csproj"
+          )
+
+          # Clear previous results
+          if (Test-Path ./TestResults) { Remove-Item -Recurse -Force ./TestResults }
+          New-Item -ItemType Directory -Path ./TestResults
+
+          # Build the solution
           dotnet build Tuuuur.sln --configuration Release
 
-          # Ensure folder exists for coverage report
-          New-Item -ItemType Directory -Force -Path .\TestResults
-
-          # Run tests with coverage
-          dotnet test Tuuuur.sln `
-            --configuration Release `
-            /p:CollectCoverage=true `
-            /p:CoverletOutputFormat=cobertura `
-            /p:CoverletOutput=.\TestResults\coverage.cobertura.xml
-
-          # Debug: list coverage files
-          Write-Host "Coverage files in TestResults:"
-          dir .\TestResults\
+          # Run tests and collect coverage per project
+          foreach ($proj in $testProjects) {
+              $projName = Split-Path $proj -Leaf
+              dotnet test $proj `
+                --configuration Release `
+                /p:CollectCoverage=true `
+                /p:CoverletOutputFormat=cobertura `
+                /p:CoverletOutput="./TestResults/$projName.xml"
+          )
 
       # ---------------------
       # SonarQube PR Analysis
