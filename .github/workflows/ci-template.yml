@@ -80,12 +80,11 @@ jobs:
           $scannerArgs = @(
               "/k:$projectKey"
               "/d:sonar.host.url=$sonarHost"
-              "/d:sonar.login=$sonarToken"
+              "/d:sonar.token=$sonarToken"
               "/d:sonar.cs.opencover.reportsPaths=.\TestResults\*.opencover.xml"
           )
 
           if ($prKey) {
-              Write-Host "Analyzing PR $prKey"
               $scannerArgs += "/d:sonar.pullrequest.key=$prKey"
               $scannerArgs += "/d:sonar.pullrequest.branch=$prBranch"
               $scannerArgs += "/d:sonar.pullrequest.base=$prBase"
@@ -94,11 +93,11 @@ jobs:
           # Begin analysis
           & ".\.sonar\scanner\dotnet-sonarscanner" begin $scannerArgs
 
-          # Build solution (tests already run)
+          # Build solution
           dotnet build Tuuuur.sln --configuration Release
 
           # End analysis
-          & ".\.sonar\scanner\dotnet-sonarscanner" end /d:sonar.login=$sonarToken
+          & ".\.sonar\scanner\dotnet-sonarscanner" end /d:sonar.token=$sonarToken
 
       - name: Check SonarQube Quality Gate
         shell: powershell
