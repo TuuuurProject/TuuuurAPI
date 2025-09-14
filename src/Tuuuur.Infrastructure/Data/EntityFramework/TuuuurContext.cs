@@ -2,12 +2,8 @@
 
 namespace Tuuuur.Infrastructure.Data.EntityFramework;
 
-public class TuuuurContext : BaseTuuuurContext
+public class TuuuurContext(DbContextOptions<TuuuurContext> p_DbContextOptions) 
+    : BaseTuuuurContext(p_DbContextOptions)
 {
     public const string ConnectionStringName = "Tuuuur";
-
-    public TuuuurContext(DbContextOptions<TuuuurContext> options)
-        : base(options)
-    {
-    }
 }
