@@ -23,6 +23,6 @@ jobs:
     uses: ./.github/workflows/templates/sonar.yml
     with:
       projectKey: TuuuurAPI
-      sonarHost: ${{ secrets.SONAR_HOST_URL }}
     secrets:
       sonarToken: ${{ secrets.SONAR_TOKEN }}
+      sonarHost: ${{ secrets.SONAR_HOST_URL }}

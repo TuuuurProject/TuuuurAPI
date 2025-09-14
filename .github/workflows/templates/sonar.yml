@@ -6,11 +6,10 @@ on:
       projectKey:
         required: true
         type: string
-      sonarHost:
-        required: true
-        type: string
     secrets:
       sonarToken:
+        required: true
+      sonarHost:
         required: true
 
 jobs:
