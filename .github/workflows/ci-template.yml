@@ -41,16 +41,10 @@ jobs:
           dotnet-version: '8.0.414'
 
       # ---------------------
-      # Restore, Build, Test
+      # Restore + Build + Test
       # ---------------------
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Build
-        run: dotnet build --no-restore --configuration Release
-
-      - name: Run Tests
-        run: dotnet test --no-build --verbosity normal
+      - name: Restore, Build and Test
+        run: dotnet test Tuuuur.sln --configuration Release --verbosity normal
 
       # ---------------------
       # SonarQube Analysis
@@ -70,8 +64,8 @@ jobs:
             Write-Host "Analyse PR $prKey"
             .\.sonar\scanner\dotnet-sonarscanner begin `
               /k:"${{ inputs.project-key }}" `
-              /d:sonar.login="${{ inputs.sonar-token }}" `
-              /d:sonar.host.url="${{ inputs.sonar-host }}" `
+              /d:sonar.login="${{ secrets.sonar-token }}" `
+              /d:sonar.host.url="${{ secrets.sonar-host }}" `
               /d:sonar.pullrequest.key=$prKey `
               /d:sonar.pullrequest.branch=$prBranch `
               /d:sonar.pullrequest.base=$prBase
@@ -79,22 +73,22 @@ jobs:
             Write-Host "Analyse sur develop"
             .\.sonar\scanner\dotnet-sonarscanner begin `
               /k:"${{ inputs.project-key }}" `
-              /d:sonar.login="${{ inputs.sonar-token }}" `
-              /d:sonar.host.url="${{ inputs.sonar-host }}"
+              /d:sonar.login="${{ secrets.sonar-token }}" `
+              /d:sonar.host.url="${{ secrets.sonar-host }}"
           }
 
-          dotnet build
-          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ inputs.sonar-token }}"
+          dotnet test Tuuuur.sln --configuration Release --verbosity normal
+          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.sonar-token }}"
 
       # ---------------------
-      # Quality Gate Check (auto-hébergé)
+      # Quality Gate Check
       # ---------------------
       - name: Check SonarQube Quality Gate
         shell: powershell
         run: |
           $projectKey = "${{ inputs.project-key }}"
-          $sonarHost = "${{ inputs.sonar-host }}"
-          $sonarToken = "${{ inputs.sonar-token }}"
+          $sonarHost = "${{ secrets.sonar-host }}"
+          $sonarToken = "${{ secrets.sonar-token }}"
 
           $analysisUrl = "$sonarHost/api/project_analyses/search?project=$projectKey"
           $analysis = Invoke-RestMethod -Uri $analysisUrl -Headers @{Authorization = "Basic " + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("$sonarToken:"))}
