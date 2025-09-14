@@ -17,3 +17,4 @@ jobs:
         with:
           sonar-token: ${{ secrets.SONAR_TOKEN }}
           sonar-host: ${{ secrets.SONAR_HOST_URL }}
+          project-key: "TuuuurAPI"

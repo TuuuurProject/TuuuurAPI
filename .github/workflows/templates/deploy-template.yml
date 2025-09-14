@@ -1,6 +1,5 @@
 name: Deploy Template
-
-description: "Template pour déploiement (Release ou Production)"
+description: "Template pour déploiement Release ou Production"
 
 inputs:
   deploy-environment:
@@ -10,9 +9,7 @@ runs:
   using: "composite"
   steps:
     - uses: actions/checkout@v4
-
     - name: Deploy
       run: |
         echo "Déploiement sur l'environnement ${{ inputs.deploy-environment }}"
-        # Ici tu mets ton script de déploiement, ex:
-        # ./scripts/deploy.sh ${{ inputs.deploy-environment }}
+        # Remplacer par tes scripts réels, ex: ./scripts/deploy.sh ${{ inputs.deploy-environment }}
