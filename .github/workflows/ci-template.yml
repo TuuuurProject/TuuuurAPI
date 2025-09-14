@@ -56,14 +56,17 @@ jobs:
           # Build solution
           dotnet build Tuuuur.sln --configuration Release
 
-          # Run tests and generate Cobertura coverage
+          # Ensure folder exists for coverage report
+          New-Item -ItemType Directory -Force -Path .\TestResults
+
+          # Run tests with coverage
           dotnet test Tuuuur.sln `
             --configuration Release `
             /p:CollectCoverage=true `
             /p:CoverletOutputFormat=cobertura `
             /p:CoverletOutput=.\TestResults\coverage.cobertura.xml
 
-          # Debug: check that coverage file exists
+          # Debug: list coverage files
           Write-Host "Coverage files in TestResults:"
           dir .\TestResults\
 
