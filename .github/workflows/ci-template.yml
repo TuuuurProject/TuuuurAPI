@@ -16,6 +16,7 @@ jobs:
   ci:
     name: Build + Tests + SonarQube
     runs-on: windows-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,56 +29,56 @@ jobs:
           java-version: 17
           distribution: 'zulu'
 
-      - name: Setup .NET 8
+      - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.414'
 
-      - name: Restore NuGet packages
-        run: dotnet restore Tuuuur.sln
+      - name: Install Coverlet
+        run: dotnet tool install --global coverlet.console
 
-      - name: Build solution
-        run: |
-          Write-Host "Building solution..."
-          dotnet build Tuuuur.sln --configuration Release
-
-      - name: Run tests and collect coverage
+      - name: Build solution and run tests with coverage
         shell: powershell
         run: |
-          Write-Host "Running tests and collecting coverage..."
+          Write-Host "--------------------"
+          Write-Host "Building solution and running tests with coverage"
+          Write-Host "--------------------"
+
+          $testProjects = @(
+              "tests/Tuuuur.Domain.Tests/Tuuuur.Domain.Tests.csproj",
+              "tests/Tuuuur.Core.Tests/Tuuuur.Core.Tests.csproj",
+              "tests/Tuuuur.Infrastructure.Tests/Tuuuur.Infrastructure.Tests.csproj",
+              "tests/Tuuuur.API.Tests/Tuuuur.API.Tests.csproj",
+              "tests/Tuuuur.Factory.Tests/Tuuuur.Factory.Tests.csproj"
+          )
+
           if (Test-Path ./TestResults) { Remove-Item -Recurse -Force ./TestResults }
           New-Item -ItemType Directory -Path ./TestResults
 
-          $testProjects = @(
-            "tests/Tuuuur.Domain.Tests/Tuuuur.Domain.Tests.csproj",
-            "tests/Tuuuur.Core.Tests/Tuuuur.Core.Tests.csproj",
-            "tests/Tuuuur.Infrastructure.Tests/Tuuuur.Infrastructure.Tests.csproj",
-            "tests/Tuuuur.API.Tests/Tuuuur.API.Tests.csproj",
-            "tests/Tuuuur.Factory.Tests/Tuuuur.Factory.Tests.csproj"
-          )
+          Write-Host "Building solution..."
+          dotnet build Tuuuur.sln --configuration Release
 
+          Write-Host "Running tests and collecting coverage..."
           foreach ($proj in $testProjects) {
-            $projName = (Split-Path $proj -Leaf).Replace(".csproj","")
-            Write-Host "Running tests for $projName"
-            dotnet test $proj `
-              --configuration Release `
-              --collect:"XPlat Code Coverage" `
-              --results-directory ./TestResults `
-              /p:CoverletOutput="./TestResults/$projName.opencover.xml" `
-              /p:CoverletOutputFormat=opencover
+              $projName = (Split-Path $proj -Leaf).Replace(".csproj","")
+              Write-Host "Running tests for $projName..."
+              dotnet test $proj `
+                --configuration Release `
+                /p:CollectCoverage=true `
+                /p:CoverletOutputFormat=opencover `
+                /p:CoverletOutput="./TestResults/$projName.opencover.xml"
           }
 
-      - name: Install SonarScanner
-        shell: powershell
-        run: |
-          $scannerPath = ".\.sonar\scanner"
-          Write-Host "Installing SonarScanner to $scannerPath"
-          New-Item -Path $scannerPath -ItemType Directory -Force
-          dotnet tool update dotnet-sonarscanner --tool-path $scannerPath
+          Write-Host "Test Results and Coverage files:"
+          Get-ChildItem ./TestResults
 
       - name: SonarQube Analysis
         shell: powershell
         run: |
+          Write-Host "--------------------"
+          Write-Host "Preparing SonarScanner for project ${{ inputs.project-key }}"
+          Write-Host "--------------------"
+
           $projectKey = "${{ inputs.project-key }}"
           $sonarToken = "${{ secrets.sonar-token }}"
           $sonarHost = "${{ secrets.sonar-host }}"
@@ -86,42 +87,50 @@ jobs:
           $prBranch = "${{ github.head_ref }}"
           $prBase = "${{ github.base_ref }}"
 
-          Write-Host "Preparing SonarScanner for project $projectKey"
+          # Install scanner locally
+          $scannerPath = ".\.sonar\scanner"
+          New-Item -Path $scannerPath -ItemType Directory -Force
+          dotnet tool update dotnet-sonarscanner --tool-path $scannerPath
 
+          # Build scanner arguments
           $scannerArgs = @(
               "/k:$projectKey"
               "/d:sonar.host.url=$sonarHost"
               "/d:sonar.token=$sonarToken"
-              "/d:sonar.cs.opencover.reportsPaths=.\TestResults\**\*.opencover.xml"
+              "/d:sonar.cs.opencover.reportsPaths=.\TestResults\*.opencover.xml"
           )
 
           if ($prKey) {
-              Write-Host "Detected PR $prKey -> Adding PR parameters"
+              Write-Host "Detected Pull Request -> Key: $prKey, Branch: $prBranch, Base: $prBase"
               $scannerArgs += "/d:sonar.pullrequest.key=$prKey"
               $scannerArgs += "/d:sonar.pullrequest.branch=$prBranch"
               $scannerArgs += "/d:sonar.pullrequest.base=$prBase"
           }
 
           Write-Host "Starting SonarScanner begin..."
-          & "$scannerPath\dotnet-sonarscanner" begin $scannerArgs
+          & "$scannerPath\dotnet-sonarscanner.exe" begin $scannerArgs
 
-          Write-Host "Building solution for SonarScanner..."
+          Write-Host "Rebuilding solution for SonarQube..."
           dotnet build Tuuuur.sln --configuration Release
 
-          Write-Host "Ending SonarScanner analysis..."
-          & "$scannerPath\dotnet-sonarscanner" end /d:sonar.token=$sonarToken
+          Write-Host "Finishing SonarScanner end..."
+          & "$scannerPath\dotnet-sonarscanner.exe" end /d:sonar.token=$sonarToken
 
       - name: Check SonarQube Quality Gate
         shell: powershell
         run: |
+          Write-Host "--------------------"
+          Write-Host "Checking SonarQube Quality Gate"
+          Write-Host "--------------------"
+
           $projectKey = "${{ inputs.project-key }}"
           $sonarToken = "${{ secrets.sonar-token }}"
           $sonarHost = "${{ secrets.sonar-host }}"
           $headers = @{ Authorization = "Bearer $sonarToken" }
 
-          Write-Host "Fetching latest analysis for $projectKey"
           $analysisUrl = "$sonarHost/api/project_analyses/search?project=$projectKey"
           $analysis = Invoke-RestMethod -Uri $analysisUrl -Headers $headers
+
           if (-not $analysis.analyses -or $analysis.analyses.Count -eq 0) {
               Write-Error "No analyses found for project $projectKey."
               exit 1
