@@ -20,12 +20,12 @@ jobs:
 
       - name: Run unit tests with coverage
         run: |
-          dotnet test tests/*.Tests/*.csproj \
-            --configuration ${{ inputs.configuration }} \
-            --no-build --verbosity normal \
-            --collect:"XPlat Code Coverage" \
-            /p:CollectCoverage=true \
-            /p:CoverletOutputFormat=cobertura \
+          dotnet test tests/*.Tests/*.csproj `
+            --configuration ${{ inputs.configuration }} `
+            --no-build --verbosity normal `
+            --collect:"XPlat Code Coverage" `
+            /p:CollectCoverage=true `
+            /p:CoverletOutputFormat=cobertura `
             /p:CoverletOutput=TestResults/
 
       - name: Publish coverage report
