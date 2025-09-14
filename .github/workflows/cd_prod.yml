@@ -7,6 +7,6 @@ on:
 
 jobs:
   deploy_prod:
-    uses: ./.github/workflows/templates/deploy-template.yml
+    uses: ./.github/workflows/deploy-template.yml
     with:
       deploy-environment: "production"

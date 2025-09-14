@@ -7,6 +7,6 @@ on:
 
 jobs:
   deploy_release:
-    uses: ./.github/workflows/templates/deploy-template.yml
+    uses: ./.github/workflows/deploy-template.yml
     with:
       deploy-environment: "staging"
