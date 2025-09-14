@@ -26,17 +26,17 @@ jobs:
 
           # Parcourt tous les projets *.Tests.csproj et lance les tests
           Get-ChildItem -Path tests -Recurse -Filter *.Tests.csproj | ForEach-Object {
-              $projectName = $_.BaseName
-              $outputPath = Join-Path -Path "./TestResults" -ChildPath $projectName
-              if (-Not (Test-Path $outputPath)) { New-Item -ItemType Directory -Path $outputPath }
+            $projectName = $_.BaseName
+            $outputPath = Join-Path -Path "./TestResults" -ChildPath $projectName
+            if (-Not (Test-Path $outputPath)) { New-Item -ItemType Directory -Path $outputPath }
 
-            dotnet test `
+            dotnet test $_.FullName `
               --configuration Release `
               --verbosity normal `
               --collect:"XPlat Code Coverage" `
               --results-directory TestResults `
               /p:CoverletOutput="$outputPath/coverage.xml"
-
+          }
       - name: Check coverage files exist
         run: |
           $files = Get-ChildItem -Path TestResults -Recurse -Filter *.cobertura.xml
