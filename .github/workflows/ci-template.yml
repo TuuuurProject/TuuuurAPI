@@ -119,7 +119,7 @@ jobs:
           Write-Host "===================="
           Write-Host "🚀 Starting SonarScanner begin"
           Write-Host "===================="
-          & "$scannerPath\dotnet-sonarscanner.exe" begin $scannerArgs
+          & "$scannerPath/dotnet-sonarscanner.exe" begin $scannerArgs
 
           Write-Host "===================="
           Write-Host "🔨 Building solution"
@@ -129,7 +129,7 @@ jobs:
           Write-Host "===================="
           Write-Host "✅ Finishing SonarScanner analysis"
           Write-Host "===================="
-          & "$scannerPath\dotnet-sonarscanner.exe" end /d:sonar.token=$sonarToken
+          & "$scannerPath/dotnet-sonarscanner.exe" end /d:sonar.token=$sonarToken
 
 
       - name: Check SonarQube Quality Gate
