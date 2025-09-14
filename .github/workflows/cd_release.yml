@@ -1,0 +1,14 @@
+name: CD Release
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  deploy_release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/workflows/templates/deploy-template.yml
+        with:
+          deploy-environment: "staging"

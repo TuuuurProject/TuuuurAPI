@@ -1,0 +1,110 @@
+name: CI Template
+description: "Template pour build, test, SonarQube PR et Quality Gate (auto-hébergé)"
+
+inputs:
+  sonar-token:
+    required: true
+  sonar-host:
+    required: true
+  project-key:
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    # ---------------------
+    # Checkout
+    # ---------------------
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # ---------------------
+    # Setup JDK
+    # ---------------------
+    - name: Setup JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: 17
+        distribution: 'zulu'
+
+    # ---------------------
+    # Setup .NET
+    # ---------------------
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.414'
+
+    # ---------------------
+    # Restore, Build, Test
+    # ---------------------
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+
+    - name: Run Tests
+      run: dotnet test --no-build --verbosity normal
+
+    # ---------------------
+    # SonarQube Analysis
+    # ---------------------
+    - name: SonarQube PR Analysis
+      shell: powershell
+      run: |
+        $prKey = "${{ github.event.pull_request.number }}"
+        $prBranch = "${{ github.head_ref }}"
+        $prBase = "${{ github.base_ref }}"
+
+        # Crée le dossier du scanner si nécessaire
+        New-Item -Path .\.sonar\scanner -ItemType Directory -Force
+        dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+
+        if ($prKey) {
+          Write-Host "Analyse PR $prKey"
+          .\.sonar\scanner\dotnet-sonarscanner begin `
+            /k:"${{ inputs.project-key }}" `
+            /d:sonar.login="${{ inputs.sonar-token }}" `
+            /d:sonar.host.url="${{ inputs.sonar-host }}" `
+            /d:sonar.pullrequest.key=$prKey `
+            /d:sonar.pullrequest.branch=$prBranch `
+            /d:sonar.pullrequest.base=$prBase
+        } else {
+          Write-Host "Analyse sur develop"
+          .\.sonar\scanner\dotnet-sonarscanner begin `
+            /k:"${{ inputs.project-key }}" `
+            /d:sonar.login="${{ inputs.sonar-token }}" `
+            /d:sonar.host.url="${{ inputs.sonar-host }}"
+        }
+
+        dotnet build
+        .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ inputs.sonar-token }}"
+
+    # ---------------------
+    # Quality Gate Check (auto-hébergé)
+    # ---------------------
+    - name: Check SonarQube Quality Gate
+      shell: powershell
+      run: |
+        $projectKey = "${{ inputs.project-key }}"
+        $sonarHost = "${{ inputs.sonar-host }}"
+        $sonarToken = "${{ inputs.sonar-token }}"
+
+        # On récupère l'analyse la plus récente
+        $analysisUrl = "$sonarHost/api/project_analyses/search?project=$projectKey"
+        $analysis = Invoke-RestMethod -Uri $analysisUrl -Headers @{Authorization = "Basic " + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("$sonarToken:"))}
+
+        $lastAnalysisKey = $analysis.analyses[0].key
+
+        # On récupère le status du Quality Gate
+        $qgUrl = "$sonarHost/api/qualitygates/project_status?analysisId=$lastAnalysisKey"
+        $qg = Invoke-RestMethod -Uri $qgUrl -Headers @{Authorization = "Basic " + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("$sonarToken:"))}
+
+        Write-Host "Quality Gate Status: $($qg.projectStatus.status)"
+
+        if ($qg.projectStatus.status -ne "OK") {
+            Write-Error "Quality Gate failed. PR blocked."
+            exit 1
+        }
