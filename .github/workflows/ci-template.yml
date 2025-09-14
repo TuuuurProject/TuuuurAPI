@@ -75,9 +75,9 @@ jobs:
       - name: SonarQube Analysis
         shell: powershell
         run: |
-          Write-Host "--------------------"
-          Write-Host "Preparing SonarScanner for project ${{ inputs.project-key }}"
-          Write-Host "--------------------"
+          Write-Host "===================="
+          Write-Host "🔑 Preparing SonarScanner for project"
+          Write-Host "===================="
 
           $projectKey = "${{ inputs.project-key }}"
           $sonarToken = "${{ secrets.sonar-token }}"
@@ -89,32 +89,48 @@ jobs:
 
           # Install scanner locally
           $scannerPath = ".\.sonar\scanner"
-          New-Item -Path $scannerPath -ItemType Directory -Force
+          New-Item -Path $scannerPath -ItemType Directory -Force | Out-Null
           dotnet tool update dotnet-sonarscanner --tool-path $scannerPath
+
+          Write-Host "✅ SonarScanner installed at $scannerPath"
 
           # Build scanner arguments
           $scannerArgs = @(
               "/k:$projectKey"
               "/d:sonar.host.url=$sonarHost"
               "/d:sonar.token=$sonarToken"
-              "/d:sonar.cs.opencover.reportsPaths=.\TestResults\*.opencover.xml"
+              "/d:sonar.cs.opencover.reportsPaths=TestResults/*.opencover.xml"
           )
 
           if ($prKey) {
-              Write-Host "Detected Pull Request -> Key: $prKey, Branch: $prBranch, Base: $prBase"
+              Write-Host "➡️ Running in Pull Request mode"
               $scannerArgs += "/d:sonar.pullrequest.key=$prKey"
               $scannerArgs += "/d:sonar.pullrequest.branch=$prBranch"
               $scannerArgs += "/d:sonar.pullrequest.base=$prBase"
+          } else {
+              Write-Host "➡️ Running in Branch/Commit mode"
           }
 
-          Write-Host "Starting SonarScanner begin..."
+          Write-Host "===================="
+          Write-Host "📂 Checking coverage files before analysis"
+          Write-Host "===================="
+          Get-ChildItem -Recurse ./TestResults | ForEach-Object { Write-Host $_.FullName }
+
+          Write-Host "===================="
+          Write-Host "🚀 Starting SonarScanner begin"
+          Write-Host "===================="
           & "$scannerPath\dotnet-sonarscanner.exe" begin $scannerArgs
 
-          Write-Host "Rebuilding solution for SonarQube..."
+          Write-Host "===================="
+          Write-Host "🔨 Building solution"
+          Write-Host "===================="
           dotnet build Tuuuur.sln --configuration Release
 
-          Write-Host "Finishing SonarScanner end..."
+          Write-Host "===================="
+          Write-Host "✅ Finishing SonarScanner analysis"
+          Write-Host "===================="
           & "$scannerPath\dotnet-sonarscanner.exe" end /d:sonar.token=$sonarToken
+
 
       - name: Check SonarQube Quality Gate
         shell: powershell
