@@ -21,13 +21,15 @@ jobs:
       - name: Run unit tests with coverage
         run: |
           Get-ChildItem -Path tests -Recurse -Filter *.Tests.csproj | ForEach-Object {
-            dotnet test $_.FullName --configuration ${{ inputs.configuration }} 
-            --no-build 
-            --verbosity normal 
-            /p:CollectCoverage=true 
-            /p:CoverletOutputFormat=cobertura 
-            /p:CoverletOutput=TestResults/
+            dotnet test $_.FullName `
+              --configuration ${{ inputs.configuration }} `
+              --no-build `
+              --verbosity normal `
+              /p:CollectCoverage=true `
+              /p:CoverletOutputFormat=cobertura `
+              /p:CoverletOutput=TestResults/
           }
+
       - name: Publish coverage report
         uses: actions/upload-artifact@v4
         with:
