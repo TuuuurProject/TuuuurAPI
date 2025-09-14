@@ -9,9 +9,9 @@ on:
       sonarHost:
         required: true
         type: string
+    secrets:
       sonarToken:
         required: true
-        type: string
 
 jobs:
   sonar:
@@ -32,11 +32,11 @@ jobs:
           dotnet sonarscanner begin \
             /k:"${{ inputs.projectKey }}" \
             /d:sonar.host.url="${{ inputs.sonarHost }}" \
-            /d:sonar.token="${{ inputs.sonarToken }}" \
+            /d:sonar.token="${{ secrets.sonarToken }}" \
             /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/*.cobertura.xml"
 
       - name: Build for Sonar
         run: dotnet build --configuration Release --no-restore
 
       - name: End SonarQube analysis
-        run: dotnet sonarscanner end /d:sonar.token="${{ inputs.sonarToken }}"
+        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.sonarToken }}"
