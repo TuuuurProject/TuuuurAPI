@@ -12,6 +12,9 @@ jobs:
     with:
       configuration: Release
 
+
+      
+
   test:
     needs: build
     uses: ./.github/workflows/test.yml
