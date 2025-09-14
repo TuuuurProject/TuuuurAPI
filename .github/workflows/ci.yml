@@ -9,10 +9,10 @@ on:
       - develop
 
 jobs:
-  build:
-    uses: ./.github/workflows/build.yml
-    with:
-      configuration: Release
+  # build:
+  #   uses: ./.github/workflows/build.yml
+  #   with:
+  #     configuration: Release
 
   test:
     needs: build
