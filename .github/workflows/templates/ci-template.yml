@@ -2,15 +2,14 @@ name: CI Template
 on:
   workflow_call:
     inputs:
-      sonar-token:
-        required: true
-        type: string
-      sonar-host:
-        required: true
-        type: string
       project-key:
         required: true
         type: string
+    secrets:
+      sonar-token:
+        required: true
+      sonar-host:
+        required: true
 
 jobs:
   ci:
