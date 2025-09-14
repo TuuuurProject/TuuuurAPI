@@ -71,12 +71,12 @@ jobs:
 
           # Run tests and collect coverage per project
           foreach ($proj in $testProjects) {
-              $projName = Split-Path $proj -Leaf
+              $projName = (Split-Path $proj -Leaf).Replace(".csproj","")
               dotnet test $proj `
                 --configuration Release `
                 /p:CollectCoverage=true `
-                /p:CoverletOutputFormat=cobertura `
-                /p:CoverletOutput="./TestResults/$projName.xml"
+                /p:CoverletOutputFormat=opencover `
+                /p:CoverletOutput="./TestResults/$projName.opencover.xml"
           }
 
       # ---------------------
