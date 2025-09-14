@@ -78,26 +78,27 @@ jobs:
 
           # Build scanner arguments
           $scannerArgs = @(
-            "/k:$projectKey"
-            "/d:sonar.host.url=$sonarHost"
-            "/d:sonar.login=$sonarToken"
-            "/d:sonar.cs.opencover.reportsPaths=.\TestResults\*.opencover.xml"
+              "/k:$projectKey"
+              "/d:sonar.host.url=$sonarHost"
+              "/d:sonar.login=$sonarToken"
+              "/d:sonar.cs.opencover.reportsPaths=.\TestResults\*.opencover.xml"
           )
 
           if ($prKey) {
-            $scannerArgs += "/d:sonar.pullrequest.key=$prKey"
-            $scannerArgs += "/d:sonar.pullrequest.branch=$prBranch"
-            $scannerArgs += "/d:sonar.pullrequest.base=$prBase"
+              Write-Host "Analyzing PR $prKey"
+              $scannerArgs += "/d:sonar.pullrequest.key=$prKey"
+              $scannerArgs += "/d:sonar.pullrequest.branch=$prBranch"
+              $scannerArgs += "/d:sonar.pullrequest.base=$prBase"
           }
 
-          # Begin SonarQube analysis
-          & "$scannerPath\dotnet-sonarscanner" begin $scannerArgs
+          # Begin analysis
+          & ".\.sonar\scanner\dotnet-sonarscanner" begin $scannerArgs
 
           # Build solution (tests already run)
           dotnet build Tuuuur.sln --configuration Release
 
-          # End SonarQube analysis
-          & "$scannerPath\dotnet-sonarscanner" end /d:sonar.login=$sonarToken
+          # End analysis
+          & ".\.sonar\scanner\dotnet-sonarscanner" end /d:sonar.login=$sonarToken
 
       - name: Check SonarQube Quality Gate
         shell: powershell
