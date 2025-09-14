@@ -32,7 +32,7 @@ jobs:
             /k:"${{ inputs.projectKey }}" `
             /d:sonar.host.url="${{ secrets.sonarHost }}" `
             /d:sonar.token="${{ secrets.sonarToken }}" `
-            /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/*.cobertura.xml"
+            /d:sonar.cs.opencover.reportsPaths="TestResults/**/*.cobertura.xml"
 
       - name: Restore NuGet packages
         run: dotnet restore
