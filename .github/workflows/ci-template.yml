@@ -41,13 +41,29 @@ jobs:
           dotnet-version: '8.0.414'
 
       # ---------------------
-      # Restore + Build + Test
+      # Install Coverlet (pour coverage)
       # ---------------------
-      - name: Restore, Build and Test
-        run: dotnet test Tuuuur.sln --configuration Release --verbosity normal
+      - name: Install Coverlet
+        run: dotnet tool install --global coverlet.console
 
       # ---------------------
-      # SonarQube Analysis
+      # Build + Test + Coverage
+      # ---------------------
+      - name: Build, Test and Collect Coverage
+        shell: powershell
+        run: |
+          # Build
+          dotnet build Tuuuur.sln --configuration Release
+
+          # Test avec couverture Cobertura
+          dotnet test Tuuuur.sln `
+            --configuration Release `
+            /p:CollectCoverage=true `
+            /p:CoverletOutputFormat=cobertura `
+            /p:CoverletOutput=./TestResults/coverage.xml
+
+      # ---------------------
+      # SonarQube PR Analysis
       # ---------------------
       - name: SonarQube PR Analysis
         shell: powershell
@@ -64,21 +80,26 @@ jobs:
             Write-Host "Analyse PR $prKey"
             .\.sonar\scanner\dotnet-sonarscanner begin `
               /k:"${{ inputs.project-key }}" `
-              /d:sonar.login="${{ secrets.sonar-token }}" `
+              /d:sonar.token="${{ secrets.sonar-token }}" `
               /d:sonar.host.url="${{ secrets.sonar-host }}" `
               /d:sonar.pullrequest.key=$prKey `
               /d:sonar.pullrequest.branch=$prBranch `
-              /d:sonar.pullrequest.base=$prBase
+              /d:sonar.pullrequest.base=$prBase `
+              /d:sonar.cs.opencover.reportsPaths="./TestResults/coverage.xml"
           } else {
             Write-Host "Analyse sur develop"
             .\.sonar\scanner\dotnet-sonarscanner begin `
               /k:"${{ inputs.project-key }}" `
-              /d:sonar.login="${{ secrets.sonar-token }}" `
-              /d:sonar.host.url="${{ secrets.sonar-host }}"
+              /d:sonar.token="${{ secrets.sonar-token }}" `
+              /d:sonar.host.url="${{ secrets.sonar-host }}" `
+              /d:sonar.cs.opencover.reportsPaths="./TestResults/coverage.xml"
           }
 
-          dotnet test Tuuuur.sln --configuration Release --verbosity normal
-          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.sonar-token }}"
+          # Build + Test pour SonarQube
+          dotnet test Tuuuur.sln --configuration Release
+
+          # End SonarQube
+          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.sonar-token }}"
 
       # ---------------------
       # Quality Gate Check
@@ -90,12 +111,16 @@ jobs:
           $sonarHost = "${{ secrets.sonar-host }}"
           $sonarToken = "${{ secrets.sonar-token }}"
 
+          # Auth header avec correction PowerShell
+          $authHeader = "Basic " + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("${sonarToken}:"))
+
+          # Récupération de la dernière analyse
           $analysisUrl = "$sonarHost/api/project_analyses/search?project=$projectKey"
-          $analysis = Invoke-RestMethod -Uri $analysisUrl -Headers @{Authorization = "Basic " + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("$sonarToken:"))}
+          $analysis = Invoke-RestMethod -Uri $analysisUrl -Headers @{Authorization = $authHeader}
 
           $lastAnalysisKey = $analysis.analyses[0].key
           $qgUrl = "$sonarHost/api/qualitygates/project_status?analysisId=$lastAnalysisKey"
-          $qg = Invoke-RestMethod -Uri $qgUrl -Headers @{Authorization = "Basic " + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("$sonarToken:"))}
+          $qg = Invoke-RestMethod -Uri $qgUrl -Headers @{Authorization = $authHeader}
 
           Write-Host "Quality Gate Status: $($qg.projectStatus.status)"
 
