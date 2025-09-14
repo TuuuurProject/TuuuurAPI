@@ -1,4 +1,5 @@
 name: CI Template
+
 on:
   workflow_call:
     inputs:
@@ -41,7 +42,7 @@ jobs:
           dotnet-version: '8.0.414'
 
       # ---------------------
-      # Install Coverlet (pour coverage)
+      # Install Coverlet for coverage
       # ---------------------
       - name: Install Coverlet
         run: dotnet tool install --global coverlet.console
@@ -49,18 +50,22 @@ jobs:
       # ---------------------
       # Build + Test + Coverage
       # ---------------------
-      - name: Build, Test and Collect Coverage
+      - name: Build and Test with Coverage
         shell: powershell
         run: |
-          # Build
+          # Build solution
           dotnet build Tuuuur.sln --configuration Release
 
-          # Run tests and generate coverage in Cobertura format
+          # Run tests and generate Cobertura coverage
           dotnet test Tuuuur.sln `
             --configuration Release `
             /p:CollectCoverage=true `
             /p:CoverletOutputFormat=cobertura `
-            /p:CoverletOutput=.\TestResults\coverage.xml
+            /p:CoverletOutput=.\TestResults\coverage.cobertura.xml
+
+          # Debug: check that coverage file exists
+          Write-Host "Coverage files in TestResults:"
+          dir .\TestResults\
 
       # ---------------------
       # SonarQube PR Analysis
@@ -72,16 +77,20 @@ jobs:
           $prBranch = "${{ github.head_ref }}"
           $prBase = "${{ github.base_ref }}"
 
-          # Installer le scanner si nécessaire
+          $projectKey = "${{ inputs.project-key }}"
+          $sonarToken = "${{ secrets.sonar-token }}"
+          $sonarHost = "${{ secrets.sonar-host }}"
+
+          # Install scanner if needed
           New-Item -Path .\.sonar\scanner -ItemType Directory -Force
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 
-          # Prepare SonarScanner command
+          # Build scanner arguments
           $scannerArgs = @(
-            "/k:${{ inputs.project-key }}"
-            "/d:sonar.token=${{ secrets.sonar-token }}"
-            "/d:sonar.host.url=${{ secrets.sonar-host }}"
-            "/d:sonar.cs.opencover.reportsPaths=.\TestResults\coverage.xml"
+            "/k:$projectKey"
+            "/d:sonar.token=$sonarToken"
+            "/d:sonar.host.url=$sonarHost"
+            "/d:sonar.cs.opencover.reportsPaths=.\TestResults\coverage.cobertura.xml"
           )
 
           if ($prKey) {
@@ -91,15 +100,14 @@ jobs:
             $scannerArgs += "/d:sonar.pullrequest.base=$prBase"
           }
 
-          # Start analysis
+          # Begin analysis
           .\.sonar\scanner\dotnet-sonarscanner begin $scannerArgs
 
-          # Build solution (no test, coverage already collected)
+          # Build solution (tests already run)
           dotnet build Tuuuur.sln --configuration Release
 
           # End analysis
-          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.sonar-token }}"
-
+          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token=$sonarToken
 
       # ---------------------
       # Quality Gate Check
@@ -107,28 +115,16 @@ jobs:
       - name: Check SonarQube Quality Gate
         shell: powershell
         run: |
-          # ---------------------
-          # Variables
-          # ---------------------
           $projectKey = "${{ inputs.project-key }}"
-          $sonarHost = "${{ secrets.sonar-host }}"
           $sonarToken = "${{ secrets.sonar-token }}"
+          $sonarHost = "${{ secrets.sonar-host }}"
 
-          # ---------------------
-          # Authorization header
-          # ---------------------
           $headers = @{ Authorization = "Bearer $sonarToken" }
 
-          # ---------------------
-          # Debug info (no secrets)
-          # ---------------------
           Write-Host "Checking SonarQube Quality Gate for project: $projectKey"
 
-          # ---------------------
           # Get latest analysis
-          # ---------------------
           $analysisUrl = "$sonarHost/api/project_analyses/search?project=$projectKey"
-
           try {
               $analysis = Invoke-RestMethod -Uri $analysisUrl -Headers $headers
           } catch {
@@ -144,11 +140,7 @@ jobs:
           $lastAnalysisKey = $analysis.analyses[0].key
           Write-Host "Last analysis found, checking Quality Gate..."
 
-          # ---------------------
-          # Check Quality Gate status
-          # ---------------------
           $qgUrl = "$sonarHost/api/qualitygates/project_status?analysisId=$lastAnalysisKey"
-
           try {
               $qg = Invoke-RestMethod -Uri $qgUrl -Headers $headers
           } catch {
@@ -157,7 +149,6 @@ jobs:
           }
 
           Write-Host "Quality Gate Status: $($qg.projectStatus.status)"
-
           if ($qg.projectStatus.status -ne "OK") {
               Write-Error "Quality Gate failed. PR blocked."
               exit 1
