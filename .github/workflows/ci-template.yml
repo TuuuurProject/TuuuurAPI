@@ -107,20 +107,27 @@ jobs:
       - name: Check SonarQube Quality Gate
         shell: powershell
         run: |
+          # Variables
           $projectKey = "${{ inputs.project-key }}"
           $sonarHost = "${{ secrets.sonar-host }}"
           $sonarToken = "${{ secrets.sonar-token }}"
 
-          # Auth header avec correction PowerShell
-          $authHeader = "Basic " + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("${sonarToken}:"))
+          # Auth header Basic Auth (user vide + token)
+          $pair = ":" + $sonarToken
+          $bytes = [System.Text.Encoding]::ASCII.GetBytes($pair)
+          $base64 = [Convert]::ToBase64String($bytes)
+          $headers = @{ Authorization = "Basic $base64" }
 
-          # Récupération de la dernière analyse
+          # Récupérer la dernière analyse du projet
           $analysisUrl = "$sonarHost/api/project_analyses/search?project=$projectKey"
-          $analysis = Invoke-RestMethod -Uri $analysisUrl -Headers @{Authorization = $authHeader}
+          $analysis = Invoke-RestMethod -Uri $analysisUrl -Headers $headers
 
+          # Extraire la clé de la dernière analyse
           $lastAnalysisKey = $analysis.analyses[0].key
+
+          # Vérifier le Quality Gate
           $qgUrl = "$sonarHost/api/qualitygates/project_status?analysisId=$lastAnalysisKey"
-          $qg = Invoke-RestMethod -Uri $qgUrl -Headers @{Authorization = $authHeader}
+          $qg = Invoke-RestMethod -Uri $qgUrl -Headers $headers
 
           Write-Host "Quality Gate Status: $($qg.projectStatus.status)"
 
