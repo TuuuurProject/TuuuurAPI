@@ -1,18 +1,27 @@
-name: CI Pipeline
+name: CI - Build, Tests & Sonar
 
 on:
   pull_request:
     branches:
-      - develop
-  push:
-    branches:
-      - develop
+      - dev
+      - main
 
 jobs:
-  ci:
-    uses: ./.github/workflows/ci-template.yml
+  build:
+    uses: ./.github/workflows/templates/build.yml
     with:
-      project-key: "TuuuurAPI"
-    secrets:
-      sonar-token: ${{ secrets.SONAR_TOKEN }}
-      sonar-host: ${{ secrets.SONAR_HOST_URL }}
+      configuration: Release
+
+  test:
+    needs: build
+    uses: ./.github/workflows/templates/test.yml
+    with:
+      configuration: Release
+
+  sonar:
+    needs: test
+    uses: ./.github/workflows/templates/sonar.yml
+    with:
+      projectKey: TuuuurAPI
+      sonarHost: ${{ secrets.SONAR_HOST_URL }}
+      sonarToken: ${{ secrets.SONAR_TOKEN }}
