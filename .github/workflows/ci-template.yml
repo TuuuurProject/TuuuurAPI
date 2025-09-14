@@ -55,12 +55,12 @@ jobs:
           # Build
           dotnet build Tuuuur.sln --configuration Release
 
-          # Test avec couverture Cobertura
+          # Run tests and generate coverage in Cobertura format
           dotnet test Tuuuur.sln `
             --configuration Release `
             /p:CollectCoverage=true `
             /p:CoverletOutputFormat=cobertura `
-            /p:CoverletOutput=./TestResults/coverage.xml
+            /p:CoverletOutput=.\TestResults\coverage.xml
 
       # ---------------------
       # SonarQube PR Analysis
@@ -76,30 +76,30 @@ jobs:
           New-Item -Path .\.sonar\scanner -ItemType Directory -Force
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 
+          # Prepare SonarScanner command
+          $scannerArgs = @(
+            "/k:${{ inputs.project-key }}"
+            "/d:sonar.token=${{ secrets.sonar-token }}"
+            "/d:sonar.host.url=${{ secrets.sonar-host }}"
+            "/d:sonar.cs.opencover.reportsPaths=.\TestResults\coverage.xml"
+          )
+
           if ($prKey) {
-            Write-Host "Analyse PR $prKey"
-            .\.sonar\scanner\dotnet-sonarscanner begin `
-              /k:"${{ inputs.project-key }}" `
-              /d:sonar.token="${{ secrets.sonar-token }}" `
-              /d:sonar.host.url="${{ secrets.sonar-host }}" `
-              /d:sonar.pullrequest.key=$prKey `
-              /d:sonar.pullrequest.branch=$prBranch `
-              /d:sonar.pullrequest.base=$prBase `
-              /d:sonar.cs.opencover.reportsPaths="./TestResults/coverage.xml"
-          } else {
-            Write-Host "Analyse sur develop"
-            .\.sonar\scanner\dotnet-sonarscanner begin `
-              /k:"${{ inputs.project-key }}" `
-              /d:sonar.token="${{ secrets.sonar-token }}" `
-              /d:sonar.host.url="${{ secrets.sonar-host }}" `
-              /d:sonar.cs.opencover.reportsPaths="./TestResults/coverage.xml"
+            Write-Host "Analyzing PR $prKey"
+            $scannerArgs += "/d:sonar.pullrequest.key=$prKey"
+            $scannerArgs += "/d:sonar.pullrequest.branch=$prBranch"
+            $scannerArgs += "/d:sonar.pullrequest.base=$prBase"
           }
 
-          # Build + Test pour SonarQube
-          dotnet test Tuuuur.sln --configuration Release
+          # Start analysis
+          .\.sonar\scanner\dotnet-sonarscanner begin $scannerArgs
 
-          # End SonarQube
+          # Build solution (no test, coverage already collected)
+          dotnet build Tuuuur.sln --configuration Release
+
+          # End analysis
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.sonar-token }}"
+
 
       # ---------------------
       # Quality Gate Check
