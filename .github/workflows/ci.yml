@@ -10,11 +10,8 @@ on:
 
 jobs:
   ci:
-    name: Build + Tests + SonarQube
-    runs-on: windows-latest
-    steps:
-      - uses: ./.github/workflows/templates/ci-template.yml
-        with:
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
-          sonar-host: ${{ secrets.SONAR_HOST_URL }}
-          project-key: "TuuuurAPI"
+    uses: ./.github/workflows/templates/ci-template.yml
+    with:
+      sonar-token: ${{ secrets.SONAR_TOKEN }}
+      sonar-host: ${{ secrets.SONAR_HOST_URL }}
+      project-key: "TuuuurAPI"

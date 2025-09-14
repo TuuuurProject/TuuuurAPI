@@ -1,15 +1,17 @@
 name: Deploy Template
-description: "Template pour déploiement Release ou Production"
+on:
+  workflow_call:
+    inputs:
+      deploy-environment:
+        required: true
+        type: string
 
-inputs:
-  deploy-environment:
-    required: true
-
-runs:
-  using: "composite"
-  steps:
-    - uses: actions/checkout@v4
-    - name: Deploy
-      run: |
-        echo "Déploiement sur l'environnement ${{ inputs.deploy-environment }}"
-        # Remplacer par tes scripts réels, ex: ./scripts/deploy.sh ${{ inputs.deploy-environment }}
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy
+        run: |
+          echo "Déploiement sur l'environnement ${{ inputs.deploy-environment }}"
+          # Remplacer par tes scripts réels
