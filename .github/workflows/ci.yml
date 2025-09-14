@@ -10,7 +10,7 @@ on:
 
 jobs:
   ci:
-    uses: ./.github/workflows/templates/ci-template.yml
+    uses: ./.github/workflows/ci-template.yml
     with:
       project-key: "TuuuurAPI"
     secrets:
