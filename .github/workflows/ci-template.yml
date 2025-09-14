@@ -77,7 +77,7 @@ jobs:
                 /p:CollectCoverage=true `
                 /p:CoverletOutputFormat=cobertura `
                 /p:CoverletOutput="./TestResults/$projName.xml"
-          )
+          }
 
       # ---------------------
       # SonarQube PR Analysis
