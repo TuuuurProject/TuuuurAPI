@@ -38,7 +38,7 @@ jobs:
           $projectKey = "${{ secrets.sonarOrganization }}_${{ inputs.projectKey }}"
           echo "=== DEBUG: Lancement de sonarscanner begin ==="
           dotnet sonarscanner begin `
-            /k:"$env:PROJECT_KEY" `
+            /k:"$env:projectKey" `
             /o:"${{ secrets.sonarOrganization }}" `
             /d:sonar.host.url="${{ secrets.sonarHost }}" `
             /d:sonar.token="${{ secrets.sonarToken }}" `
