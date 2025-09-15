@@ -9,19 +9,19 @@ on:
       - develop
 
 jobs:
-  build:
-    uses: ./.github/workflows/build.yml
-    with:
-      configuration: Release
+  # build:
+  #   uses: ./.github/workflows/build.yml
+  #   with:
+  #     configuration: Release
 
-  test:
-    needs: build
-    uses: ./.github/workflows/test.yml
-    with:
-      configuration: Release
+  # test:
+  #   needs: build
+  #   uses: ./.github/workflows/test.yml
+  #   with:
+  #     configuration: Release
 
   sonar:
-    needs: test
+    # needs: test
     uses: ./.github/workflows/sonar.yml
     with:
       projectKey: TuuuurAPI

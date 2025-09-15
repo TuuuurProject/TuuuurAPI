@@ -63,7 +63,6 @@ jobs:
               --configuration Release `
               --collect:"XPlat Code Coverage"  `
               /p:CollectCoverage=true `
-              /p:CoverletOutput="$outputPath/coverage.cobertura.xml" `
               /p:CoverletOutputFormat=cobertura
           }
 
