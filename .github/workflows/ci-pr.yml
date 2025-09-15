@@ -21,5 +21,4 @@ jobs:
     # needs: test
     uses: ./.github/workflows/sonar.yml
     with:
-      projectName: TuuuurAPI
       branchName: ${{ github.head_ref }}
