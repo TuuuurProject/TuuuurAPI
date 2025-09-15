@@ -35,7 +35,7 @@ jobs:
             /k:"${{ inputs.projectKey }}" `
             /d:sonar.host.url="${{ secrets.sonarHost }}" `
             /d:sonar.token="${{ secrets.sonarToken }}" `
-            /d:sonar.cs.opencover.reportsPaths="tests/**/TestResults/coverage.opencover.xml"
+            /d:sonar.cs.opencover.reportsPaths="tests/**/TestResults/**/coverage.opencover.xml"
           echo "=== DEBUG: Fin de sonarscanner begin ==="
 
       - name: Restore NuGet packages
