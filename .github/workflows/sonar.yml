@@ -33,7 +33,7 @@ jobs:
             /k:"${{ inputs.projectKey }}" `
             /d:sonar.host.url="${{ secrets.sonarHost }}" `
             /d:sonar.token="${{ secrets.sonarToken }}" `
-            /d:sonar.cs.cobertura.reportsPaths="TestResults/**/*.cobertura.xml"
+            /d:sonar.cs.cobertura.reportsPaths="tests/**/TestResults/**/*.cobertura.xml"
           echo "=== DEBUG: Fin de sonarscanner begin ==="
 
       - name: Restore NuGet packages
@@ -50,31 +50,26 @@ jobs:
 
       - name: Run unit tests with coverage
         run: |
-          # Crée le dossier central pour les résultats
-          if (-Not (Test-Path "./TestResults")) { New-Item -ItemType Directory -Path "./TestResults" }
+          echo "=== DEBUG: Lancement des tests avec coverage ==="
 
           # Parcourt tous les projets *.Tests.csproj et lance les tests
           Get-ChildItem -Path tests -Recurse -Filter *.Tests.csproj | ForEach-Object {
             $projectName = $_.BaseName
-            $outputPath = Join-Path -Path "./TestResults" -ChildPath $projectName
+            $outputPath = Join-Path -Path $_.DirectoryName -ChildPath "TestResults"
             if (-Not (Test-Path $outputPath)) { New-Item -ItemType Directory -Path $outputPath }
 
+            echo "=== DEBUG: Test du projet $projectName ==="
             dotnet test $_.FullName `
               --configuration Release `
               --collect:"XPlat Code Coverage"  `
               /p:CollectCoverage=true `
-              /p:CoverletOutputFormat=cobertura
+              /p:CoverletOutputFormat=cobertura 
           }
 
-      - name: List TestResults folder
+      - name: List all coverage files
         run: |
-          echo "=== DEBUG: Contenu du dossier TestResults ==="
-          Get-ChildItem -Path TestResults -Recurse | ForEach-Object { Write-Host $_.FullName }
-
-      - name: Check coverage files exist
-        run: |
-          echo "=== DEBUG: Recherche des fichiers .cobertura.xml ==="
-          $files = Get-ChildItem -Path TestResults -Recurse -Filter *.cobertura.xml
+          echo "=== DEBUG: Liste de tous les fichiers coverage.cobertura.xml ==="
+          $files = Get-ChildItem -Path tests -Recurse -Filter *.cobertura.xml
           if ($files.Count -eq 0) {
             Write-Warning "Aucun fichier cobertura trouvé !"
           } else {
