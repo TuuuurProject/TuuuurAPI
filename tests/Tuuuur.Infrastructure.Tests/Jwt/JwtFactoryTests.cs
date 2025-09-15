@@ -32,16 +32,13 @@ namespace Tuuuur.Infrastructure.Tests.Jwt
             // Arrange
             User v_User = new()
             {
-                FirstName = "Test",
-                LastName = "User",
+                NickName = "test",
                 Email = "test@example.com",
                 IsAdmin = true
             };
 
             Claim[] v_ExpectedClaims = {
-                new(ClaimTypes.GivenName, v_User.FullName),
-                new(ClaimTypes.Name, v_User.FullName),
-                new(JwtRegisteredClaimNames.Sub, v_User.FullName),
+                new(ClaimTypes.NameIdentifier, v_User.NickName),
                 new(ClaimTypes.Email, v_User.Email),
                 new(JwtRegisteredClaimNames.Email, v_User.Email),
                 new(ClaimTypes.Role, RolesType.Admin)

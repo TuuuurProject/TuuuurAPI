@@ -17,6 +17,11 @@ internal class UserRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<U
     {
         return Mapper.Map<User>(await FindBy(p_U => p_U.Email == p_Email).SingleOrDefaultAsync(p_CancellationToken));
     }
+    
+    public async Task<User> GetUserByNickNameAsync(string p_NickaName, CancellationToken p_CancellationToken)
+    {
+        return Mapper.Map<User>(await FindBy(p_U => p_U.NickName == p_NickaName).SingleOrDefaultAsync(p_CancellationToken));
+    }
     public async Task<IMappingAddEntity<User, IEntity>> CreateUserAsync(User p_User, CancellationToken p_CancellationToken = default)
     {
         IMappingAddEntity<User, User_USR> v_Mapping =

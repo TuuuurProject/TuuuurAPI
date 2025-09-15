@@ -23,14 +23,13 @@ public class RegistrationUseCaseTests
     public async Task Handle_WhenUserDoesNotExist_ShouldCreateUserAsync()
     {
         // Arrange
-        CancellationToken v_CancellationToken = new();
+        CancellationToken v_CancellationToken = CancellationToken.None;
 
         User v_User = new()
         {
             Email = "test@test.com",
             Password = "password",
-            FirstName = "John",
-            LastName = "Doe"
+            NickName = "test"
         };
 
         RegistrationRequest v_Request = new(v_User);
@@ -69,32 +68,74 @@ public class RegistrationUseCaseTests
     }
 
     [Fact]
-    public async void Handle_WhenUserExists_ShouldThrowDuplicateNameExceptionAsync()
+    public async void Handle_WhenUserEmailExists_ShouldThrowDuplicateNameExceptionAsync()
     {
         // Arrange
-        CancellationToken v_CancellationToken = new();
+        CancellationToken v_CancellationToken = CancellationToken.None;
 
         User v_User = new()
         {
+            NickName = "test1",
             Email = "test@test.com",
             Password = "password",
-            FirstName = "John",
-            LastName = "Doe"
         };
 
         RegistrationRequest v_Request = new(v_User);
 
         User v_ExistingUser = new()
         {
+            NickName = "test2",
             Email = v_User.Email,
             Password = "hashedPassword",
-            FirstName = "Jane",
-            LastName = "Doe"
         };
 
         m_UnitOfWorkMock = new Mock<IUnitOfWork>();
         m_UnitOfWorkMock.Setup(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(v_User.Email, v_CancellationToken))
                         .ReturnsAsync(v_ExistingUser);
+
+        m_LoggerMock = new Mock<ILogger<RegistrationUseCase>>();
+        m_MediatorMock = new Mock<IMediator>();
+
+        m_UseCase = new RegistrationUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_MediatorMock.Object);
+
+        // Act
+        UserResponse v_Result = await m_UseCase.Handle(v_Request, v_CancellationToken);
+
+        // Assert
+        v_Result.Success.Should().BeFalse();
+        v_Result.Errors.Should().NotBeEmpty().And.Satisfy(p_P => p_P.Code == DomainErrors.Data.AlreadyExist);
+        m_UnitOfWorkMock.Verify(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(v_User.Email, v_CancellationToken), Times.Once);
+        m_UnitOfWorkMock.Verify(p_Uow => p_Uow.UserRepository.CreateUserAsync(It.IsAny<User>(), v_CancellationToken), Times.Never);
+    }
+    
+    [Fact]
+    public async void Handle_WhenUserNickNameExists_ShouldThrowDuplicateNameExceptionAsync()
+    {
+        // Arrange
+        CancellationToken v_CancellationToken = CancellationToken.None;
+
+        User v_User = new()
+        {
+            NickName = "test",
+            Email = "test@test.com",
+            Password = "password",
+        };
+
+        RegistrationRequest v_Request = new(v_User);
+
+        User v_ExistingUser = new()
+        {
+            NickName = v_User.NickName,
+            Email = "test." + v_User.Email,
+            Password = "hashedPassword",
+        };
+
+        m_UnitOfWorkMock = new Mock<IUnitOfWork>();
+        m_UnitOfWorkMock.Setup(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(v_User.Email, v_CancellationToken))
+            .ReturnsAsync(v_ExistingUser);
+        
+        m_UnitOfWorkMock.Setup(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(v_User.Email, v_CancellationToken))
+            .ReturnsAsync(v_ExistingUser);
 
         m_LoggerMock = new Mock<ILogger<RegistrationUseCase>>();
         m_MediatorMock = new Mock<IMediator>();

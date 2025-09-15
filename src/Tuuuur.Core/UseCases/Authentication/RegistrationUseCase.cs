@@ -17,12 +17,17 @@ internal class RegistrationUseCase(IUnitOfWork p_UnitOfWork, ILogger<Registratio
     private readonly IMediator m_Mediator = p_Mediator;
 
     [SuppressMessage("Style", "IDE1006:Styles d'affectation de noms", Justification = "Inherited named")]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+
     public async Task<UserResponse> Handle(RegistrationRequest request, CancellationToken cancellationToken)
     {
         try
         {
             if (await m_UnitOfWork.UserRepository.GetUserByEmailAsync(request.User.Email, cancellationToken) != null)
                 throw new DuplicateNameException("An user already exists with this email");
+            
+            if (await m_UnitOfWork.UserRepository.GetUserByNickNameAsync(request.User.NickName, cancellationToken) != null)
+                throw new DuplicateNameException("An user already exists with this nickname");
 
             StringResponse v_HashResponse = await m_Mediator.Send(new HashRequest(request.User.Password), cancellationToken);
 

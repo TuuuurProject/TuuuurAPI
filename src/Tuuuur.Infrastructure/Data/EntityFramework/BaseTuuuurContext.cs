@@ -54,24 +54,22 @@ public partial class BaseTuuuurContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK_USER_USR");
 
+            entity.HasIndex(e => e.Email, "IX_UserEmail").IsUnique();
+
+            entity.HasIndex(e => e.NickName, "IX_UserNickName").IsUnique();
+
             entity.Property(e => e.Email)
                 .IsRequired()
-                .HasMaxLength(100)
+                .HasMaxLength(250)
                 .IsUnicode(false);
-            entity.Property(e => e.FirstName)
-                .IsRequired()
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.LastName)
-                .IsRequired()
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.IsNew).HasDefaultValue(true);
             entity.Property(e => e.NickName)
                 .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.Password)
                 .IsRequired()
+                .HasMaxLength(250)
                 .IsUnicode(false);
         });
 

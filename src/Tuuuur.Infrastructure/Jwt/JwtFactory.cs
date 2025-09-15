@@ -38,18 +38,15 @@ internal class JwtFactory : IJwtFactory
         }
         SecurityTokenDescriptor v_TokenDescriptor = new()
         {
-            Subject = new ClaimsIdentity(new[]
-            {
+            Subject = new ClaimsIdentity([
                 new Claim(ClaimTypes.Sid, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.GivenName, p_UserInfos.FullName),
-                new Claim(ClaimTypes.Name, p_UserInfos.FullName),
-                new Claim(JwtRegisteredClaimNames.Sub, p_UserInfos.FullName),
+                new Claim(ClaimTypes.NameIdentifier, p_UserInfos.NickName),
                 new Claim(ClaimTypes.Email, p_UserInfos.Email),
                 new Claim(JwtRegisteredClaimNames.Email, p_UserInfos.Email),
                 new Claim(JwtRegisteredClaimNames.Jti,
                     Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.Role, v_Role)
-            }),
+            ]),
             Expires = DateTime.UtcNow.AddMinutes(m_JwtConfiguration.Validity),
             Issuer = m_JwtConfiguration.Issuer,
             Audience = m_JwtConfiguration.Audience,
