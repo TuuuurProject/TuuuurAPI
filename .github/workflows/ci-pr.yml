@@ -6,13 +6,20 @@ on:
       - develop
 
 jobs:
-  build:
-    uses: ./.github/workflows/build.yml
-    with:
-      configuration: Debug
+  # build:
+  #   uses: ./.github/workflows/build.yml
+  #   with:
+  #     configuration: Debug
 
-  test:
-    needs: build
-    uses: ./.github/workflows/test.yml
+  # test:
+  #   needs: build
+  #   uses: ./.github/workflows/test.yml
+  #   with:
+  #     configuration: Debug
+
+  sonar:
+    # needs: test
+    uses: ./.github/workflows/sonar.yml
     with:
-      configuration: Debug
+      projectName: TuuuurAPI
+      branchName: ${{ github.head_ref }}

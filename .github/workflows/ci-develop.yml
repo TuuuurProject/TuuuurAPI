@@ -16,3 +16,15 @@ jobs:
     uses: ./.github/workflows/test.yml
     with:
       configuration: Release
+
+  # sonar:
+  #   needs: test
+  #   uses: ./.github/workflows/sonar.yml
+  #   with:
+  #     projectName: TuuuurAPI
+  #     branchName: ${{ github.head_ref }}
+  #   secrets:
+  #     projectKey: ${{ secrets.PROJECT_KEY }}
+  #     sonarToken: ${{ secrets.SONAR_TOKEN }}
+  #     sonarHost: ${{ secrets.SONAR_HOST_URL }}
+  #     sonarOrganization: ${{ secrets.SONAR_ORGANIZATION_URL }}
