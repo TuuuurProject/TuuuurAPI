@@ -23,8 +23,10 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Install SonarScanner
-        run: dotnet tool install --global dotnet-sonarscanner
+      - name: Install SonarScanner & Coverlet
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          dotnet tool install --global coverlet.console
 
       - name: Begin SonarQube analysis
         run: |
@@ -33,7 +35,7 @@ jobs:
             /k:"${{ inputs.projectKey }}" `
             /d:sonar.host.url="${{ secrets.sonarHost }}" `
             /d:sonar.token="${{ secrets.sonarToken }}" `
-            /d:sonar.cs.opencover.reportsPaths="tests/**/TestResults/**/*.opencover.xml"
+            /d:sonar.cs.opencover.reportsPaths="tests/**/TestResults/coverage.opencover.xml"
           echo "=== DEBUG: Fin de sonarscanner begin ==="
 
       - name: Restore NuGet packages
@@ -52,19 +54,19 @@ jobs:
         run: |
           echo "=== DEBUG: Lancement des tests avec coverage ==="
 
-          # Parcourt tous les projets *.Tests.csproj et lance les tests
+          # Parcourt tous les projets *.Tests.csproj et lance les tests avec coverlet.console
           Get-ChildItem -Path tests -Recurse -Filter *.Tests.csproj | ForEach-Object {
             $projectName = $_.BaseName
             $outputPath = Join-Path -Path $_.DirectoryName -ChildPath "TestResults"
             if (-Not (Test-Path $outputPath)) { New-Item -ItemType Directory -Path $outputPath }
 
             echo "=== DEBUG: Test du projet $projectName ==="
-            dotnet test $_.FullName `
-              --configuration Release `
-              --collect:"XPlat Code Coverage" `
-              /p:CollectCoverage=true `
-              /p:CoverletOutputFormat=opencover `
-              /p:CoverletOutput=TestResults\coverage.opencover.xml
+            # Utilisation de coverlet.console pour générer un fichier opencover fixe
+            coverlet "$($_.DirectoryName)\bin\Release\net8.0\$projectName.dll" `
+              --target "dotnet" `
+              --targetargs "test $_.FullName --no-build --configuration Release" `
+              --format opencover `
+              --output "$outputPath\coverage.opencover.xml"
           }
 
       - name: List all coverage files
