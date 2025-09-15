@@ -60,9 +60,11 @@ jobs:
 
             echo "=== DEBUG: Test du projet $projectName ==="
             dotnet test $_.FullName `
-              --collect:"XPlat Code Coverage"  `
+              --configuration Release `
+              --collect:"XPlat Code Coverage" `
               /p:CollectCoverage=true `
-              /p:CoverletOutputFormat=cobertura 
+              /p:CoverletOutputFormat=opencover `
+              /p:CoverletOutput=TestResults\coverage.opencover.xml
           }
 
       - name: List all coverage files
