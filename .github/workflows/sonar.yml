@@ -14,6 +14,8 @@ on:
         required: true
       sonarHost:
         required: true
+      sonarOrganization:
+        required: true
 
 jobs:
   sonar:
@@ -36,6 +38,7 @@ jobs:
           echo "=== DEBUG: Lancement de sonarscanner begin ==="
           dotnet sonarscanner begin `
             /k:"${{ inputs.projectKey }}" `
+            /o:"${{ secrets.sonarOrganization }}" `
             /d:sonar.host.url="${{ secrets.sonarHost }}" `
             /d:sonar.token="${{ secrets.sonarToken }}" `
             /d:sonar.branch.name="${{ inputs.branchName }}" `

@@ -26,3 +26,4 @@ jobs:
     secrets:
       sonarToken: ${{ secrets.SONAR_TOKEN }}
       sonarHost: ${{ secrets.SONAR_HOST_URL }}
+      sonarOrganization: ${{ secrets.SONAR_ORGANIZATION_URL }}
