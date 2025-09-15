@@ -27,15 +27,14 @@ jobs:
         run: dotnet tool install --global dotnet-sonarscanner
 
       - name: Begin SonarQube analysis
-        shell: pwsh
         run: |
-          echo "=== DEBUG: Lancement de SonarScanner begin ==="
+          echo "=== DEBUG: Lancement de sonarscanner begin ==="
           dotnet sonarscanner begin `
             /k:"${{ inputs.projectKey }}" `
             /d:sonar.host.url="${{ secrets.sonarHost }}" `
             /d:sonar.token="${{ secrets.sonarToken }}" `
             /d:sonar.cs.opencover.reportsPaths="tests/**/TestResults/**/*.cobertura.xml"
-          echo "=== DEBUG: Fin de SonarScanner begin ==="
+          echo "=== DEBUG: Fin de sonarscanner begin ==="
 
       - name: Restore NuGet packages
         run: |
@@ -50,34 +49,35 @@ jobs:
           echo "=== DEBUG: Fin dotnet build ==="
 
       - name: Run unit tests with coverage
-        shell: pwsh
         run: |
           echo "=== DEBUG: Lancement des tests avec coverage ==="
 
-          $coverageFiles = @()
+          # Parcourt tous les projets *.Tests.csproj et lance les tests
           Get-ChildItem -Path tests -Recurse -Filter *.Tests.csproj | ForEach-Object {
-            $project = $_.FullName
-            $outputDir = Join-Path $_.DirectoryName "TestResults"
-            if (-Not (Test-Path $outputDir)) { New-Item -ItemType Directory -Path $outputDir }
-            
-            $coverageFile = Join-Path $outputDir "$($_.BaseName).cobertura.xml"
-            echo "=== DEBUG: Test du projet $($_.BaseName), coverage => $coverageFile ==="
-            
-            dotnet test $project `
-              --configuration Release `
-              /p:CollectCoverage=true `
-              /p:CoverletOutput=$coverageFile `
-              /p:CoverletOutputFormat=cobertura
+            $projectName = $_.BaseName
+            $outputPath = Join-Path -Path $_.DirectoryName -ChildPath "TestResults"
+            if (-Not (Test-Path $outputPath)) { New-Item -ItemType Directory -Path $outputPath }
 
-            $coverageFiles += $coverageFile
+            echo "=== DEBUG: Test du projet $projectName ==="
+            dotnet test $_.FullName `
+              --collect:"XPlat Code Coverage"  `
+              /p:CollectCoverage=true `
+              /p:CoverletOutputFormat=cobertura 
           }
 
-          echo "=== DEBUG: Coverage générée ==="
-          $coverageFiles | ForEach-Object { Write-Host $_ }
+      - name: List all coverage files
+        run: |
+          echo "=== DEBUG: Liste de tous les fichiers coverage.cobertura.xml ==="
+          $files = Get-ChildItem -Path tests -Recurse -Filter *.cobertura.xml
+          if ($files.Count -eq 0) {
+            Write-Warning "Aucun fichier cobertura trouvé !"
+          } else {
+            Write-Host "$($files.Count) fichiers cobertura trouvés :"
+            $files | ForEach-Object { Write-Host $_.FullName }
+          }
 
       - name: End SonarQube analysis
-        shell: pwsh
         run: |
-          echo "=== DEBUG: Lancement de SonarScanner end ==="
-          dotnet sonarscanner end /d:sonar.login="${{ secrets.sonarToken }}"
-          echo "=== DEBUG: Fin de SonarScanner end ==="
+          echo "=== DEBUG: Lancement de sonarscanner end ==="
+          dotnet sonarscanner end /d:sonar.token="${{ secrets.sonarToken }}"
+          echo "=== DEBUG: Fin de sonarscanner end ==="
