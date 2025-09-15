@@ -6,6 +6,9 @@ on:
       projectKey:
         required: true
         type: string
+      branchName:
+        required: true
+        type: string
     secrets:
       sonarToken:
         required: true
@@ -35,6 +38,7 @@ jobs:
             /k:"${{ inputs.projectKey }}" `
             /d:sonar.host.url="${{ secrets.sonarHost }}" `
             /d:sonar.token="${{ secrets.sonarToken }}" `
+            /d:sonar.branch.name="${{ inputs.branchName }}" `
             /d:sonar.cs.opencover.reportsPaths="tests/**/TestResults/**/coverage.opencover.xml"
           echo "=== DEBUG: Fin de sonarscanner begin ==="
 
