@@ -64,11 +64,16 @@ jobs:
               $dllPath = Join-Path $projectDir "bin\Release\net8.0\$projectName.dll"
 
               echo "=== DEBUG: Test du projet $projectName ==="
-              coverlet $dllPath `
-                --target "dotnet" `
-                --targetargs "" `
-                --format opencover `
-                --output "$outputPath\coverage.opencover.xml"
+              dotnet test $_.FullName `
+                --configuration Release `
+                --no-restore `
+                --no-build `
+                --settings test.runsettings `
+                --collect:"XPlat Code Coverage" `
+                /nologo `
+                /p:CollectCoverage=true `
+                /p:CoverletOutputFormat=opencover `
+                /p:CoverletOutput="$outputPath/coverage.opencover.xml"
           }
 
       - name: List all coverage files
