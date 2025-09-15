@@ -33,10 +33,9 @@ jobs:
           dotnet tool install --global dotnet-sonarscanner
           dotnet tool install --global coverlet.console
 
-      - run: echo "PROJECT_KEY=${{ secrets.sonarOrganization }}_${{ inputs.projectKey }}" >> $GITHUB_ENV
-
       - name: Begin SonarQube analysis
         run: |
+          $projectKey = "${{ secrets.sonarOrganization }}_${{ inputs.projectKey }}"
           echo "=== DEBUG: Lancement de sonarscanner begin ==="
           dotnet sonarscanner begin `
             /k:"$env:PROJECT_KEY" `
