@@ -48,6 +48,25 @@ jobs:
           dotnet build --configuration Release --no-restore
           echo "=== DEBUG: Fin dotnet build ==="
 
+      - name: Run unit tests with coverage
+        run: |
+          # Crée le dossier central pour les résultats
+          if (-Not (Test-Path "./TestResults")) { New-Item -ItemType Directory -Path "./TestResults" }
+
+          # Parcourt tous les projets *.Tests.csproj et lance les tests
+          Get-ChildItem -Path tests -Recurse -Filter *.Tests.csproj | ForEach-Object {
+            $projectName = $_.BaseName
+            $outputPath = Join-Path -Path "./TestResults" -ChildPath $projectName
+            if (-Not (Test-Path $outputPath)) { New-Item -ItemType Directory -Path $outputPath }
+
+            dotnet test $_.FullName `
+              --configuration Release `
+              --verbosity normal `
+              --collect:"XPlat Code Coverage" `
+              --results-directory TestResults `
+              /p:CoverletOutput="$outputPath/coverage.xml"
+          }
+
       - name: List TestResults folder
         run: |
           echo "=== DEBUG: Contenu du dossier TestResults ==="
