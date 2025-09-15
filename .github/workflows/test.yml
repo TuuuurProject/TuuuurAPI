@@ -38,6 +38,16 @@ jobs:
               /p:CoverletOutput="$outputPath/coverage.xml"
           }
 
+      - name: Check coverage files exist
+        run: |
+          $files = Get-ChildItem -Path TestResults -Recurse -Filter *.cobertura.xml
+          if ($files.Count -eq 0) {
+            Write-Warning "Aucun fichier cobertura trouvé !"
+          } else {
+            Write-Host "$($files.Count) fichiers cobertura trouvés :"
+            $files | ForEach-Object { Write-Host $_.FullName }
+          }
+
       - name: Publish coverage report
         uses: actions/upload-artifact@v4
         with:
