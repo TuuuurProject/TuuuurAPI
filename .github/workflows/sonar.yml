@@ -107,5 +107,5 @@ jobs:
         shell: powershell
         run: |
           echo "=== DEBUG: End SonarQube analysis ==="
-          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="$env:SONAR_TOKEN"
+          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="$env:SONAR_TOKEN"
           echo "=== DEBUG: Finished ==="
