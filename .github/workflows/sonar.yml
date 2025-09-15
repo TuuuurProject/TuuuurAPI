@@ -28,18 +28,44 @@ jobs:
 
       - name: Begin SonarQube analysis
         run: |
+          echo "=== DEBUG: Lancement de sonarscanner begin ==="
           dotnet sonarscanner begin `
             /k:"${{ inputs.projectKey }}" `
             /d:sonar.host.url="${{ secrets.sonarHost }}" `
             /d:sonar.token="${{ secrets.sonarToken }}" `
-            /d:sonar.cs.opencover.reportsPaths="TestResults/**/*.cobertura.xml"
+            /d:sonar.cs.cobertura.reportsPaths="TestResults/**/*.cobertura.xml"
+          echo "=== DEBUG: Fin de sonarscanner begin ==="
 
       - name: Restore NuGet packages
-        run: dotnet restore
+        run: |
+          echo "=== DEBUG: dotnet restore ==="
+          dotnet restore
+          echo "=== DEBUG: Fin dotnet restore ==="
 
       - name: Build for Sonar
-        run: dotnet build --configuration Release --no-restore
+        run: |
+          echo "=== DEBUG: dotnet build ==="
+          dotnet build --configuration Release --no-restore
+          echo "=== DEBUG: Fin dotnet build ==="
+
+      - name: List TestResults folder
+        run: |
+          echo "=== DEBUG: Contenu du dossier TestResults ==="
+          Get-ChildItem -Path TestResults -Recurse | ForEach-Object { Write-Host $_.FullName }
+
+      - name: Check coverage files exist
+        run: |
+          echo "=== DEBUG: Recherche des fichiers .cobertura.xml ==="
+          $files = Get-ChildItem -Path TestResults -Recurse -Filter *.cobertura.xml
+          if ($files.Count -eq 0) {
+            Write-Warning "Aucun fichier cobertura trouvé !"
+          } else {
+            Write-Host "$($files.Count) fichiers cobertura trouvés :"
+            $files | ForEach-Object { Write-Host $_.FullName }
+          }
 
       - name: End SonarQube analysis
-        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.sonarToken }}"
-
+        run: |
+          echo "=== DEBUG: Lancement de sonarscanner end ==="
+          dotnet sonarscanner end /d:sonar.token="${{ secrets.sonarToken }}"
+          echo "=== DEBUG: Fin de sonarscanner end ==="
