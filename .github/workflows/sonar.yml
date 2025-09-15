@@ -1,14 +1,27 @@
-name: coverage
+name: sonar
 
 on:
   workflow_call:
     inputs:
+      projectName:
+        required: true
+        type: string
       branchName:
         required: true
         type: string
+    secrets:
+      sonarToken:
+        required: true
+      sonarHost:
+        required: true
+      sonarOrganization:
+        required: true
+      projectKey:
+        required: true 
+
 
 jobs:
-  coverage:
+  sonar:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,27 +31,41 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Install tools
+      - name: Install SonarScanner & Coverlet
         run: |
+          dotnet tool install --global dotnet-sonarscanner
           dotnet tool install --global coverlet.console
-          dotnet tool install --global dotnet-reportgenerator-globaltool
-
+      - name: Begin SonarQube analysis
+        run: |
+          echo "=== DEBUG: Lancement de sonarscanner begin ==="
+          dotnet sonarscanner begin `
+            /k:"${{ secrets.projectKey }}" `
+            /o:"${{ secrets.sonarOrganization }}" `
+            /d:sonar.host.url="${{ secrets.sonarHost }}" `
+            /d:sonar.token="${{ secrets.sonarToken }}" `
+            /d:sonar.branch.name="${{ inputs.branchName }}" `
+            /d:sonar.cs.opencover.reportsPaths="tests/**/TestResults/**/coverage.opencover.xml"
+          echo "=== DEBUG: Fin de sonarscanner begin ==="
       - name: Restore NuGet packages
-        run: dotnet restore
-
-      - name: Build
-        run: dotnet build --configuration Debug --no-restore
-
+        run: |
+          echo "=== DEBUG: dotnet restore ==="
+          dotnet restore
+          echo "=== DEBUG: Fin dotnet restore ==="
+      - name: Build for Sonar
+        run: |
+          echo "=== DEBUG: dotnet build ==="
+          dotnet build --configuration Debug --no-restore
+          echo "=== DEBUG: Fin dotnet build ==="
       - name: Run unit tests with coverage
         run: |
           echo "=== DEBUG: Lancement des tests avec coverage ==="
-
+          # Parcourt tous les projets *.Tests.csproj et lance les tests avec coverlet.console
           Get-ChildItem -Path tests -Recurse -Filter *.Tests.csproj | ForEach-Object {
               $projectName = $_.BaseName
               $projectDir = $_.DirectoryName
               $outputPath = Join-Path $projectDir "TestResults"
               if (-Not (Test-Path $outputPath)) { New-Item -ItemType Directory -Path $outputPath }
-
+              $dllPath = Join-Path $projectDir "bin\Debug\net8.0\$projectName.dll"
               echo "=== DEBUG: Test du projet $projectName ==="
               dotnet test $_.FullName `
                 --configuration Debug `
@@ -51,24 +78,8 @@ jobs:
                 /p:CoverletOutputFormat=opencover `
                 /p:CoverletOutput="$outputPath/coverage.opencover.xml"
           }
-
-      - name: Generate coverage report
+      - name: End SonarQube analysis
         run: |
-            reportgenerator `
-            -reports:tests/**/TestResults/**/coverage.opencover.xml `
-            -targetdir:coverage-report `
-            -reporttypes:"HtmlInline_AzurePipelines;Cobertura"
-
-      - name: Upload coverage report artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage-report
-
-      - name: Add coverage summary
-        run: |
-          $cobertura = Get-Content coverage-report\Cobertura.xml
-          $coverage = Select-String -Path coverage-report\Cobertura.xml -Pattern 'line-rate="([0-9.]+)"' | ForEach-Object {
-              [math]::Round([double]($_.Matches.Groups[1].Value) * 100, 2)
-          }
-          echo "### Code Coverage: $coverage% " >> $env:GITHUB_STEP_SUMMARY
+          echo "=== DEBUG: Lancement de sonarscanner end ==="
+          dotnet sonarscanner end /d:sonar.token="${{ secrets.sonarToken }}"
+          echo "=== DEBUG: Fin de sonarscanner end ==="
