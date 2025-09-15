@@ -65,7 +65,7 @@ jobs:
 
               echo "=== DEBUG: Test du projet $projectName ==="
               dotnet test $_.FullName `
-                --configuration Release `
+                --configuration Debug `
                 --no-restore `
                 --no-build `
                 --settings test.runsettings `
