@@ -41,7 +41,7 @@ jobs:
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         shell: powershell
         run: |
-          New-Item -Path .\.sonar\scanner -ItemType Directory
+          New-Item -Path .\.sonar\scanner -ItemType Directory -Force
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 
       - name: Setup .NET
@@ -58,23 +58,21 @@ jobs:
         shell: powershell
         run: |
           echo "=== DEBUG: Begin SonarQube analysis ==="
-          if (-Not (Test-Path "coverage")) { New-Item -ItemType Directory -Path "coverage" }
+          if (-Not (Test-Path "coverage")) { New-Item -ItemType Directory -Path "coverage" -Force }
           .\.sonar\scanner\dotnet-sonarscanner begin `
             /k:"TuuuurProject_TuuuurAPI" `
             /o:"tuuuurproject" `
-            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
+            /d:sonar.token="$env:SONAR_TOKEN" `
             /d:sonar.cs.opencover.reportsPaths="coverage/*.xml"
           echo "=== DEBUG: End Begin step ==="
 
       - name: Restore NuGet packages
         shell: powershell
-        run: |
-          dotnet restore
+        run: dotnet restore
 
       - name: Build project
         shell: powershell
-        run: |
-          dotnet build --configuration Debug --no-restore
+        run: dotnet build --configuration Debug --no-restore
 
       - name: Run unit tests with coverage
         shell: powershell
@@ -84,7 +82,7 @@ jobs:
               $projectName = $_.BaseName
               $projectDir = $_.DirectoryName
               $outputPath = Join-Path $projectDir "TestResults"
-              if (-Not (Test-Path $outputPath)) { New-Item -ItemType Directory -Path $outputPath }
+              if (-Not (Test-Path $outputPath)) { New-Item -ItemType Directory -Path $outputPath -Force }
 
               dotnet test $_.FullName `
                 --configuration Debug `
@@ -109,5 +107,5 @@ jobs:
         shell: powershell
         run: |
           echo "=== DEBUG: End SonarQube analysis ==="
-          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="$env:SONAR_TOKEN"
           echo "=== DEBUG: Finished ==="
