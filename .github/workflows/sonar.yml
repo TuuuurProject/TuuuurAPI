@@ -35,6 +35,11 @@ jobs:
         run: |
           dotnet tool install --global dotnet-sonarscanner
           dotnet tool install --global coverlet.console
+
+      - name: Create coverage folder
+        run: |
+          if (-Not (Test-Path coverage)) { New-Item -ItemType Directory -Path coverage }
+
       - name: Begin SonarQube analysis
         run: |
           echo "=== DEBUG: Lancement de sonarscanner begin ==="
@@ -44,18 +49,21 @@ jobs:
             /d:sonar.host.url="${{ secrets.sonarHost }}" `
             /d:sonar.token="${{ secrets.sonarToken }}" `
             /d:sonar.branch.name="${{ inputs.branchName }}" `
-            /d:sonar.cs.opencover.reportsPaths="tests/**/TestResults/**/coverage.opencover.xml"
+            /d:sonar.cs.opencover.reportsPaths="coverage/*.xml"
           echo "=== DEBUG: Fin de sonarscanner begin ==="
+
       - name: Restore NuGet packages
         run: |
           echo "=== DEBUG: dotnet restore ==="
           dotnet restore
           echo "=== DEBUG: Fin dotnet restore ==="
+
       - name: Build for Sonar
         run: |
           echo "=== DEBUG: dotnet build ==="
           dotnet build --configuration Debug --no-restore
           echo "=== DEBUG: Fin dotnet build ==="
+
       - name: Run unit tests with coverage
         run: |
           echo "=== DEBUG: Lancement des tests avec coverage ==="
@@ -65,7 +73,7 @@ jobs:
               $projectDir = $_.DirectoryName
               $outputPath = Join-Path $projectDir "TestResults"
               if (-Not (Test-Path $outputPath)) { New-Item -ItemType Directory -Path $outputPath }
-              $dllPath = Join-Path $projectDir "bin\Debug\net8.0\$projectName.dll"
+
               echo "=== DEBUG: Test du projet $projectName ==="
               dotnet test $_.FullName `
                 --configuration Debug `
@@ -77,7 +85,11 @@ jobs:
                 /p:CollectCoverage=true `
                 /p:CoverletOutputFormat=opencover `
                 /p:CoverletOutput="$outputPath/coverage.opencover.xml"
+
+              # Copie le fichier coverage dans le dossier commun
+              Copy-Item "$outputPath/coverage.opencover.xml" -Destination "coverage/$projectName.xml" -Force
           }
+
       - name: End SonarQube analysis
         run: |
           echo "=== DEBUG: Lancement de sonarscanner end ==="
