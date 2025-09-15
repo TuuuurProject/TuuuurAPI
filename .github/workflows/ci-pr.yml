@@ -1,0 +1,28 @@
+name: CI - Pull Request
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      configuration: Debug
+
+  test:
+    needs: build
+    uses: ./.github/workflows/test.yml
+    with:
+      configuration: Debug
+
+  sonar:
+    needs: test
+    uses: ./.github/workflows/sonar.yml
+    with:
+      projectKey: TuuuurAPI
+      branch: ${{ github.head_ref }}
+    secrets:
+      sonarToken: ${{ secrets.SONAR_TOKEN }}
+      sonarHost: ${{ secrets.SONAR_HOST_URL }}
