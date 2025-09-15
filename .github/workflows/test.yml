@@ -1,0 +1,55 @@
+name: test
+
+on:
+  workflow_call:
+    inputs:
+      configuration:
+        required: true
+        type: string
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Run unit tests with coverage
+        run: |
+          # Crée le dossier central pour les résultats
+          if (-Not (Test-Path "./TestResults")) { New-Item -ItemType Directory -Path "./TestResults" }
+
+          # Parcourt tous les projets *.Tests.csproj et lance les tests
+          Get-ChildItem -Path tests -Recurse -Filter *.Tests.csproj | ForEach-Object {
+            $projectName = $_.BaseName
+            $outputPath = Join-Path -Path "./TestResults" -ChildPath $projectName
+            if (-Not (Test-Path $outputPath)) { New-Item -ItemType Directory -Path $outputPath }
+
+            dotnet test $_.FullName `
+              --configuration Release `
+              --verbosity normal `
+              --collect:"XPlat Code Coverage" `
+              --results-directory TestResults `
+              /p:CoverletOutput="$outputPath/coverage.xml"
+          }
+
+      - name: Check coverage files exist
+        run: |
+          $files = Get-ChildItem -Path TestResults -Recurse -Filter *.cobertura.xml
+          if ($files.Count -eq 0) {
+            Write-Warning "Aucun fichier cobertura trouvé !"
+          } else {
+            Write-Host "$($files.Count) fichiers cobertura trouvés :"
+            $files | ForEach-Object { Write-Host $_.FullName }
+          }
+
+      - name: Publish coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: TestResults/**/*.cobertura.xml
