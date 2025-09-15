@@ -6,6 +6,9 @@ on:
       projectKey:
         required: true
         type: string
+      branchName:
+        required: true
+        type: string
     secrets:
       sonarToken:
         required: true
@@ -35,6 +38,7 @@ jobs:
             /k:"${{ inputs.projectKey }}" `
             /d:sonar.host.url="${{ secrets.sonarHost }}" `
             /d:sonar.token="${{ secrets.sonarToken }}" `
+            /d:sonar.branch.name="${{ inputs.branchName }}" `
             /d:sonar.cs.opencover.reportsPaths="tests/**/TestResults/**/coverage.opencover.xml"
           echo "=== DEBUG: Fin de sonarscanner begin ==="
 
@@ -74,17 +78,6 @@ jobs:
                 /p:CollectCoverage=true `
                 /p:CoverletOutputFormat=opencover `
                 /p:CoverletOutput="$outputPath/coverage.opencover.xml"
-          }
-
-      - name: List all coverage files
-        run: |
-          echo "=== DEBUG: Liste de tous les fichiers coverage.opencover.xml ==="
-          $files = Get-ChildItem -Path tests -Recurse -Filter *.opencover.xml
-          if ($files.Count -eq 0) {
-            Write-Warning "Aucun fichier opencover trouvé !"
-          } else {
-            Write-Host "$($files.Count) fichiers opencover trouvés :"
-            $files | ForEach-Object { Write-Host $_.FullName }
           }
 
       - name: End SonarQube analysis
