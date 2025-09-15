@@ -1,0 +1,44 @@
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    restart: always
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourStrong!Passw0rd
+    ports:
+      - "1433:1433"
+    networks:
+      - tuuur-network
+
+  migrate:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: src/Tuuuur.Database/Dockerfile
+    container_name: tuuur_migrate
+    depends_on:
+      - sqlserver
+    restart: "no"
+    networks:
+      - tuuur-network
+  api:
+    build:
+      context: .
+      dockerfile: src/Tuuuur.API/Dockerfile
+    container_name: tuuur_api
+    restart: always
+    depends_on:
+      - sqlserver
+    environment:
+      - ConnectionStrings__Tuuuur=Server=sqlserver,1433;Initial Catalog=Tuuuur-dev;Persist Security Info=False;User ID=sa;Password=YourStrong!Passw0rd;MultipleActiveResultSets=False;Encrypt=False;TrustServerCertificate=True;Connection Timeout=30
+      - JwtSettings__Key=${JWT_KEY}
+    ports:
+      - "7260:7260"
+    networks:
+      - tuuur-network
+
+networks:
+  tuuur-network:
+    driver: bridge
