@@ -61,10 +61,10 @@ jobs:
 
             dotnet test $_.FullName `
               --configuration Release `
-              --verbosity normal `
-              --collect:"XPlat Code Coverage" `
-              --results-directory TestResults `
-              /p:CoverletOutput="$outputPath/coverage.xml"
+              --collect:"XPlat Code Coverage"  `
+              /p:CollectCoverage=true `
+              /p:CoverletOutput="$outputPath/coverage.cobertura.xml" `
+              /p:CoverletOutputFormat=cobertura
           }
 
       - name: List TestResults folder
