@@ -33,7 +33,7 @@ jobs:
             /k:"${{ inputs.projectKey }}" `
             /d:sonar.host.url="${{ secrets.sonarHost }}" `
             /d:sonar.token="${{ secrets.sonarToken }}" `
-            /d:sonar.cs.opencover.reportsPaths="tests/**/TestResults/**/*.cobertura.xml"
+            /d:sonar.cs.opencover.reportsPaths="tests/**/TestResults/**/*.opencover.xml"
           echo "=== DEBUG: Fin de sonarscanner begin ==="
 
       - name: Restore NuGet packages
@@ -69,12 +69,12 @@ jobs:
 
       - name: List all coverage files
         run: |
-          echo "=== DEBUG: Liste de tous les fichiers coverage.cobertura.xml ==="
-          $files = Get-ChildItem -Path tests -Recurse -Filter *.cobertura.xml
+          echo "=== DEBUG: Liste de tous les fichiers coverage.opencover.xml ==="
+          $files = Get-ChildItem -Path tests -Recurse -Filter *.opencover.xml
           if ($files.Count -eq 0) {
-            Write-Warning "Aucun fichier cobertura trouvé !"
+            Write-Warning "Aucun fichier opencover trouvé !"
           } else {
-            Write-Host "$($files.Count) fichiers cobertura trouvés :"
+            Write-Host "$($files.Count) fichiers opencover trouvés :"
             $files | ForEach-Object { Write-Host $_.FullName }
           }
 
