@@ -86,8 +86,10 @@ jobs:
                 /p:CoverletOutputFormat=opencover `
                 /p:CoverletOutput="$outputPath/coverage.opencover.xml"
 
-              # Copie le fichier coverage dans le dossier commun
-              Copy-Item "$outputPath/coverage.opencover.xml" -Destination "coverage/$projectName.xml" -Force
+              # Copier tous les fichiers coverage dans le dossier commun
+              Get-ChildItem -Path $outputPath -Recurse -Filter coverage.opencover.xml | ForEach-Object {
+                  Copy-Item $_.FullName -Destination "coverage/$projectName.xml" -Force
+              }
           }
 
       - name: End SonarQube analysis
