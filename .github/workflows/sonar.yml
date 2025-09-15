@@ -3,7 +3,7 @@ name: sonar
 on:
   workflow_call:
     inputs:
-      projectKey:
+      projectName:
         required: true
         type: string
       branchName:
@@ -16,6 +16,9 @@ on:
         required: true
       sonarOrganization:
         required: true
+      projectKey:
+        required: true 
+
 
 jobs:
   sonar:
@@ -35,10 +38,9 @@ jobs:
 
       - name: Begin SonarQube analysis
         run: |
-          $projectKey = "${{ secrets.sonarOrganization }}_${{ inputs.projectKey }}"
           echo "=== DEBUG: Lancement de sonarscanner begin ==="
           dotnet sonarscanner begin `
-            /k:"$projectKey" `
+            /k:"${{ secrets.projectKey }}" `
             /o:"${{ secrets.sonarOrganization }}" `
             /d:sonar.host.url="${{ secrets.sonarHost }}" `
             /d:sonar.token="${{ secrets.sonarToken }}" `
