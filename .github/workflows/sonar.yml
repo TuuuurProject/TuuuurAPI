@@ -47,7 +47,7 @@ jobs:
       - name: Build for Sonar
         run: |
           echo "=== DEBUG: dotnet build ==="
-          dotnet build --configuration Release --no-restore
+          dotnet build --configuration Debug --no-restore
           echo "=== DEBUG: Fin dotnet build ==="
 
       - name: Run unit tests with coverage
@@ -61,7 +61,7 @@ jobs:
               $outputPath = Join-Path $projectDir "TestResults"
               if (-Not (Test-Path $outputPath)) { New-Item -ItemType Directory -Path $outputPath }
 
-              $dllPath = Join-Path $projectDir "bin\Release\net8.0\$projectName.dll"
+              $dllPath = Join-Path $projectDir "bin\Debug\net8.0\$projectName.dll"
 
               echo "=== DEBUG: Test du projet $projectName ==="
               dotnet test $_.FullName `
