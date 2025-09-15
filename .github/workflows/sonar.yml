@@ -56,17 +56,19 @@ jobs:
 
           # Parcourt tous les projets *.Tests.csproj et lance les tests avec coverlet.console
           Get-ChildItem -Path tests -Recurse -Filter *.Tests.csproj | ForEach-Object {
-            $projectName = $_.BaseName
-            $outputPath = Join-Path -Path $_.DirectoryName -ChildPath "TestResults"
-            if (-Not (Test-Path $outputPath)) { New-Item -ItemType Directory -Path $outputPath }
+              $projectName = $_.BaseName
+              $projectDir = $_.DirectoryName
+              $outputPath = Join-Path $projectDir "TestResults"
+              if (-Not (Test-Path $outputPath)) { New-Item -ItemType Directory -Path $outputPath }
 
-            echo "=== DEBUG: Test du projet $projectName ==="
-            # Utilisation de coverlet.console pour générer un fichier opencover fixe
-            coverlet "$($_.DirectoryName)\bin\Release\net8.0\$projectName.dll" `
-              --target "dotnet" `
-              --targetargs "test $_.FullName --no-build --configuration Release" `
-              --format opencover `
-              --output "$outputPath\coverage.opencover.xml"
+              $dllPath = Join-Path $projectDir "bin\Release\net8.0\$projectName.dll"
+
+              echo "=== DEBUG: Test du projet $projectName ==="
+              coverlet $dllPath `
+                --target "dotnet" `
+                --targetargs "" `
+                --format opencover `
+                --output "$outputPath\coverage.opencover.xml"
           }
 
       - name: List all coverage files
