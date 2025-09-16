@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tuuuur.Infrastructure.Tests
 EndProject
 Project("{42EA0DBD-9CF1-443E-919E-BE9C484E4577}") = "Tuuuur.Database", "src\Tuuuur.Database\Tuuuur.Database.sqlproj", "{75F20DA8-7F3A-453F-A747-F9436F4BD6B1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tuuuur.RazorTemplate", "src\Tuuuur.RazorTemplate\Tuuuur.RazorTemplate.csproj", "{801AB66F-61CD-40EB-814A-C09F213746CC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,10 @@ Global
 		{75F20DA8-7F3A-453F-A747-F9436F4BD6B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75F20DA8-7F3A-453F-A747-F9436F4BD6B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75F20DA8-7F3A-453F-A747-F9436F4BD6B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{801AB66F-61CD-40EB-814A-C09F213746CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{801AB66F-61CD-40EB-814A-C09F213746CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{801AB66F-61CD-40EB-814A-C09F213746CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{801AB66F-61CD-40EB-814A-C09F213746CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -91,6 +97,7 @@ Global
 		{735767A5-5CD0-1EA3-1138-CE6B60CCDA25} = {6F2E8282-AE51-408C-9F8B-EF8D83B99B1E}
 		{3744CC4D-20B3-8FBE-0DD9-DED2ED0C9A5F} = {6F2E8282-AE51-408C-9F8B-EF8D83B99B1E}
 		{75F20DA8-7F3A-453F-A747-F9436F4BD6B1} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{801AB66F-61CD-40EB-814A-C09F213746CC} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {631B9EAF-E834-4017-85F9-DBED8EF7FB69}
