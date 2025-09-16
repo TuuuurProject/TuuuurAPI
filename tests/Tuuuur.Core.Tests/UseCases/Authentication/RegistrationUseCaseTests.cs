@@ -131,11 +131,11 @@ public class RegistrationUseCaseTests
         };
 
         m_UnitOfWorkMock = new Mock<IUnitOfWork>();
-        m_UnitOfWorkMock.Setup(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(v_User.Email, v_CancellationToken))
+        m_UnitOfWorkMock.Setup(p_Uow => p_Uow.UserRepository.GetUserByNickNameAsync(v_User.NickName, v_CancellationToken))
             .ReturnsAsync(v_ExistingUser);
         
         m_UnitOfWorkMock.Setup(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(v_User.Email, v_CancellationToken))
-            .ReturnsAsync(v_ExistingUser);
+            .ReturnsAsync((User)null);
 
         m_LoggerMock = new Mock<ILogger<RegistrationUseCase>>();
         m_MediatorMock = new Mock<IMediator>();
