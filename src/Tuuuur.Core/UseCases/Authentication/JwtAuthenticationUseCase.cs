@@ -31,7 +31,7 @@ internal class JwtAuthenticationUseCase(IUnitOfWork p_UnitOfWork, ILogger<JwtAut
             // Forward errors if any
             if (!v_HashResponse.Success) return new JwtAuthenticationResponse(v_HashResponse.Errors);
 
-            if (v_User is null || v_User.Password != v_HashResponse.Value || v_User.IsNew == true)
+            if (v_User is null || v_User.Password != v_HashResponse.Value || v_User.IsNew)
                 return new JwtAuthenticationResponse([new ErrorDto(DomainErrors.Authentication.Invalid, "Invalid login and/or password")]);
 
             JwtTokenResponse v_TokenInfos = m_JwtFactory.CreateToken(v_User);

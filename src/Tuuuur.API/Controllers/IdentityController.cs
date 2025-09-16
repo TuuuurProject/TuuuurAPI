@@ -147,7 +147,7 @@ public class IdentityController(ILogger<IdentityController> p_Logger, IMediator 
             return BadRequest(v_Result.ToDictionary());
         }
 
-        p_Presenter.Handle(await m_Mediator.Send(new VerifyAccountRequest(p_RegisterRequest.Email, p_RegisterRequest.Code), p_CancellationToken));
+        p_Presenter.Handle(await m_Mediator.Send(new VerifyAccountRequest(p_RegisterRequest.Login, p_RegisterRequest.Code), p_CancellationToken));
 
         return p_Presenter.ContentResult;
     }

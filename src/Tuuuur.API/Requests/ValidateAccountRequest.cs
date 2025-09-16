@@ -9,9 +9,9 @@ namespace Tuuuur.API.Requests;
 public record ValidateAccountRequest
 {
     /// <summary>
-    /// Email (login) of the user
+    /// Login (Email or Nickname) of the user
     /// </summary>
-    public string Email { get; set; }
+    public string Login { get; set; }
     /// <summary>
     /// Code of verification
     /// </summary>
@@ -28,9 +28,8 @@ public class ValidateAccountValidator : AbstractValidator<ValidateAccountRequest
     /// </summary>
     public ValidateAccountValidator()
     {
-        RuleFor(m => m.Email)
-            .NotEmpty().WithErrorCode(DomainErrors.Authentication.Login.Empty)
-            .EmailAddress().WithErrorCode(DomainErrors.Authentication.Login.InvalidEmail);
+        RuleFor(m => m.Login)
+            .NotEmpty().WithErrorCode(DomainErrors.Authentication.Login.Empty);
         RuleFor(m => m.Code)
             .NotEmpty().WithErrorCode(DomainErrors.Authentication.Code.Empty)
             .Length(6).WithErrorCode(DomainErrors.Authentication.Code.InvalidLength);

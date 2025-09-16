@@ -4,4 +4,4 @@ using Tuuuur.Domain.Bo;
 
 namespace Tuuuur.Core.Requests.Authentication;
 
-public record VerifyAccountRequest(string Email, string Code) : IRequest<JwtAuthenticationResponse>;
+public record VerifyAccountRequest(string Login, string Code) : IRequest<JwtAuthenticationResponse>;

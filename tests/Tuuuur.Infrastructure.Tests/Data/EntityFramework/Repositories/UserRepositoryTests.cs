@@ -41,7 +41,7 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
 
                 // Assert
                 Check.ThatCode(() => v_UserRepository.GetUserByEmailAsync(v_User.Email, CancellationToken.None))
-                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id)).IsEqualTo(v_User);
+                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id), nameof(User.UserAuth), nameof(User_USR.UserAuth_UAT)).IsEqualTo(v_User);
             }
             finally
             {
@@ -66,7 +66,7 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
 
                 // Assert
                 Check.ThatCode(() => v_UserRepository.GetUserByNickNameAsync(v_User.NickName, CancellationToken.None))
-                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id)).IsEqualTo(v_User);
+                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id), nameof(User.UserAuth), nameof(User_USR.UserAuth_UAT)).IsEqualTo(v_User);
             }
             finally
             {
@@ -95,7 +95,7 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
 
                 // Assert
                 Check.ThatCode(() => m_SqlServerFixture.TestContext.User_USR.First(p_P => p_P.NickName == v_User.NickName))
-                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id)).IsEqualTo(v_User);
+                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id), nameof(User.UserAuth), nameof(User_USR.UserAuth_UAT)).IsEqualTo(v_User);
             }
             finally
             {

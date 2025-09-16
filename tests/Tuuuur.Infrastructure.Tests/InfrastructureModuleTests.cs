@@ -1,7 +1,9 @@
 ﻿using Autofac;
 using Autofac.Core;
 using Tuuuur.Domain.Interfaces.Data;
+using Tuuuur.Domain.Interfaces.Emails;
 using Tuuuur.Domain.Interfaces.Token;
+using Tuuuur.Infrastructure.Emails;
 
 namespace Tuuuur.Infrastructure.Tests
 {
@@ -16,7 +18,10 @@ namespace Tuuuur.Infrastructure.Tests
             m_TypesWanted = new List<Type>
             {
                 typeof(IUnitOfWork),
-                typeof(IJwtFactory)
+                typeof(IJwtFactory),
+                typeof(IEmailService),
+                typeof(IRenderingService),
+                typeof(SmtpEmailConfiguration)
             };
         }
 

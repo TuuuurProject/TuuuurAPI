@@ -22,8 +22,8 @@ internal class VerifyAccountUseCase(IUnitOfWork p_UnitOfWork, ILogger<VerifyAcco
     {
         try
         {
-            User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(request.Email, cancellationToken) 
-                ?? throw new NotFoundException(request.Email, nameof(User));
+            User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailOrNickNameAsync(request.Login, cancellationToken) 
+                ?? throw new NotFoundException(request.Login, nameof(User));
             
             UserAuth v_UserAuth = await m_UnitOfWork.UserAuthRepository.GetUserAuthByUserIdAndCode(v_User.Id, request.Code, cancellationToken)
                 ?? throw new NotFoundException(request.Code, nameof(UserAuth));
