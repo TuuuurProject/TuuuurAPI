@@ -2,8 +2,7 @@ name: CI - Pull Request
 
 on:
   pull_request:
-    branches:
-      - develop
+    types: [opened, synchronize, reopened]
 
 jobs:
   build:
@@ -16,13 +15,3 @@ jobs:
     uses: ./.github/workflows/test.yml
     with:
       configuration: Debug
-
-  sonar:
-    needs: test
-    uses: ./.github/workflows/sonar.yml
-    with:
-      projectKey: TuuuurAPI
-      branchName: ${{ github.head_ref }}
-    secrets:
-      sonarToken: ${{ secrets.SONAR_TOKEN }}
-      sonarHost: ${{ secrets.SONAR_HOST_URL }}

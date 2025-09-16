@@ -8,18 +8,9 @@ namespace Tuuuur.API.Requests;
 public record RegisterRequest : LoginRequest
 {
     /// <summary>
-    /// Firstname of the user to register
-    /// </summary>
-    public string FirstName { get; set; }
-    /// <summary>
-    /// Lastname of the user to register
-    /// </summary>
-    public string LastName { get; set; }
-    /// <summary>
     /// Nickname of the user to register
     /// </summary>
     public string NickName { get; set; }
-
 }
 
 /// <summary>
@@ -32,9 +23,8 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
     /// </summary>
     public RegisterRequestValidator()
     {
-        RuleFor(m => m)
-            .SetInheritanceValidator(v => v.Add<RegisterRequest>(new LoginRequestValidator()));
-        RuleFor(m => m.FirstName).NotEmpty();
-        RuleFor(m => m.LastName).NotEmpty();
+        RuleFor(p_RegisterRequest => p_RegisterRequest)
+            .SetInheritanceValidator(p_PolymorphicValidator => p_PolymorphicValidator.Add<RegisterRequest>(new LoginRequestValidator()));
+        RuleFor(p_RegisterRequest => p_RegisterRequest.NickName).NotEmpty();
     }
 }
