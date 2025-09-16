@@ -1,0 +1,109 @@
+@model Tuuuur.Domain.Emails.Models.ConfirmAccountModel
+@{
+  Layout = null;
+}
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Tuuuur - Vérification d’email</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Styles inline de base pour compatibilité maximale */
+    body, table, td, a {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100% !important;
+      background-color: #0A0B1E;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #E1E5E9;
+    }
+    img {
+      border: 0;
+      height: auto;
+      line-height: 100%;
+      outline: none;
+      text-decoration: none;
+      display: block;
+    }
+    a {
+      color: #00E5FF;
+      text-decoration: none;
+    }
+    .code-box {
+      display: inline-block;
+      padding: 15px 25px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #FFFFFF;
+      background-color: #6C5CE7;
+      text-align: center;
+      border-radius: 6px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body style="margin:0; padding:0; background-color:#0A0B1E;">
+
+<!-- Container central -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="center" bgcolor="#0A0B1E" style="padding: 20px;">
+      
+      <!-- Table principale -->
+      <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color:#1A1B2E; border-radius:8px;">
+        
+        <!-- Header -->
+        <tr>
+          <td align="center" bgcolor="#6C5CE7" style="padding: 25px; color:#fff; font-family: Arial, Helvetica, sans-serif;">
+            <img src="" alt="Tuuuur Logo" width="100" style="display:block; margin-bottom:10px;">
+            <h1 style="margin:0; font-size:24px;">Tuuuur</h1>
+            <p style="margin:5px 0 0 0;">Quiz • Fun • Compétition</p>
+          </td>
+        </tr>
+
+        <!-- Contenu principal -->
+        <tr>
+          <td align="center" style="padding:30px; font-family: Arial, Helvetica, sans-serif; color:#E1E5E9; line-height:1.5;">
+            <h2 style="color:#FFD93D; margin-top:0;">Bonjour @Model.NickName 👋</h2>
+            <p>
+              Merci de vous être inscrit sur notre application !<br/>
+              Pour confirmer votre adresse e-mail, saisissez le code ci-dessous dans l’application :
+            </p>
+
+            <div class="code-box">
+              @Model.ConfirmationCode
+            </div>
+
+            <p>
+              Ce code est valable pendant <strong>15 minutes</strong>.<br/>
+              Si vous n’avez pas demandé cette vérification, ignorez simplement cet e-mail.
+            </p>
+
+            <p>
+              Une fois confirmé, vous pourrez profiter de toutes les fonctionnalités :<br/>
+              jouer en solo 🧠, défier vos amis 🏆 et rejoindre des salons en groupe 📱💻.
+            </p>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td align="center" bgcolor="#1A1B2E" style="padding:20px; font-size:12px; color:#8B9AA8; border-top:1px solid #6C5CE7;">
+            © @DateTime.Now.Year Tuuuur – Tous droits réservés
+          </td>
+        </tr>
+
+      </table>
+      <!-- Fin table principale -->
+
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>

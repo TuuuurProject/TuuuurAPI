@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Tuuuur.Domain.Errors;
 
 namespace Tuuuur.API.Requests;
 
@@ -25,6 +26,9 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
     {
         RuleFor(p_RegisterRequest => p_RegisterRequest)
             .SetInheritanceValidator(p_PolymorphicValidator => p_PolymorphicValidator.Add<RegisterRequest>(new LoginRequestValidator()));
-        RuleFor(p_RegisterRequest => p_RegisterRequest.NickName).NotEmpty();
+        RuleFor(p => p.NickName)
+            .NotEmpty()
+            .Matches("^[a-zA-Z0-9_-]+$")
+            .WithMessage(DomainErrors.Authentication.NickName.Invalid);
     }
 }

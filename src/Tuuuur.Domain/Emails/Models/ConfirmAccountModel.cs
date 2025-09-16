@@ -12,10 +12,10 @@ public class ConfirmAccountModel : BaseEmailModel, IRenderModel
     /// <summary>
     /// User Fullname
     /// </summary>
-    public string Fullname { get; set; } = string.Empty;
+    public string NickName { get; set; } = string.Empty;
 
     /// <summary>
     /// Address of user confirm password
     /// </summary>
-    public string ConfirmAccountAddress { get; set; } = string.Empty;
+    public string ConfirmationCode { get; set; }
 }

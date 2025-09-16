@@ -4,4 +4,4 @@ using Tuuuur.Domain.Bo;
 
 namespace Tuuuur.Core.Requests.Authentication;
 
-public record RegistrationRequest(User User) : IRequest<UserResponse>;
+public record RegistrationRequest(User User) : IRequest<EmptyResponse>;

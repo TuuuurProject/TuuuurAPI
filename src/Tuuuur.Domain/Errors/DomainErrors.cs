@@ -24,6 +24,12 @@
             public const string Missmatch = AUTHENT_PREFIX + "missmatch";
             public const string Invalid = AUTHENT_PREFIX + "invalid";
 
+            public static class NickName
+            {
+                private const string NICKNAME_PREFIX = AUTHENT_PREFIX + "nickname.";
+                public const string Invalid = AUTHENT_PREFIX + "invalid";
+            }
+
             public static class Login
             {
                 private const string LOGIN_PREFIX = AUTHENT_PREFIX + "login.";
@@ -43,6 +49,14 @@
                 public const string InvalidUppercase = PASSWORD_PREFIX + GeneralErrors.InvalidFormat.InvalidUppercase;
                 public const string InvalidLowercase = PASSWORD_PREFIX + GeneralErrors.InvalidFormat.InvalidLowercase;
                 public const string InvalidNumber = PASSWORD_PREFIX + GeneralErrors.InvalidFormat.InvalidNumber;
+            }
+
+            public static class Code
+            {
+                private const string CODE_PREFIX = AUTHENT_PREFIX + "code.";
+                
+                public const string Empty = CODE_PREFIX + GeneralErrors.Empty;
+                public const string InvalidLength = CODE_PREFIX + GeneralErrors.InvalidFormat.InvalidLength;
             }
         }
     }

@@ -9,5 +9,6 @@ public interface IUserRepository : IGenericRepository
     Task<User> GetUserByEmailAsync(string p_Email, CancellationToken p_CancellationToken = default);
     Task<User> GetUserByNickNameAsync(string p_NickaName, CancellationToken p_CancellationToken);
     Task<IMappingAddEntity<User, IEntity>> CreateUserAsync(User p_User, CancellationToken p_CancellationToken = default);
+    Task UpdateUserAsync(User p_User, CancellationToken p_CancellationToken = default);
 
 }

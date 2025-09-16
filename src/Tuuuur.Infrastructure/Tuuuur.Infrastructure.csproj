@@ -32,4 +32,8 @@
 		<ProjectReference Include="..\Tuuuur.Domain\Tuuuur.Domain.csproj" />
 	</ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\Tuuuur.RazorTemplate\Tuuuur.RazorTemplate.csproj" />
+    </ItemGroup>
+
 </Project>

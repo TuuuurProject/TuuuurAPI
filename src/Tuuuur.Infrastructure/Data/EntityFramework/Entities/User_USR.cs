@@ -20,4 +20,6 @@ public partial class User_USR
     public bool IsAdmin { get; set; }
 
     public bool IsNew { get; set; }
+
+    public virtual ICollection<UserAuth_UAT> UserAuth_UAT { get; set; } = new List<UserAuth_UAT>();
 }

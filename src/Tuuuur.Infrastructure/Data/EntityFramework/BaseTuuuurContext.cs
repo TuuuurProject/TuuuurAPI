@@ -18,6 +18,8 @@ public partial class BaseTuuuurContext : DbContext
 
     public virtual DbSet<Theme_THM> Theme_THM { get; set; }
 
+    public virtual DbSet<UserAuth_UAT> UserAuth_UAT { get; set; }
+
     public virtual DbSet<User_USR> User_USR { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -48,6 +50,24 @@ public partial class BaseTuuuurContext : DbContext
                 .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<UserAuth_UAT>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_USERAUTH_UAT");
+
+            entity.HasIndex(e => new { e.UserId, e.ExpiresAt }, "IX_UserOTP_UserId");
+
+            entity.Property(e => e.Code)
+                .IsRequired()
+                .HasMaxLength(6)
+                .IsUnicode(false);
+            entity.Property(e => e.ExpiresAt).HasDefaultValueSql("(dateadd(minute,(15),sysutcdatetime()))");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserAuth_UAT)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserAuth_User");
         });
 
         modelBuilder.Entity<User_USR>(entity =>

@@ -4,6 +4,7 @@ using Tuuuur.Domain.Interfaces.Data.Repositories;
 using Tuuuur.Infrastructure.Data.EntityFramework.Repositories;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 
 namespace Tuuuur.Infrastructure.Data;
@@ -14,6 +15,7 @@ internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
     private readonly IMapper m_Mapper;
     private readonly ILoggerFactory m_LoggerFactory;
     private readonly Lazy<IUserRepository> m_UserRepository;
+    private readonly Lazy<IUserAuthRepository> m_UserAuthRepository;
 
     public UnitOfWork(TContext p_DbContext, IMapper p_Mapper, ILoggerFactory p_LoggerFactory)
     {
@@ -22,8 +24,13 @@ internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
         m_Mapper = p_Mapper ?? throw new ArgumentNullException(nameof(p_Mapper));
         m_LoggerFactory = p_LoggerFactory ?? throw new ArgumentNullException(nameof(p_LoggerFactory));
         m_UserRepository = CreateLazy<IUserRepository, UserRepository>();
+        m_UserAuthRepository = CreateLazy<IUserAuthRepository, UserAuthRepository>();
     }
-
+    public T ExecutionStrategy<T>(Func<T> p_Func)
+    {
+        IExecutionStrategy v_Strategy = m_DbContext.Database.CreateExecutionStrategy();
+        return v_Strategy.Execute(() => p_Func());
+    }
     public void Dispose()
     {
         Dispose(true);
@@ -31,6 +38,7 @@ internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
     }
 
     public IUserRepository UserRepository => m_UserRepository.Value;
+    public IUserAuthRepository UserAuthRepository => m_UserAuthRepository.Value;
 
     public int Save()
     {

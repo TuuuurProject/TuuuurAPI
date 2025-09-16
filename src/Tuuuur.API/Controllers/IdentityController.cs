@@ -111,7 +111,8 @@ public class IdentityController(ILogger<IdentityController> p_Logger, IMediator 
         [FromBody] RegisterRequest p_RegisterRequest,
         [FromServices] IMapper p_Mapper,
         [FromServices] RegisterRequestValidator p_Validator,
-        [FromServices] UserPresenter p_Presenter)
+        [FromServices] EmptyPresenter p_Presenter,
+        CancellationToken p_CancellationToken = default)
     {
         ValidationResult v_Result = await p_Validator.ValidateAsync(p_RegisterRequest);
 
@@ -121,6 +122,32 @@ public class IdentityController(ILogger<IdentityController> p_Logger, IMediator 
         }
 
         p_Presenter.Handle(await m_Mediator.Send(new RegistrationRequest(p_Mapper.Map<User>(p_RegisterRequest))));
+
+        return p_Presenter.ContentResult;
+    }
+    
+    /// <summary>
+    /// Validate account 2FA
+    /// </summary>
+    /// <returns></returns>
+    [AllowAnonymous]
+    [HttpPost("verify")]
+    [MapToApiVersion("1")]
+    public async Task<IActionResult> ValidateAccountAsync(
+        [FromBody] ValidateAccountRequest p_RegisterRequest,
+        [FromServices] IMapper p_Mapper,
+        [FromServices] ValidateAccountValidator p_Validator,
+        [FromServices] JwtAuthenticationPresenter p_Presenter,
+        CancellationToken p_CancellationToken = default)
+    {
+        ValidationResult v_Result = await p_Validator.ValidateAsync(p_RegisterRequest, p_CancellationToken);
+
+        if (!v_Result.IsValid)
+        {
+            return BadRequest(v_Result.ToDictionary());
+        }
+
+        p_Presenter.Handle(await m_Mediator.Send(new VerifyAccountRequest(p_RegisterRequest.Email, p_RegisterRequest.Code), p_CancellationToken));
 
         return p_Presenter.ContentResult;
     }

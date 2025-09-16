@@ -30,4 +30,12 @@ internal class UserRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<U
         await AddAsync(v_Mapping.DtoEntity, p_CancellationToken);
         return v_Mapping;
     }
+    
+    public async Task UpdateUserAsync(User p_User, CancellationToken p_CancellationToken = default)
+    {
+        IMappingAddEntity<User, User_USR> v_Mapping =
+            new MappingAddEntity<User, User_USR>(Mapper, p_User);
+
+        await UpdateAsync(v_Mapping.DtoEntity);
+    }
 }
