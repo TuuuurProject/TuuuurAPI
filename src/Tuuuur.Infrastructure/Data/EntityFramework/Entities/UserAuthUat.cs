@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Tuuuur.Infrastructure.Data.EntityFramework.Entities;
 
-public partial class UserAuth_UAT
+public partial class UserAuthUat
 {
     public int Id { get; set; }
 
@@ -13,5 +13,5 @@ public partial class UserAuth_UAT
 
     public DateTime ExpiresAt { get; set; }
 
-    public virtual User_USR User { get; set; }
+    public virtual UserUsr User { get; set; }
 }

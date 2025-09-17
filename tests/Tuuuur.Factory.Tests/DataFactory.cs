@@ -8,9 +8,9 @@ public static class EfFactory
 {
     // Use this if you want to generate random number of values
     //private static readonly Faker m_GeneralFaker = new();
-    public static Faker<User_USR> CreateUser()
+    public static Faker<UserUsr> CreateUser()
     {
-        return new Faker<User_USR>()
+        return new Faker<UserUsr>()
             .RuleFor(p_O => p_O.NickName, p_F => p_F.Person.FirstName)
             .RuleFor(p_O => p_O.Email, p_F => p_F.Person.Email)
             .RuleFor(p_O => p_O.Password, p_F => p_F.Internet.Password(10))
@@ -19,9 +19,9 @@ public static class EfFactory
             .RuleFor(p_O => p_O.IsNew, p_F => p_F.PickRandom(true, false))
             .RuleFor(p_O => p_O.IsAdmin, p_F => p_F.Random.Bool());
     }
-    public static Faker<UserAuth_UAT> CreateUserAuth(int v_UserId)
+    public static Faker<UserAuthUat> CreateUserAuth(int v_UserId)
     {
-        return new Faker<UserAuth_UAT>()
+        return new Faker<UserAuthUat>()
             .RuleFor(p_O => p_O.UserId, v_UserId)
             .RuleFor(p_O => p_O.ExpiresAt, p_F => p_F.Date.Future())
             .RuleFor(p_O => p_O.Code, p_F => p_F.Random.AlphaNumeric(6));

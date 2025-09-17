@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Tuuuur.Infrastructure.Data.EntityFramework.Entities;
 
-public partial class Theme_THM
+public partial class PartyTypePtt
 {
     public int Id { get; set; }
 

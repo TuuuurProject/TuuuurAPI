@@ -12,19 +12,19 @@ public partial class BaseTuuuurContext : DbContext
     {
     }
 
-    public virtual DbSet<Difficulty_DFT> Difficulty_DFT { get; set; }
+    public virtual DbSet<DifficultyDft> DifficultyDft { get; set; }
 
-    public virtual DbSet<PartyType_PTT> PartyType_PTT { get; set; }
+    public virtual DbSet<PartyTypePtt> PartyTypePtt { get; set; }
 
-    public virtual DbSet<Theme_THM> Theme_THM { get; set; }
+    public virtual DbSet<ThemeThm> ThemeThm { get; set; }
 
-    public virtual DbSet<UserAuth_UAT> UserAuth_UAT { get; set; }
+    public virtual DbSet<UserAuthUat> UserAuthUat { get; set; }
 
-    public virtual DbSet<User_USR> User_USR { get; set; }
+    public virtual DbSet<UserUsr> UserUsr { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Difficulty_DFT>(entity =>
+        modelBuilder.Entity<DifficultyDft>(entity =>
         {
             entity.ToTable("Difficulty_DFT", "ref");
 
@@ -34,7 +34,7 @@ public partial class BaseTuuuurContext : DbContext
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<PartyType_PTT>(entity =>
+        modelBuilder.Entity<PartyTypePtt>(entity =>
         {
             entity.ToTable("PartyType_PTT", "ref");
 
@@ -44,17 +44,21 @@ public partial class BaseTuuuurContext : DbContext
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<Theme_THM>(entity =>
+        modelBuilder.Entity<ThemeThm>(entity =>
         {
+            entity.ToTable("Theme_THM");
+
             entity.Property(e => e.Label)
                 .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<UserAuth_UAT>(entity =>
+        modelBuilder.Entity<UserAuthUat>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_USERAUTH_UAT");
+
+            entity.ToTable("UserAuth_UAT");
 
             entity.HasIndex(e => new { e.UserId, e.ExpiresAt }, "IX_UserOTP_UserId");
 
@@ -64,15 +68,17 @@ public partial class BaseTuuuurContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.ExpiresAt).HasDefaultValueSql("(dateadd(minute,(15),sysutcdatetime()))");
 
-            entity.HasOne(d => d.User).WithMany(p => p.UserAuth_UAT)
+            entity.HasOne(d => d.User).WithMany(p => p.UserAuthUat)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UserAuth_User");
         });
 
-        modelBuilder.Entity<User_USR>(entity =>
+        modelBuilder.Entity<UserUsr>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_USER_USR");
+
+            entity.ToTable("User_USR");
 
             entity.HasIndex(e => e.Email, "IX_UserEmail").IsUnique();
 

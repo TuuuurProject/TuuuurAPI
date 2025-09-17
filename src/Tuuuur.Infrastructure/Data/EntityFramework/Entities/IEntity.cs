@@ -2,9 +2,9 @@
 
 namespace Tuuuur.Infrastructure.Data.EntityFramework.Entities;
 
-public partial class Difficulty_DFT : IEntity;
-public partial class PartyType_PTT : IEntity;
-public partial class Theme_THM : IEntity;
-public partial class User_USR : IEntity;
-public partial class UserAuth_UAT : IEntity;
+public partial class DifficultyDft : IEntity;
+public partial class PartyTypePtt : IEntity;
+public partial class ThemeThm : IEntity;
+public partial class UserUsr : IEntity;
+public partial class UserAuthUat : IEntity;
 

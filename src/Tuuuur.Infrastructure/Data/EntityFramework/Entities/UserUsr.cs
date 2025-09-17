@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Tuuuur.Infrastructure.Data.EntityFramework.Entities;
 
-public partial class User_USR
+public partial class UserUsr
 {
     public int Id { get; set; }
 
@@ -21,5 +21,5 @@ public partial class User_USR
 
     public bool IsNew { get; set; }
 
-    public virtual ICollection<UserAuth_UAT> UserAuth_UAT { get; set; } = new List<UserAuth_UAT>();
+    public virtual ICollection<UserAuthUat> UserAuthUat { get; set; } = new List<UserAuthUat>();
 }

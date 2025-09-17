@@ -29,12 +29,12 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
             {
                 // Arrange
                 UserAuthRepository v_UserAuthRepository = CreateUserAuthRepository();
-                User_USR v_User = EfFactory.CreateUser().Generate();
+                UserUsr v_User = EfFactory.CreateUser().Generate();
                 UserAuth v_UserAuth = BoFactory.CreateUserAuth(v_User.Id).Generate();
 
                 Check.ThatCode(async () =>
                 {
-                    _ = m_SqlServerFixture.TestContext.User_USR.Add(v_User);
+                    _ = m_SqlServerFixture.TestContext.UserUsr.Add(v_User);
                     _ = await m_SqlServerFixture.TestContext.SaveChangesAsync();
                 }).DoesNotThrow();
 
@@ -58,21 +58,21 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
             {
                 // Arrange
                 UserAuthRepository v_UserAuthRepository = CreateUserAuthRepository();
-                User_USR v_User = EfFactory.CreateUser().Generate();
+                UserUsr v_User = EfFactory.CreateUser().Generate();
 
                 Check.ThatCode(async () =>
                 {
-                    _ = m_SqlServerFixture.TestContext.User_USR.Add(v_User);
+                    _ = m_SqlServerFixture.TestContext.UserUsr.Add(v_User);
                     _ = await m_SqlServerFixture.TestContext.SaveChangesAsync();
-                    v_User.Id = m_SqlServerFixture.TestContext.User_USR.First(p_P => p_P.NickName == v_User.NickName)
+                    v_User.Id = m_SqlServerFixture.TestContext.UserUsr.First(p_P => p_P.NickName == v_User.NickName)
                         .Id;
                 }).DoesNotThrow();
 
-                UserAuth_UAT v_UserAuth = EfFactory.CreateUserAuth(v_User.Id).Generate();
+                UserAuthUat v_UserAuth = EfFactory.CreateUserAuth(v_User.Id).Generate();
 
                 Check.ThatCode(async () =>
                 {
-                    _ = m_SqlServerFixture.TestContext.UserAuth_UAT.Add(v_UserAuth);
+                    _ = m_SqlServerFixture.TestContext.UserAuthUat.Add(v_UserAuth);
                     _ = await m_SqlServerFixture.TestContext.SaveChangesAsync();
                 }).DoesNotThrow();
 
@@ -95,23 +95,23 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
             {
                 // Arrange
                 UserAuthRepository v_UserAuthRepository = CreateUserAuthRepository();
-                User_USR v_User = EfFactory.CreateUser().Generate();
+                UserUsr v_User = EfFactory.CreateUser().Generate();
 
                 Check.ThatCode(async () =>
                 {
-                    _ = m_SqlServerFixture.TestContext.User_USR.Add(v_User);
+                    _ = m_SqlServerFixture.TestContext.UserUsr.Add(v_User);
                     _ = await m_SqlServerFixture.TestContext.SaveChangesAsync();
-                    v_User.Id = m_SqlServerFixture.TestContext.User_USR.First(p_P => p_P.NickName == v_User.NickName)
+                    v_User.Id = m_SqlServerFixture.TestContext.UserUsr.First(p_P => p_P.NickName == v_User.NickName)
                         .Id;
                 }).DoesNotThrow();
 
-                UserAuth_UAT v_UserAuth = EfFactory.CreateUserAuth(v_User.Id).Generate();
+                UserAuthUat v_UserAuth = EfFactory.CreateUserAuth(v_User.Id).Generate();
 
                 Check.ThatCode(async () =>
                 {
-                    _ = m_SqlServerFixture.TestContext.UserAuth_UAT.Add(v_UserAuth);
+                    _ = m_SqlServerFixture.TestContext.UserAuthUat.Add(v_UserAuth);
                     _ = await m_SqlServerFixture.TestContext.SaveChangesAsync();
-                    v_UserAuth.Id = m_SqlServerFixture.TestContext.UserAuth_UAT.First(p_P => p_P.Code == v_UserAuth.Code)
+                    v_UserAuth.Id = m_SqlServerFixture.TestContext.UserAuthUat.First(p_P => p_P.Code == v_UserAuth.Code)
                         .Id;
                 }).DoesNotThrow();
 
@@ -122,7 +122,7 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
                     _ = await m_SqlServerFixture.TestContext.SaveChangesAsync();
                 }).DoesNotThrow();
 
-                Check.That(m_SqlServerFixture.TestContext.UserAuth_UAT
+                Check.That(m_SqlServerFixture.TestContext.UserAuthUat
                         .FirstOrDefault(p => p.Code == v_UserAuth.Code))
                     .IsNull();
 
