@@ -7,10 +7,12 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using Tuuuur.API.Controllers;
 using Tuuuur.API.Presenters;
 using Tuuuur.API.Presenters.Authentication;
 using Tuuuur.API.Requests;
+using Tuuuur.API.Tests.Mapping;
 using Tuuuur.Core.Requests.Authentication;
 using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Domain.Security;
@@ -183,6 +185,26 @@ namespace Tuuuur.API.Tests.Controllers
             
             // Act
             IActionResult v_Result = await m_Controller.VerifyAccount2FaAsync(v_LoginRequest, new ValidateAccountValidator(), new JwtAuthenticationPresenter());
+
+            // Assert
+            v_Result.Should().BeOfType<JsonContentResult>();
+            JsonContentResult v_RequestResult = (JsonContentResult)v_Result;
+            v_RequestResult.StatusCode.Should().Be(200);
+        }
+        
+        [Fact]
+        public async Task RegisterAsync_WithRequest_ReturnsOkObjectResultAsync()
+        {
+            // Arrange
+            RegisterRequest v_RegisterRequest = new()
+            {
+                Email = "test@example.com",
+                Password = "MySuper_Passw0rd12)",
+                NickName = "supernumerary"
+            };
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<RegistrationRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
+            // Act
+            IActionResult v_Result = await m_Controller.RegisterAsync(v_RegisterRequest, new Mapper(BodyRequestMappingTests.InitializeAutoMapper()), new RegisterRequestValidator(), new EmptyPresenter());
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();
