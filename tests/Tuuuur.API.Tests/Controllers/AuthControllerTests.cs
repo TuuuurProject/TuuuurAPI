@@ -17,20 +17,21 @@ using Tuuuur.Domain.Security;
 using Tuuuur.Domain.Token;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Core.Responses;
+using LoginRequest = Tuuuur.Core.Requests.Authentication.LoginRequest;
 
 namespace Tuuuur.API.Tests.Controllers
 {
-    public class IdentityControllerTests
+    public class AuthControllerTests
     {
-        private readonly Mock<ILogger<IdentityController>> m_LoggerMock;
+        private readonly Mock<ILogger<AuthController>> m_LoggerMock;
         private readonly Mock<IMediator> m_MediatorMock;
-        private readonly IdentityController m_Controller;
+        private readonly AuthController m_Controller;
 
-        public IdentityControllerTests()
+        public AuthControllerTests()
         {
-            m_LoggerMock = new Mock<ILogger<IdentityController>>();
+            m_LoggerMock = new Mock<ILogger<AuthController>>();
             m_MediatorMock = new Mock<IMediator>();
-            m_Controller = new IdentityController(m_LoggerMock.Object, m_MediatorMock.Object, new ValidationPresenter());
+            m_Controller = new AuthController(m_LoggerMock.Object, m_MediatorMock.Object, new ValidationPresenter());
         }
 
         [Fact]
@@ -84,21 +85,15 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task LoginAsync_WithValidRequest_ReturnsOkObjectResultAsync()
         {
             // Arrange
-            LoginRequest v_LoginRequest = new()
+            Requests.LoginRequest v_LoginRequest = new()
             {
-                Email = "test@example.com",
+                Login = "test@example.com",
                 Password = "Password123"
             };
-
-            UserToken v_AuthenticationResponse = new UserToken
-            {
-                User = new User(),
-                Token = new JwtTokenResponse()
-            };
-            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<JwtAuthenticationRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new JwtAuthenticationResponse(v_AuthenticationResponse));
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<LoginRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
 
             // Act
-            IActionResult v_Result = await m_Controller.LoginAsync(v_LoginRequest, new LoginRequestValidator(), new JwtAuthenticationPresenter());
+            IActionResult v_Result = await m_Controller.LoginAsync(v_LoginRequest, new LoginRequestValidator(), new EmptyPresenter());
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();
@@ -108,14 +103,14 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task LoginAsync_WithInvalidRequest_ReturnsBadRequestObjectResultAsync()
         {
             // Arrange
-            LoginRequest v_LoginRequest = new()
+            Requests.LoginRequest v_LoginRequest = new()
             {
-                Email = "test@example.com",
+                Login = "test@example.com",
                 Password = "password123"
             };
 
             // Act
-            IActionResult v_Result = await m_Controller.LoginAsync(v_LoginRequest, new LoginRequestValidator(), new JwtAuthenticationPresenter());
+            IActionResult v_Result = await m_Controller.LoginAsync(v_LoginRequest, new LoginRequestValidator(), new EmptyPresenter());
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();
@@ -135,7 +130,7 @@ namespace Tuuuur.API.Tests.Controllers
             };
 
             // Act
-            IActionResult v_Result = await m_Controller.ValidateAccountAsync(v_LoginRequest, new ValidateAccountValidator(), new JwtAuthenticationPresenter());
+            IActionResult v_Result = await m_Controller.VerifyAccount2FaAsync(v_LoginRequest, new ValidateAccountValidator(), new JwtAuthenticationPresenter());
 
             // Assert
             v_Result.Should().BeOfType<BadRequestObjectResult>();
@@ -158,7 +153,7 @@ namespace Tuuuur.API.Tests.Controllers
             m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<VerifyAccountRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new JwtAuthenticationResponse(v_AuthenticationResponse));
             
             // Act
-            IActionResult v_Result = await m_Controller.ValidateAccountAsync(v_LoginRequest, new ValidateAccountValidator(), new JwtAuthenticationPresenter());
+            IActionResult v_Result = await m_Controller.VerifyAccount2FaAsync(v_LoginRequest, new ValidateAccountValidator(), new JwtAuthenticationPresenter());
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();

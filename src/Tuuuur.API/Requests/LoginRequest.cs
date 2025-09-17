@@ -9,9 +9,9 @@ namespace Tuuuur.API.Requests
     public record LoginRequest
     {
         /// <summary>
-        /// Email (login) of the user
+        /// Login (Email/Nickname) of the user
         /// </summary>
-        public string Email { get; set; }
+        public string Login { get; set; }
         /// <summary>
         /// Password of the user
         /// </summary>
@@ -28,9 +28,13 @@ namespace Tuuuur.API.Requests
         /// </summary>
         public LoginRequestValidator()
         {
-            RuleFor(m => m.Email)
+            RuleFor(m => m.Login)
+                .EmailAddress().WithErrorCode(DomainErrors.Authentication.Login.InvalidEmail)
+                .When(m => !string.IsNullOrEmpty(m.Login) && m.Login.Contains('@'));
+            RuleFor(m => m.Login)
                 .NotEmpty().WithErrorCode(DomainErrors.Authentication.Login.Empty)
-                .EmailAddress().WithErrorCode(DomainErrors.Authentication.Login.InvalidEmail);
+                .When(m => string.IsNullOrEmpty(m.Login) || !m.Login.Contains('@'));
+            
             RuleFor(m => m.Password)
                 .NotEmpty().WithErrorCode(DomainErrors.Authentication.Password.Empty)
                 .MinimumLength(8).WithErrorCode(DomainErrors.Authentication.Password.InvalidLength)

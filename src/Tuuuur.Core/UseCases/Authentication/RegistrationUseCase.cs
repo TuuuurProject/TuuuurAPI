@@ -67,7 +67,7 @@ internal class RegistrationUseCase(
             ConfirmAccountModel v_ModelToRender = new()
             {
                 NickName = p_Request.User.NickName,
-                ConfirmationCode = v_UserAuth.Value.Code,
+                TwoFactorCode = v_UserAuth.Value.Code,
             };
 			
             string v_Content = await p_RenderingService.RenderAsync(v_ModelToRender);

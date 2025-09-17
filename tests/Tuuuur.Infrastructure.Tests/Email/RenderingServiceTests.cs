@@ -18,7 +18,7 @@ public class RenderingServiceTests
         ConfirmAccountModel v_Model = new()
         {
             NickName = v_NickName,
-            ConfirmationCode =  v_ConfirmationCode
+            TwoFactorCode =  v_ConfirmationCode
         };
 
         // Act

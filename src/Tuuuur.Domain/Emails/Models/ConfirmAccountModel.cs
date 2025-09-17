@@ -17,5 +17,5 @@ public class ConfirmAccountModel : BaseEmailModel, IRenderModel
     /// <summary>
     /// Address of user confirm password
     /// </summary>
-    public string ConfirmationCode { get; set; }
+    public string TwoFactorCode { get; set; }
 }

@@ -10,6 +10,7 @@ using Tuuuur.API.Requests;
 using Tuuuur.Core.Requests.Authentication;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Security;
+using LoginRequest = Tuuuur.Core.Requests.Authentication.LoginRequest;
 
 namespace Tuuuur.API.Controllers;
 
@@ -23,7 +24,7 @@ namespace Tuuuur.API.Controllers;
 /// <param name="p_Mediator"></param>
 /// <param name="p_ValidationPresenter"></param>
 [ApiVersion("1")]
-public class IdentityController(ILogger<IdentityController> p_Logger, IMediator p_Mediator, ValidationPresenter p_ValidationPresenter)
+public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediator, ValidationPresenter p_ValidationPresenter)
     : BaseController(p_Logger, p_Mediator, p_ValidationPresenter)
 {
 
@@ -78,12 +79,12 @@ public class IdentityController(ILogger<IdentityController> p_Logger, IMediator 
     [HttpPost("login")]
     [MapToApiVersion("1")]
     public async Task<IActionResult> LoginAsync(
-        [FromBody] LoginRequest p_LoginRequest,
+        [FromBody] Requests.LoginRequest p_LoginRequest,
         [FromServices] LoginRequestValidator p_Validator,
-        [FromServices] JwtAuthenticationPresenter p_Presenter,
+        [FromServices] EmptyPresenter p_Presenter,
         CancellationToken p_CancellationToken = default)
     {
-        ValidationResult v_Result = await p_Validator.ValidateAsync(p_LoginRequest);
+        ValidationResult v_Result = await p_Validator.ValidateAsync(p_LoginRequest, p_CancellationToken);
 
         if (!v_Result.IsValid)
         {
@@ -91,7 +92,7 @@ public class IdentityController(ILogger<IdentityController> p_Logger, IMediator 
             return m_ValidationPresenter.ContentResult;
         }
 
-        p_Presenter.Handle(await m_Mediator.Send(new JwtAuthenticationRequest(p_LoginRequest.Email, p_LoginRequest.Password), p_CancellationToken));
+        p_Presenter.Handle(await m_Mediator.Send(new LoginRequest(p_LoginRequest.Login, p_LoginRequest.Password), p_CancellationToken));
 
         return p_Presenter.ContentResult;
     }
@@ -127,14 +128,15 @@ public class IdentityController(ILogger<IdentityController> p_Logger, IMediator 
         return p_Presenter.ContentResult;
     }
     
+    
     /// <summary>
     /// Validate account 2FA
     /// </summary>
     /// <returns></returns>
     [AllowAnonymous]
-    [HttpPost("verify")]
+    [HttpPost("2fa/verify")]
     [MapToApiVersion("1")]
-    public async Task<IActionResult> ValidateAccountAsync(
+    public async Task<IActionResult> VerifyAccount2FaAsync(
         [FromBody] ValidateAccountRequest p_RegisterRequest,
         [FromServices] ValidateAccountValidator p_Validator,
         [FromServices] JwtAuthenticationPresenter p_Presenter,
@@ -148,6 +150,31 @@ public class IdentityController(ILogger<IdentityController> p_Logger, IMediator 
         }
 
         p_Presenter.Handle(await m_Mediator.Send(new VerifyAccountRequest(p_RegisterRequest.Login, p_RegisterRequest.Code), p_CancellationToken));
+
+        return p_Presenter.ContentResult;
+    }
+    
+    /// <summary>
+    /// Validate account 2FA
+    /// </summary>
+    /// <returns></returns>
+    [AllowAnonymous]
+    [HttpPost("password/forgot")]
+    [MapToApiVersion("1")]
+    public async Task<IActionResult> ForgotPasswordAsync(
+        [FromBody] EmailRequest p_Request,
+        [FromServices] EmailRequestValidator p_Validator,
+        [FromServices] EmptyPresenter p_Presenter,
+        CancellationToken p_CancellationToken = default)
+    {
+        ValidationResult v_Result = await p_Validator.ValidateAsync(p_Request, p_CancellationToken);
+
+        if (!v_Result.IsValid)
+        {
+            return BadRequest(v_Result.ToDictionary());
+        }
+
+        //p_Presenter.Handle(await m_Mediator.Send(new VerifyAccountRequest(p_Request.Login, p_Request.Code), p_CancellationToken));
 
         return p_Presenter.ContentResult;
     }
