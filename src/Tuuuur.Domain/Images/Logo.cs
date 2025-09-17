@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Tuuuur.Domain.Images;
 
+[ExcludeFromCodeCoverage]
 public static class Logo
 {
     private static readonly string m_RelativePath = Path.Combine("src", "Tuuuur.Domain", "Images", "Logo.png");
