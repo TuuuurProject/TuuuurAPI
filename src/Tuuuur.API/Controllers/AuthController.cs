@@ -153,29 +153,4 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
 
         return p_Presenter.ContentResult;
     }
-    
-    /// <summary>
-    /// Validate account 2FA
-    /// </summary>
-    /// <returns></returns>
-    [AllowAnonymous]
-    [HttpPost("password/forgot")]
-    [MapToApiVersion("1")]
-    public async Task<IActionResult> ForgotPasswordAsync(
-        [FromBody] EmailRequest p_Request,
-        [FromServices] EmailRequestValidator p_Validator,
-        [FromServices] EmptyPresenter p_Presenter,
-        CancellationToken p_CancellationToken = default)
-    {
-        ValidationResult v_Result = await p_Validator.ValidateAsync(p_Request, p_CancellationToken);
-
-        if (!v_Result.IsValid)
-        {
-            return BadRequest(v_Result.ToDictionary());
-        }
-
-        //p_Presenter.Handle(await m_Mediator.Send(new VerifyAccountRequest(p_Request.Login, p_Request.Code), p_CancellationToken));
-
-        return p_Presenter.ContentResult;
-    }
 }
