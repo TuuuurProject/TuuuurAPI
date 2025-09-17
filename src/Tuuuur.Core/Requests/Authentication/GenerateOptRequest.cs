@@ -8,4 +8,4 @@ namespace Tuuuur.Core.Requests.Authentication;
 /// Request for OPT
 /// </summary>
 /// <param name="User"></param>
-public record GenerateOPTRequest(User User) : IRequest<UserAuthResponse>;
+public record GenerateOptRequest(User User) : IRequest<UserAuthResponse>;

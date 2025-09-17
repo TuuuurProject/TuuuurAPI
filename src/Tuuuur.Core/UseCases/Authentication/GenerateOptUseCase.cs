@@ -14,11 +14,11 @@ namespace Tuuuur.Core.UseCases.Authentication;
 
 internal class GenerateOptUseCase(
     IUnitOfWork p_UnitOfWork, 
-    ILogger<GenerateOptUseCase> p_Logger) : IRequestHandler<GenerateOPTRequest, UserAuthResponse>
+    ILogger<GenerateOptUseCase> p_Logger) : IRequestHandler<GenerateOptRequest, UserAuthResponse>
 {
     [SuppressMessage("Style", "IDE1006:Styles d'affectation de noms", Justification = "Inherited named")]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public async Task<UserAuthResponse> Handle(GenerateOPTRequest request, CancellationToken cancellationToken)
+    public async Task<UserAuthResponse> Handle(GenerateOptRequest request, CancellationToken cancellationToken)
     {
         try
         {

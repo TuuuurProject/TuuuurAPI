@@ -60,7 +60,7 @@ public class RegistrationUseCaseTests
 
         m_UnitOfWorkMock.Setup(p_Uow => p_Uow.Save());
 
-        m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<GenerateOPTRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new UserAuthResponse(new UserAuth()));
+        m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<GenerateOptRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new UserAuthResponse(new UserAuth()));
 
         m_LoggerMock = new Mock<ILogger<RegistrationUseCase>>();
 

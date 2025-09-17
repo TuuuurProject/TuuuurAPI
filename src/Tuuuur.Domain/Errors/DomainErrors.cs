@@ -27,7 +27,7 @@
             public static class NickName
             {
                 private const string NICKNAME_PREFIX = AUTHENT_PREFIX + "nickname.";
-                public const string Invalid = AUTHENT_PREFIX + "invalid";
+                public const string Invalid_NickName = NICKNAME_PREFIX + Invalid;
             }
 
             public static class Login

@@ -35,7 +35,7 @@ public class GenerateOptUseCaseTests
         m_UnitOfWorkMock.Setup(p_Uow => p_Uow.UserAuthRepository.AddAuthCodeAsync(It.IsAny<UserAuth>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_MappingAddEntityMock.Object);
 
-        GenerateOPTRequest v_Request = new(v_User);
+        GenerateOptRequest v_Request = new(v_User);
 
         // Act
         UserAuthResponse v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);

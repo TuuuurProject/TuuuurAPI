@@ -29,6 +29,6 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
         RuleFor(p => p.NickName)
             .NotEmpty()
             .Matches("^[a-zA-Z0-9_-]+$")
-            .WithMessage(DomainErrors.Authentication.NickName.Invalid);
+            .WithMessage(DomainErrors.Authentication.NickName.Invalid_NickName);
     }
 }
