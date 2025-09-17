@@ -6,8 +6,6 @@ namespace Tuuuur.Factory.Tests;
 
 public static class EfFactory
 {
-    // Use this if you want to generate random number of values
-    //private static readonly Faker m_GeneralFaker = new();
     public static Faker<UserUsr> CreateUser()
     {
         return new Faker<UserUsr>()
@@ -30,8 +28,6 @@ public static class EfFactory
 
 public static class BoFactory
 {
-    // Use this if you want to generate random number of values
-    //private static readonly Faker m_GeneralFaker = new();
     public static Faker<User> CreateUser()
     {
         return new Faker<User>()

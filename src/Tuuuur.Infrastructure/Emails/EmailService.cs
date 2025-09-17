@@ -34,7 +34,7 @@ internal class EmailService(SmtpEmailConfiguration p_SmtpEmailConfiguration, ILo
 
         string v_SmtpResponse = await v_Smtp.SendAsync(v_Email, p_CancellationToken);
 
-        p_Logger.LogInformation("Sending email, Smtp response : {v_SmtpResponse}", v_SmtpResponse);
+        p_Logger.LogInformation("Sending email, Smtp response : {SmtpResponse}", v_SmtpResponse);
 
         await v_Smtp.DisconnectAsync(true, p_CancellationToken);
     }
