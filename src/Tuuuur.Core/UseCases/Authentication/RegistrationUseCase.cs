@@ -8,6 +8,7 @@ using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Emails.Models;
 using Tuuuur.Domain.Errors;
+using Tuuuur.Domain.Images;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Interfaces.Data.Entities;
 using Tuuuur.Domain.Interfaces.Emails;
@@ -71,8 +72,19 @@ internal class RegistrationUseCase(
             };
 			
             string v_Content = await p_RenderingService.RenderAsync(v_ModelToRender);
-
-            await p_EmailService.SendAsync($"Confirmez votre e-mail pour rejoindre Tuuuur !", v_Content, [p_Request.User.Email], p_CancellationToken: p_CancellationToken);
+            
+            Dictionary<string, string> v_InlineImages = new()
+            {
+                { "LogoImage", Logo.GetFullPath() }
+            };
+                
+            await p_EmailService.SendAsync(
+                "Tuuuur - Confirmez votre e-mail",
+                v_Content,
+                [p_Request.User.Email],
+                p_InlineImages: v_InlineImages,
+                p_CancellationToken: p_CancellationToken);       
+            
             
             m_UnitOfWork.CommitTransaction();
             return new EmptyResponse();
