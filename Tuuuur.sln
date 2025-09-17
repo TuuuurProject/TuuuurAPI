@@ -21,7 +21,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution items", "solution 
 		global.json = global.json
 		README.md = README.md
 		test.runsettings = test.runsettings
-		sonar.exclusions = sonar.exclusions
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tuuuur.API", "src\Tuuuur.API\Tuuuur.API.csproj", "{1B475685-C76E-459F-BE83-A1593F95675B}"
