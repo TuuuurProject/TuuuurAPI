@@ -8,6 +8,7 @@ using Tuuuur.API.Presenters;
 using Tuuuur.API.Presenters.Authentication;
 using Tuuuur.API.Requests;
 using Tuuuur.Core.Requests.Authentication;
+using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Security;
 using LoginRequest = Tuuuur.Core.Requests.Authentication.LoginRequest;
@@ -27,13 +28,14 @@ namespace Tuuuur.API.Controllers;
 public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediator, ValidationPresenter p_ValidationPresenter)
     : BaseController(p_Logger, p_Mediator, p_ValidationPresenter)
 {
-
     /// <summary>
     /// Display user infos
     /// </summary>
     /// <returns></returns>
     [HttpGet]
     [MapToApiVersion("1")]
+    [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public IActionResult Get()
     {
         if (User?.Identity?.IsAuthenticated ?? false)
@@ -53,6 +55,8 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     [Authorize(Roles = RolesType.Admin)]
     [HttpGet("[action]")]
     [MapToApiVersion("1")]
+    [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public IActionResult AdminOnly()
     {
         if (User?.Identity?.IsAuthenticated ?? false)
@@ -60,6 +64,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
             if (!User.IsInRole(RolesType.Admin)) return Forbid();
 
             m_Logger.LogInformation("User is logged");
+            
             return Ok(new { User = User.Identity.Name, Claims = User.Claims.Select(p_C => new { p_C.Type, p_C.Value }) });
         }
 
@@ -78,6 +83,8 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     [AllowAnonymous]
     [HttpPost("login")]
     [MapToApiVersion("1")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> LoginAsync(
         [FromBody] Requests.LoginRequest p_LoginRequest,
         [FromServices] LoginRequestValidator p_Validator,
@@ -109,6 +116,8 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     [AllowAnonymous]
     [HttpPost("register")]
     [MapToApiVersion("1")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RegisterAsync(
         [FromBody] RegisterRequest p_RegisterRequest,
         [FromServices] IMapper p_Mapper,
@@ -136,6 +145,8 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     [AllowAnonymous]
     [HttpPost("2fa/verify")]
     [MapToApiVersion("1")]
+    [ProducesResponseType(typeof(JwtAuthenticationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> VerifyAccount2FaAsync(
         [FromBody] ValidateAccountRequest p_RegisterRequest,
         [FromServices] ValidateAccountValidator p_Validator,
