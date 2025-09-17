@@ -102,6 +102,7 @@ namespace Tuuuur.Infrastructure.Tests.Data
         protected static void ClearData(DbContext p_DbContext)
         {
             // Add here tables to clean
+            CleanTable<UserAuth_UAT>(p_DbContext);
             CleanTable<User_USR>(p_DbContext);
 
             p_DbContext.SaveChanges();

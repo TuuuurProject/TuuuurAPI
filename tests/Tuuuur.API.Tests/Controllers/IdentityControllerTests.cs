@@ -103,7 +103,7 @@ namespace Tuuuur.API.Tests.Controllers
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();
         }
-
+        
         [Fact]
         public async Task LoginAsync_WithInvalidRequest_ReturnsBadRequestObjectResultAsync()
         {
@@ -122,6 +122,48 @@ namespace Tuuuur.API.Tests.Controllers
             JsonContentResult v_BadRequestResult = (JsonContentResult)v_Result;
             IEnumerable<ErrorDto> v_Errors = JsonSerializer.Deserialize<IEnumerable<ErrorDto>>(v_BadRequestResult.Content);
             v_Errors.Should().NotBeEmpty();
+        }
+
+        [Fact]
+        public async Task ValidAccountAsync_WithInvalidRequest_ReturnsBadRequestObjectResultAsync()
+        {
+            // Arrange
+            ValidateAccountRequest v_LoginRequest = new()
+            {
+                Login = "test@example.com",
+                Code = "3843"
+            };
+
+            // Act
+            IActionResult v_Result = await m_Controller.ValidateAccountAsync(v_LoginRequest, new ValidateAccountValidator(), new JwtAuthenticationPresenter());
+
+            // Assert
+            v_Result.Should().BeOfType<BadRequestObjectResult>();
+        }
+        
+        [Fact]
+        public async Task ValidAccountAsync_WithValidRequest_ReturnsOkObjectResultAsync()
+        {
+            // Arrange
+            ValidateAccountRequest v_LoginRequest = new()
+            {
+                Login = "test@example.com",
+                Code = "654372"
+            };
+            UserToken v_AuthenticationResponse = new UserToken
+            {
+                User = new User(),
+                Token = new JwtTokenResponse()
+            };
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<VerifyAccountRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new JwtAuthenticationResponse(v_AuthenticationResponse));
+            
+            // Act
+            IActionResult v_Result = await m_Controller.ValidateAccountAsync(v_LoginRequest, new ValidateAccountValidator(), new JwtAuthenticationPresenter());
+
+            // Assert
+            v_Result.Should().BeOfType<JsonContentResult>();
+            JsonContentResult v_RequestResult = (JsonContentResult)v_Result;
+            v_RequestResult.StatusCode.Should().Be(200);
         }
     }
 }

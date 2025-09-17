@@ -12,9 +12,9 @@ using Tuuuur.Domain.Interfaces.Emails;
 
 namespace Tuuuur.Core.UseCases.Authentication;
 
-internal class GenerateOPTUseCase(
+internal class GenerateOptUseCase(
     IUnitOfWork p_UnitOfWork, 
-    ILogger<GenerateOPTUseCase> p_Logger) : IRequestHandler<GenerateOPTRequest, UserAuthResponse>
+    ILogger<GenerateOptUseCase> p_Logger) : IRequestHandler<GenerateOPTRequest, UserAuthResponse>
 {
     [SuppressMessage("Style", "IDE1006:Styles d'affectation de noms", Justification = "Inherited named")]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -33,7 +33,7 @@ internal class GenerateOPTUseCase(
             
             UserAuth v_Auth = new(){ UserId = request.User.Id, Code = code };
             
-            IMappingAddEntity<UserAuth, IEntity> v_UserAuth = await p_UnitOfWork.UserAuthRepository.GenerateAuthCodeAsync(v_Auth, cancellationToken);
+            IMappingAddEntity<UserAuth, IEntity> v_UserAuth = await p_UnitOfWork.UserAuthRepository.AddAuthCodeAsync(v_Auth, cancellationToken);
             p_UnitOfWork.Save();
             
             return new UserAuthResponse(v_UserAuth.MapBoEntity);

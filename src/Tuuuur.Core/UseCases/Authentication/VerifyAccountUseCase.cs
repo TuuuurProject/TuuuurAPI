@@ -25,12 +25,12 @@ internal class VerifyAccountUseCase(IUnitOfWork p_UnitOfWork, ILogger<VerifyAcco
             User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailOrNickNameAsync(request.Login, cancellationToken) 
                 ?? throw new NotFoundException(request.Login, nameof(User));
             
-            UserAuth v_UserAuth = await m_UnitOfWork.UserAuthRepository.GetUserAuthByUserIdAndCode(v_User.Id, request.Code, cancellationToken)
+            UserAuth v_UserAuth = await m_UnitOfWork.UserAuthRepository.GetUserAuthByUserIdAndCodeAsync(v_User.Id, request.Code, cancellationToken)
                 ?? throw new NotFoundException(request.Code, nameof(UserAuth));
             
             v_User.IsNew = false;
             await m_UnitOfWork.UserRepository.UpdateUserAsync(v_User, cancellationToken);
-            await m_UnitOfWork.UserAuthRepository.DeleteUserAuth(v_UserAuth.Id, cancellationToken);
+            await m_UnitOfWork.UserAuthRepository.DeleteUserAuthAsync(v_UserAuth.Id, cancellationToken);
             _ = m_UnitOfWork.Save();
 
             JwtTokenResponse v_TokenInfos = p_JwtFactory.CreateToken(v_User);

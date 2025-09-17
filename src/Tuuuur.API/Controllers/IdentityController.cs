@@ -103,6 +103,7 @@ public class IdentityController(ILogger<IdentityController> p_Logger, IMediator 
     /// <param name="p_Mapper"></param>
     /// <param name="p_Validator"></param>
     /// <param name="p_Presenter"></param>
+    /// <param name="p_CancellationToken"></param>
     /// <returns></returns>
     [AllowAnonymous]
     [HttpPost("register")]
@@ -114,14 +115,14 @@ public class IdentityController(ILogger<IdentityController> p_Logger, IMediator 
         [FromServices] EmptyPresenter p_Presenter,
         CancellationToken p_CancellationToken = default)
     {
-        ValidationResult v_Result = await p_Validator.ValidateAsync(p_RegisterRequest);
+        ValidationResult v_Result = await p_Validator.ValidateAsync(p_RegisterRequest, p_CancellationToken);
 
         if (!v_Result.IsValid)
         {
             return BadRequest(v_Result.ToDictionary());
         }
 
-        p_Presenter.Handle(await m_Mediator.Send(new RegistrationRequest(p_Mapper.Map<User>(p_RegisterRequest))));
+        p_Presenter.Handle(await m_Mediator.Send(new RegistrationRequest(p_Mapper.Map<User>(p_RegisterRequest)), p_CancellationToken));
 
         return p_Presenter.ContentResult;
     }
@@ -135,7 +136,6 @@ public class IdentityController(ILogger<IdentityController> p_Logger, IMediator 
     [MapToApiVersion("1")]
     public async Task<IActionResult> ValidateAccountAsync(
         [FromBody] ValidateAccountRequest p_RegisterRequest,
-        [FromServices] IMapper p_Mapper,
         [FromServices] ValidateAccountValidator p_Validator,
         [FromServices] JwtAuthenticationPresenter p_Presenter,
         CancellationToken p_CancellationToken = default)
