@@ -185,6 +185,9 @@ internal static class Program
                 }
             );
         });
+        
+        // Razor
+        v_Builder.Services.AddRazorTemplating();
 
         WebApplication v_App = v_Builder.Build();
 

@@ -21,6 +21,7 @@ namespace Tuuuur.API.Tests
             {
                 typeof(JwtAuthenticationPresenter),
                 typeof(ValidationPresenter),
+                typeof(EmptyPresenter),
                 typeof(UserPresenter)
             };
         }

@@ -23,10 +23,17 @@
 		<PackageReference Include="LinqKit" Version="1.2.5" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-	</ItemGroup>
+        <PackageReference Include="Razor.Templating.Core" Version="2.1.0" />
+        <PackageReference Include="MailKit" Version="4.13.0" />
+        <PackageReference Include="MimeKit" Version="4.13.0" />
+    </ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Tuuuur.Domain\Tuuuur.Domain.csproj" />
 	</ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Tuuuur.RazorTemplate\Tuuuur.RazorTemplate.csproj" />
+    </ItemGroup>
 
 </Project>

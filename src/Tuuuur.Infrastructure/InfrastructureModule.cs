@@ -1,9 +1,11 @@
 ﻿using Autofac;
 using Tuuuur.Domain.Configuration;
 using Tuuuur.Domain.Interfaces.Data;
+using Tuuuur.Domain.Interfaces.Emails;
 using Tuuuur.Domain.Interfaces.Token;
 using Tuuuur.Infrastructure.Data;
 using Tuuuur.Infrastructure.Data.EntityFramework;
+using Tuuuur.Infrastructure.Emails;
 using Tuuuur.Infrastructure.Jwt;
 
 namespace Tuuuur.Infrastructure;
@@ -28,7 +30,15 @@ public class InfrastructureModule : Module
                  .As<IUnitOfWork>()
                  .InstancePerLifetimeScope();
         p_Builder.RegisterType<JwtFactory>()
-                 .As<IJwtFactory>()
-                 .InstancePerLifetimeScope();
+            .As<IJwtFactory>()
+            .InstancePerLifetimeScope();
+        p_Builder.RegisterConfiguration<SmtpEmailConfiguration>();
+        p_Builder.RegisterType<EmailService>()
+            .As<IEmailService>()
+            .InstancePerLifetimeScope();
+        p_Builder.RegisterType<RenderingService>()
+            .As<IRenderingService>()
+            .InstancePerLifetimeScope();
     }
 }
+

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Tuuuur.Infrastructure.Data.EntityFramework.Entities;
 
-public partial class Difficulty_DFT
+public partial class ThemeThm
 {
     public int Id { get; set; }
 

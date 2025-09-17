@@ -8,6 +8,11 @@ internal class InfrastructureProfile : Profile
 {
     public InfrastructureProfile()
     {
-        CreateMap<User_USR, User>().ReverseMap();
+        CreateMap<UserUsr, User>()
+            .ForMember(p_Trg => p_Trg.UserAuth, p_Opt => p_Opt.MapFrom(p_Src => p_Src.UserAuthUat))
+            .ReverseMap();
+        CreateMap<UserAuthUat, UserAuth>()
+            .ReverseMap()
+            .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.Ignore());
     }
 }

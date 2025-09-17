@@ -5,6 +5,7 @@ namespace Tuuuur.Domain.Interfaces.Data;
 public interface IUnitOfWork : IDisposable
 {
     IUserRepository UserRepository { get; }
+    IUserAuthRepository UserAuthRepository { get; }
 
     int Save();
 
@@ -13,4 +14,5 @@ public interface IUnitOfWork : IDisposable
     void CommitTransaction();
 
     void RollbackTransaction();
+    T ExecutionStrategy<T>(Func<T> p_Func);
 }

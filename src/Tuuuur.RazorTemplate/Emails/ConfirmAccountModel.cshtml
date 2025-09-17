@@ -1,0 +1,74 @@
+@model Tuuuur.Domain.Emails.Models.ConfirmAccountModel
+@{
+Layout = null;
+}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Tuuuur - Vérification d’email</title>
+</head>
+<body style="margin:0; padding:0; font-family:Arial, Helvetica, sans-serif; color:#E1E5E9;">
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center" style="padding:20px;">
+
+        <!-- Container principal -->
+        <table width="600" cellpadding="0" cellspacing="0" bgcolor="#1A1B2E" style="border-radius:10px;">
+          
+          <!-- Header -->
+          <tr>
+            <td align="center" bgcolor="#6C5CE7" style="padding:25px; color:#FFFFFF;">
+              <img src="" alt="Tuuuur Logo" width="100" style="display:block; margin-bottom:10px; border:0;">
+              <h1 style="margin:0; font-size:26px; color:#FFFFFF;">Tuuuur</h1>
+              <p style="margin:5px 0 0 0; font-size:14px; color:#FFFFFF;">Quiz • Fun • Compétition</p>
+            </td>
+          </tr>
+
+          <!-- Contenu -->
+          <tr>
+            <td align="center" style="padding:30px; color:#E1E5E9;">
+              
+              <h2 style="color:#FFD93D; margin:0 0 15px 0; font-size:22px;">Bonjour @Model.NickName <span style="display:inline-block; line-height:1;">👋</span></h2>
+              
+              <p style="margin:0 0 20px 0; font-size:16px; color:#E1E5E9; text-align:center;">
+                Merci de vous être inscrit sur notre application !<br>
+                Pour confirmer votre adresse e-mail, saisissez le code ci-dessous :
+              </p>
+
+              <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:20px 0;">
+                <tr>
+                  <td style="background-color:#6C5CE7; color:#FFFFFF; font-size:28px; font-weight:bold; text-align:center; padding:18px 30px; border-radius:8px;">
+                    @Model.ConfirmationCode
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0 0 15px 0; font-size:14px; color:#E1E5E9; text-align:center;">
+                Ce code est valable pendant <strong>15 minutes</strong>.<br>
+                Si vous n’avez pas demandé cette vérification, ignorez simplement cet e-mail.
+              </p>
+
+              <p style="margin:20px 0 0 0; font-size:14px; color:#E1E5E9; text-align:center; line-height:1.6;">
+                Une fois confirmé, vous pourrez profiter de toutes les fonctionnalités :<br>
+                <span style="display:inline-block; line-height:1;">jouer en solo 🧠, défier vos amis 🏆 et rejoindre des salons en groupe 📱💻</span>
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="padding:20px; font-size:12px; color:#8B9AA8; border-top:1px solid #6C5CE7;">
+              © @DateTime.Now.Year Tuuuur – Tous droits réservés
+            </td>
+          </tr>
+
+        </table>
+        <!-- Fin container -->
+
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

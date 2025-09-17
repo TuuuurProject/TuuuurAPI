@@ -31,17 +31,17 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
             {
                 // Arrange
                 UserRepository v_UserRepository = CreateUserRepository();
-                User_USR v_User = EfFactory.CreateUser().Generate();
+                UserUsr v_User = EfFactory.CreateUser().Generate();
 
                 Check.ThatCode(async () =>
                 {
-                    _ = m_SqlServerFixture.TestContext.User_USR.Add(v_User);
+                    _ = m_SqlServerFixture.TestContext.UserUsr.Add(v_User);
                     _ = await m_SqlServerFixture.TestContext.SaveChangesAsync();
                 }).DoesNotThrow();
 
                 // Assert
                 Check.ThatCode(() => v_UserRepository.GetUserByEmailAsync(v_User.Email, CancellationToken.None))
-                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id)).IsEqualTo(v_User);
+                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id), nameof(User.UserAuth), nameof(UserUsr.UserAuthUat)).IsEqualTo(v_User);
             }
             finally
             {
@@ -56,17 +56,17 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
             {
                 // Arrange
                 UserRepository v_UserRepository = CreateUserRepository();
-                User_USR v_User = EfFactory.CreateUser().Generate();
+                UserUsr v_User = EfFactory.CreateUser().Generate();
 
                 Check.ThatCode(async () =>
                 {
-                    _ = m_SqlServerFixture.TestContext.User_USR.Add(v_User);
+                    _ = m_SqlServerFixture.TestContext.UserUsr.Add(v_User);
                     _ = await m_SqlServerFixture.TestContext.SaveChangesAsync();
                 }).DoesNotThrow();
 
                 // Assert
                 Check.ThatCode(() => v_UserRepository.GetUserByNickNameAsync(v_User.NickName, CancellationToken.None))
-                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id)).IsEqualTo(v_User);
+                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id), nameof(User.UserAuth), nameof(UserUsr.UserAuthUat)).IsEqualTo(v_User);
             }
             finally
             {
@@ -94,8 +94,8 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
                 }).DoesNotThrow();
 
                 // Assert
-                Check.ThatCode(() => m_SqlServerFixture.TestContext.User_USR.First(p_P => p_P.NickName == v_User.NickName))
-                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id)).IsEqualTo(v_User);
+                Check.ThatCode(() => m_SqlServerFixture.TestContext.UserUsr.First(p_P => p_P.NickName == v_User.NickName))
+                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id), nameof(User.UserAuth), nameof(UserUsr.UserAuthUat)).IsEqualTo(v_User);
             }
             finally
             {
