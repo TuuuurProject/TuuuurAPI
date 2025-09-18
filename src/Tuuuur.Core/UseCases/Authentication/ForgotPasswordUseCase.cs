@@ -41,13 +41,13 @@ internal class ForgotPasswordUseCase(
                 TwoFactorCode = v_UserAuth.Value.Code,
             };
             
-            string v_Content = await p_RenderingService.RenderAsync(v_ModelToRender);
-
             Dictionary<string, string> v_InlineImages = new()
             {
                 { "LogoImage", Logo.GetFullPath() }
             };
-                
+            
+            string v_Content = await p_RenderingService.RenderAsync(v_ModelToRender);
+            
             await p_EmailService.SendAsync(
                 $"Tuuuur - Code de réinitialisation du mot de passe",
                 v_Content,
