@@ -211,5 +211,24 @@ namespace Tuuuur.API.Tests.Controllers
             JsonContentResult v_RequestResult = (JsonContentResult)v_Result;
             v_RequestResult.StatusCode.Should().Be(200);
         }
+        
+        [Fact]
+        public async Task ForgotPasswordAsync_WithValidRequest_ReturnsOkObjectResultAsync()
+        {
+            // Arrange
+            Tuuuur.API.Requests.LoginRequest v_LoginRequest = new()
+            {
+                Login = "test@example.com",
+            };
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<ForgotPasswordRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
+            
+            // Act
+            IActionResult v_Result = await m_Controller.ForgotPasswordAsync(v_LoginRequest, new LoginRequestValidator(), new EmptyPresenter());
+
+            // Assert
+            v_Result.Should().BeOfType<JsonContentResult>();
+            JsonContentResult v_RequestResult = (JsonContentResult)v_Result;
+            v_RequestResult.StatusCode.Should().Be(200);
+        }
     }
 }
