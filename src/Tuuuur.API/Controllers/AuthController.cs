@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning;
 using AutoMapper;
+using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -12,6 +13,7 @@ using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Security;
 using LoginRequest = Tuuuur.Core.Requests.Authentication.LoginRequest;
+using ResetPasswordRequest = Tuuuur.API.Requests.ResetPasswordRequest;
 
 namespace Tuuuur.API.Controllers;
 
@@ -34,7 +36,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     /// <returns></returns>
     [HttpGet]
     [MapToApiVersion("1")]
-    [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public IActionResult Get()
     {
@@ -55,7 +57,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     [Authorize(Roles = RolesType.Admin)]
     [HttpGet("[action]")]
     [MapToApiVersion("1")]
-    [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public IActionResult AdminOnly()
     {
@@ -75,7 +77,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     /// <summary>
     /// Login an existing user
     /// </summary>
-    /// <param name="p_LoginRequest"></param>
+    /// <param name="p_AuthenticateRequest"></param>
     /// <param name="p_Validator"></param>
     /// <param name="p_Presenter"></param>
     /// <param name="p_CancellationToken"></param>
@@ -84,14 +86,14 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     [HttpPost("login")]
     [MapToApiVersion("1")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> LoginAsync(
-        [FromBody] Requests.LoginRequest p_LoginRequest,
-        [FromServices] LoginRequestValidator p_Validator,
+        [FromBody] AuthenticateRequest p_AuthenticateRequest,
+        [FromServices] AuthenticateRequestValidator p_Validator,
         [FromServices] EmptyPresenter p_Presenter,
         CancellationToken p_CancellationToken = default)
     {
-        ValidationResult v_Result = await p_Validator.ValidateAsync(p_LoginRequest, p_CancellationToken);
+        ValidationResult v_Result = await p_Validator.ValidateAsync(p_AuthenticateRequest, p_CancellationToken);
 
         if (!v_Result.IsValid)
         {
@@ -99,7 +101,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
             return m_ValidationPresenter.ContentResult;
         }
 
-        p_Presenter.Handle(await m_Mediator.Send(new LoginRequest(p_LoginRequest.Login, p_LoginRequest.Password), p_CancellationToken));
+        p_Presenter.Handle(await m_Mediator.Send(new LoginRequest(p_AuthenticateRequest.Login, p_AuthenticateRequest.Password), p_CancellationToken));
 
         return p_Presenter.ContentResult;
     }
@@ -117,7 +119,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     [HttpPost("register")]
     [MapToApiVersion("1")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> RegisterAsync(
         [FromBody] RegisterRequest p_RegisterRequest,
         [FromServices] IMapper p_Mapper,
@@ -146,7 +148,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     [HttpPost("2fa/verify")]
     [MapToApiVersion("1")]
     [ProducesResponseType(typeof(JwtAuthenticationResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> VerifyAccount2FaAsync(
         [FromBody] ValidateAccountRequest p_RegisterRequest,
         [FromServices] ValidateAccountValidator p_Validator,
@@ -161,6 +163,64 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
         }
 
         p_Presenter.Handle(await m_Mediator.Send(new VerifyAccountRequest(p_RegisterRequest.Login, p_RegisterRequest.Code), p_CancellationToken));
+
+        return p_Presenter.ContentResult;
+    }
+    
+    /// <summary>
+    /// Forgot password
+    /// </summary>
+    /// <returns></returns>
+    [AllowAnonymous]
+    [HttpPost("password/forgot")]
+    [MapToApiVersion("1")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> ForgotPasswordAsync(
+        [FromBody] Requests.LoginRequest p_Request,
+        [FromServices] LoginRequestValidator p_Validator,
+        [FromServices] EmptyPresenter p_Presenter,
+        CancellationToken p_CancellationToken = default)
+    {
+        
+        ValidationResult v_Result = await p_Validator.ValidateAsync(p_Request, p_CancellationToken);
+
+        if (!v_Result.IsValid)
+        {
+            return BadRequest(v_Result.ToDictionary());
+        }
+
+        p_Presenter.Handle(await m_Mediator.Send(new ForgotPasswordRequest(p_Request.Login), p_CancellationToken));
+
+        return p_Presenter.ContentResult;
+    }
+    
+    /// <summary>
+    /// Reset password
+    /// </summary>
+    /// <returns></returns>
+    [AllowAnonymous]
+    [HttpPost("password/reset")]
+    [MapToApiVersion("1")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ResetPasswordAsync(
+        [FromBody] ResetPasswordRequest p_Request,
+        [FromServices] ResetPasswordRequestValidator p_Validator,
+        [FromServices] EmptyPresenter p_Presenter,
+        CancellationToken p_CancellationToken = default)
+    {
+        ValidationResult v_Result = await p_Validator.ValidateAsync(p_Request, p_CancellationToken);
+
+        if (!v_Result.IsValid)
+        {
+            return BadRequest(v_Result.ToDictionary());
+        }
+
+        p_Presenter.Handle(
+            await m_Mediator.Send(
+                new Core.Requests.Authentication.ResetPasswordRequest(p_Request.Login, p_Request.Password, p_Request.Code), 
+                p_CancellationToken)
+            );
 
         return p_Presenter.ContentResult;
     }

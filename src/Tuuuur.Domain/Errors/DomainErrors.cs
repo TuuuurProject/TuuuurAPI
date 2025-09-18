@@ -57,6 +57,7 @@
                 
                 public const string Empty = CODE_PREFIX + GeneralErrors.Empty;
                 public const string InvalidLength = CODE_PREFIX + GeneralErrors.InvalidFormat.InvalidLength;
+                public const string TooMuchDemand = CODE_PREFIX + "too-much-demand";
             }
         }
     }

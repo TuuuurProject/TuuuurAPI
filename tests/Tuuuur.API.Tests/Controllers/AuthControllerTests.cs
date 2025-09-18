@@ -116,7 +116,7 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task LoginAsync_WithValidRequest_ReturnsOkObjectResultAsync()
         {
             // Arrange
-            Requests.LoginRequest v_LoginRequest = new()
+            Requests.AuthenticateRequest v_AuthenticateRequest = new()
             {
                 Login = "test@example.com",
                 Password = "Password123"
@@ -124,7 +124,7 @@ namespace Tuuuur.API.Tests.Controllers
             m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<LoginRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
 
             // Act
-            IActionResult v_Result = await m_Controller.LoginAsync(v_LoginRequest, new LoginRequestValidator(), new EmptyPresenter());
+            IActionResult v_Result = await m_Controller.LoginAsync(v_AuthenticateRequest, new AuthenticateRequestValidator(), new EmptyPresenter());
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();
@@ -134,14 +134,14 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task LoginAsync_WithInvalidRequest_ReturnsBadRequestObjectResultAsync()
         {
             // Arrange
-            Requests.LoginRequest v_LoginRequest = new()
+            Requests.AuthenticateRequest v_AuthenticateRequest = new()
             {
                 Login = "test@example.com",
                 Password = "password123"
             };
 
             // Act
-            IActionResult v_Result = await m_Controller.LoginAsync(v_LoginRequest, new LoginRequestValidator(), new EmptyPresenter());
+            IActionResult v_Result = await m_Controller.LoginAsync(v_AuthenticateRequest, new AuthenticateRequestValidator(), new EmptyPresenter());
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();

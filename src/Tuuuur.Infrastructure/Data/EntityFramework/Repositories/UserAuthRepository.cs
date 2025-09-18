@@ -34,6 +34,14 @@ internal class UserAuthRepository(DbContext p_DbContext, IMapper p_Mapper, ILogg
     {
         await DeleteAsync(p_UserAuthId, p_CancellationToken);
     }
+
+    public async Task<long> CountOfUserAuthsByUserIdAsync(int p_UserId,
+        CancellationToken p_CancellationToken = default)
+    {
+        await DeleteExpiredUserAuthsAsync(p_CancellationToken);
+        long v_Data = await CountAsync(p_P => p_P.UserId == p_UserId, p_CancellationToken);
+        return v_Data;
+    }
     
     private async Task DeleteExpiredUserAuthsAsync(CancellationToken p_CancellationToken = default)
     {
