@@ -230,5 +230,26 @@ namespace Tuuuur.API.Tests.Controllers
             JsonContentResult v_RequestResult = (JsonContentResult)v_Result;
             v_RequestResult.StatusCode.Should().Be(200);
         }
+        
+        [Fact]
+        public async Task ResetPasswordAsync_WithValidRequest_ReturnsOkObjectResultAsync()
+        {
+            // Arrange
+            Requests.ResetPasswordRequest v_ResetPasswordRequest = new()
+            {
+                Login = "test@example.com",
+                Password = "MySuper_Passw0rd12",
+                Code = "657432"
+            };
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<Tuuuur.Core.Requests.Authentication.ResetPasswordRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
+            
+            // Act
+            IActionResult v_Result = await m_Controller.ResetPasswordAsync(v_ResetPasswordRequest, new ResetPasswordRequestValidator(), new EmptyPresenter());
+
+            // Assert
+            v_Result.Should().BeOfType<JsonContentResult>();
+            JsonContentResult v_RequestResult = (JsonContentResult)v_Result;
+            v_RequestResult.StatusCode.Should().Be(200);
+        }
     }
 }
