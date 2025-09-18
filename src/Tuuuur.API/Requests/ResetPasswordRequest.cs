@@ -6,7 +6,7 @@ namespace Tuuuur.API.Requests;
 /// <summary>
 /// Request for reset password
 /// </summary>
-public record ResetPasswordRequest : AuthenticateRequest
+public record ResetPasswordRequest
 {
     /// <summary>
     /// Login (Email/Nickname) of the user

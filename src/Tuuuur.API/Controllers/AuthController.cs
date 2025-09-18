@@ -36,7 +36,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     /// <returns></returns>
     [HttpGet]
     [MapToApiVersion("1")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public IActionResult Get()
     {
@@ -57,7 +57,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     [Authorize(Roles = RolesType.Admin)]
     [HttpGet("[action]")]
     [MapToApiVersion("1")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public IActionResult AdminOnly()
     {
@@ -85,7 +85,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     [AllowAnonymous]
     [HttpPost("login")]
     [MapToApiVersion("1")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> LoginAsync(
         [FromBody] AuthenticateRequest p_AuthenticateRequest,
@@ -118,7 +118,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     [AllowAnonymous]
     [HttpPost("register")]
     [MapToApiVersion("1")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> RegisterAsync(
         [FromBody] RegisterRequest p_RegisterRequest,
