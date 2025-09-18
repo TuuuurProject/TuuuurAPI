@@ -10,7 +10,14 @@ namespace Tuuuur.Infrastructure.Emails;
 internal class EmailService(SmtpEmailConfiguration p_SmtpEmailConfiguration, ILogger<EmailService> p_Logger)
     : IEmailService
 {
-    public async Task SendAsync(string p_Subject, string p_Content, IEnumerable<string> p_To, IEnumerable<string> p_Cc = null, IEnumerable<string> p_Bcc = null, CancellationToken p_CancellationToken = default)
+    public async Task SendAsync(
+        string p_Subject, 
+        string p_Content, 
+        IEnumerable<string> p_To, 
+        IEnumerable<string> p_Cc = null, 
+        IEnumerable<string> p_Bcc = null, 
+        IDictionary<string, string> p_InlineImages = null, 
+        CancellationToken p_CancellationToken = default)
     {
         MimeMessage v_Email = new();
 
@@ -24,7 +31,28 @@ internal class EmailService(SmtpEmailConfiguration p_SmtpEmailConfiguration, ILo
             v_Email.Bcc.AddRange(p_Bcc.Select(MailboxAddress.Parse));
 
         v_Email.Subject = p_Subject;
-        v_Email.Body = new TextPart(TextFormat.Html) { Text = p_Content };
+        
+        BodyBuilder v_BodyBuilder = new BodyBuilder
+        {
+            HtmlBody = p_Content
+        };
+
+        if (p_InlineImages != null)
+        {
+            foreach (KeyValuePair<string, string> v_Kvp in p_InlineImages)
+            {
+                string v_ContentId = v_Kvp.Key;
+                string v_FilePath = v_Kvp.Value;
+
+                if (File.Exists(v_FilePath))
+                {
+                    MimeEntity v_Resource = await v_BodyBuilder.LinkedResources.AddAsync(v_FilePath, p_CancellationToken);
+                    v_Resource.ContentId = v_ContentId;
+                }
+            }
+        }
+
+        v_Email.Body = v_BodyBuilder.ToMessageBody();
 
         using SmtpClient v_Smtp = new();
         await v_Smtp.ConnectAsync(p_SmtpEmailConfiguration.SmtpAddress, p_SmtpEmailConfiguration.SmtpPort, p_SmtpEmailConfiguration.EnableEncryption ? SecureSocketOptions.Auto : SecureSocketOptions.None, p_CancellationToken);

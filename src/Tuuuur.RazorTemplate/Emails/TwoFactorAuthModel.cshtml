@@ -1,4 +1,4 @@
-@model Tuuuur.Domain.Emails.Models.ConfirmAccountModel
+@model Tuuuur.Domain.Emails.Models.TwoFactorAuthModel
 @{
   Layout = "_LayoutEmail.cshtml";
 }
@@ -9,8 +9,8 @@
     <h2 style="color:#FFD93D; margin:0 0 15px 0; font-size:22px;">Bonjour @Model.NickName <span style="display:inline-block; line-height:1;">👋</span></h2>
     
     <p style="margin:0 0 20px 0; font-size:16px; color:#E1E5E9; text-align:center;">
-      Merci de vous être inscrit sur notre application !<br>
-      Pour confirmer votre adresse e-mail, saisissez le code ci-dessous :
+      Nous avons reçu une demande de connexion à votre compte.<br>
+      Pour valider votre identité, saisissez le code ci-dessous :
     </p>
 
     <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:20px 0;">
@@ -23,12 +23,11 @@
 
     <p style="margin:0 0 15px 0; font-size:14px; color:#E1E5E9; text-align:center;">
       Ce code est valable pendant <strong>15 minutes</strong>.<br>
-      Si vous n’avez pas demandé cette vérification, ignorez simplement cet e-mail.
+      Si vous n’avez pas demandé cette connexion, ignorez simplement cet e-mail.
     </p>
 
     <p style="margin:20px 0 0 0; font-size:14px; color:#E1E5E9; text-align:center; line-height:1.6;">
-      Une fois confirmé, vous pourrez profiter de toutes les fonctionnalités :<br>
-      <span style="display:inline-block; line-height:1;">jouer en solo 🧠, défier vos amis 🏆 et rejoindre des salons en groupe 📱💻</span>
+      Sécurisez votre compte et profitez de vos sessions Tuuuur en toute sérénité ! 🛡️
     </p>
 
   </td>

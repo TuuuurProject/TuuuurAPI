@@ -41,7 +41,7 @@ internal class UserAuthRepository(DbContext p_DbContext, IMapper p_Mapper, ILogg
 
         if (v_ExpiredEntities.Count != 0)
         {
-            await DeleteAsync(v_ExpiredEntities, p_CancellationToken);
+            await DeleteAsync(v_ExpiredEntities);
 
             _ = await DbContext.SaveChangesAsync(p_CancellationToken);
         }
