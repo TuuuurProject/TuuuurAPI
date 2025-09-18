@@ -31,13 +31,13 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
         RuleFor(p_RegisterRequest => p_RegisterRequest)
             .SetInheritanceValidator(p_PolymorphicValidator => p_PolymorphicValidator.Add<RegisterRequest>(new EmailRequestValidator()));
             
-        RuleFor(m => m.Password)
+        RuleFor(p_Request => p_Request.Password)
             .NotEmpty().WithErrorCode(DomainErrors.Authentication.Password.Empty)
             .MinimumLength(8).WithErrorCode(DomainErrors.Authentication.Password.InvalidLength)
             .Matches("[A-Z]+").WithErrorCode(DomainErrors.Authentication.Password.InvalidUppercase)
             .Matches("[a-z]+").WithErrorCode(DomainErrors.Authentication.Password.InvalidLowercase)
             .Matches("[0-9]+").WithErrorCode(DomainErrors.Authentication.Password.InvalidNumber);
-        RuleFor(p => p.NickName)
+        RuleFor(p_Request => p_Request.NickName)
             .NotEmpty()
             .Matches("^[a-zA-Z0-9_-]+$")
             .WithMessage(DomainErrors.Authentication.NickName.Invalid_NickName);

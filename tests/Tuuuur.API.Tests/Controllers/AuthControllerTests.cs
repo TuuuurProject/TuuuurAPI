@@ -116,7 +116,7 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task LoginAsync_WithValidRequest_ReturnsOkObjectResultAsync()
         {
             // Arrange
-            Requests.LoginRequest v_LoginRequest = new()
+            Requests.AuthenticateRequest v_AuthenticateRequest = new()
             {
                 Login = "test@example.com",
                 Password = "Password123"
@@ -124,7 +124,7 @@ namespace Tuuuur.API.Tests.Controllers
             m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<LoginRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
 
             // Act
-            IActionResult v_Result = await m_Controller.LoginAsync(v_LoginRequest, new LoginRequestValidator(), new EmptyPresenter());
+            IActionResult v_Result = await m_Controller.LoginAsync(v_AuthenticateRequest, new AuthenticateRequestValidator(), new EmptyPresenter());
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();
@@ -134,14 +134,14 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task LoginAsync_WithInvalidRequest_ReturnsBadRequestObjectResultAsync()
         {
             // Arrange
-            Requests.LoginRequest v_LoginRequest = new()
+            Requests.AuthenticateRequest v_AuthenticateRequest = new()
             {
                 Login = "test@example.com",
                 Password = "password123"
             };
 
             // Act
-            IActionResult v_Result = await m_Controller.LoginAsync(v_LoginRequest, new LoginRequestValidator(), new EmptyPresenter());
+            IActionResult v_Result = await m_Controller.LoginAsync(v_AuthenticateRequest, new AuthenticateRequestValidator(), new EmptyPresenter());
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();
@@ -205,6 +205,46 @@ namespace Tuuuur.API.Tests.Controllers
             m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<RegistrationRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
             // Act
             IActionResult v_Result = await m_Controller.RegisterAsync(v_RegisterRequest, new Mapper(BodyRequestMappingTests.InitializeAutoMapper()), new RegisterRequestValidator(), new EmptyPresenter());
+
+            // Assert
+            v_Result.Should().BeOfType<JsonContentResult>();
+            JsonContentResult v_RequestResult = (JsonContentResult)v_Result;
+            v_RequestResult.StatusCode.Should().Be(200);
+        }
+        
+        [Fact]
+        public async Task ForgotPasswordAsync_WithValidRequest_ReturnsOkObjectResultAsync()
+        {
+            // Arrange
+            Tuuuur.API.Requests.LoginRequest v_LoginRequest = new()
+            {
+                Login = "test@example.com",
+            };
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<ForgotPasswordRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
+            
+            // Act
+            IActionResult v_Result = await m_Controller.ForgotPasswordAsync(v_LoginRequest, new LoginRequestValidator(), new EmptyPresenter());
+
+            // Assert
+            v_Result.Should().BeOfType<JsonContentResult>();
+            JsonContentResult v_RequestResult = (JsonContentResult)v_Result;
+            v_RequestResult.StatusCode.Should().Be(200);
+        }
+        
+        [Fact]
+        public async Task ResetPasswordAsync_WithValidRequest_ReturnsOkObjectResultAsync()
+        {
+            // Arrange
+            Requests.ResetPasswordRequest v_ResetPasswordRequest = new()
+            {
+                Login = "test@example.com",
+                Password = "MySuper_Passw0rd12",
+                Code = "657432"
+            };
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<Tuuuur.Core.Requests.Authentication.ResetPasswordRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
+            
+            // Act
+            IActionResult v_Result = await m_Controller.ResetPasswordAsync(v_ResetPasswordRequest, new ResetPasswordRequestValidator(), new EmptyPresenter());
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();

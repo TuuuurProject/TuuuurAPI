@@ -11,4 +11,6 @@ public interface IUserAuthRepository : IGenericRepository
         CancellationToken p_CancellationToken = default);
 
     Task DeleteUserAuthAsync(int p_UserAuthId, CancellationToken p_CancellationToken = default);
+
+    Task<long> CountOfUserAuthsByUserIdAsync(int p_UserId, CancellationToken p_CancellationToken = default);
 }
