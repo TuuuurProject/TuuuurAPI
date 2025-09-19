@@ -21,5 +21,13 @@ public partial class UserUsr
 
     public bool IsNew { get; set; }
 
+    public virtual ICollection<EloElo> EloElo { get; set; } = new List<EloElo>();
+
+    public virtual ICollection<PartyPty> PartyPty { get; set; } = new List<PartyPty>();
+
     public virtual ICollection<UserAuthUat> UserAuthUat { get; set; } = new List<UserAuthUat>();
+
+    public virtual ICollection<UserPartyQuestionUpq> UserPartyQuestionUpq { get; set; } = new List<UserPartyQuestionUpq>();
+
+    public virtual ICollection<PartyPty> IdParty { get; set; } = new List<PartyPty>();
 }
