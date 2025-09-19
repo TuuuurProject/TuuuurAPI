@@ -48,7 +48,7 @@ namespace Tuuuur.Core.Tests.UseCases.Authentication
             m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailOrNickNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
             m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<HashRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new StringResponse(v_HashedPassword));
 
-            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<GenerateOptRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new UserAuthResponse(new UserAuth()));
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<GenerateOptRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<UserAuth>(new UserAuth()));
 
             JwtTokenResponse v_JwtTokenResponse = new JwtTokenResponse();
             m_JwtFactoryMock.Setup(p_J => p_J.CreateToken(v_User)).Returns(v_JwtTokenResponse);

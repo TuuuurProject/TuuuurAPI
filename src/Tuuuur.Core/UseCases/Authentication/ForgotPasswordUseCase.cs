@@ -32,7 +32,7 @@ internal class ForgotPasswordUseCase(
             if (v_User is null || v_User.IsNew)
                 return new EmptyResponse();
             
-            UserAuthResponse v_UserAuth = await p_Mediator.Send(new GenerateOptRequest(v_User),  cancellationToken);
+            GenericEntityResponse<UserAuth> v_UserAuth = await p_Mediator.Send(new GenerateOptRequest(v_User),  cancellationToken);
             if(!v_UserAuth.Success) return new EmptyResponse(v_UserAuth.Errors);
             
             ForgotPasswordModel v_ModelToRender = new()

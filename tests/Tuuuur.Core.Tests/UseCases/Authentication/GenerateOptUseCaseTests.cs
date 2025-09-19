@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Requests.Authentication;
+using Tuuuur.Core.Responses;
 using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Core.UseCases.Authentication;
 using Tuuuur.Domain.Bo;
@@ -38,7 +39,7 @@ public class GenerateOptUseCaseTests
         GenerateOptRequest v_Request = new(v_User);
 
         // Act
-        UserAuthResponse v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
+        GenericEntityResponse<UserAuth> v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(v_Result);

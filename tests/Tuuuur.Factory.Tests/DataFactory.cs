@@ -17,6 +17,17 @@ public static class EfFactory
             .RuleFor(p_O => p_O.IsNew, p_F => p_F.PickRandom(true, false))
             .RuleFor(p_O => p_O.IsAdmin, p_F => p_F.Random.Bool());
     }
+    public static Faker<ThemeThm> CreateTheme()
+    {
+        return new Faker<ThemeThm>()
+            .RuleFor(p_O => p_O.Icon, p_F => p_F.Random.Word())
+            .RuleFor(p_O => p_O.Label, p_F => p_F.Random.Word());
+    }
+    public static Faker<DifficultyDft> CreateDifficulty()
+    {
+        return new Faker<DifficultyDft>()
+            .RuleFor(p_O => p_O.Label, p_F => p_F.Random.Word());
+    }
     public static Faker<UserAuthUat> CreateUserAuth(int v_UserId)
     {
         return new Faker<UserAuthUat>()

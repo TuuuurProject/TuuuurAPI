@@ -1,4 +1,6 @@
-﻿namespace Tuuuur.Core.Responses
+﻿using Tuuuur.Domain.Bo;
+
+namespace Tuuuur.Core.Responses
 {
     public abstract class UseCaseResponseMessage
     {

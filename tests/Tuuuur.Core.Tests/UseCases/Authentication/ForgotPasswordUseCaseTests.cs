@@ -47,7 +47,7 @@ public class ForgotPasswordUseCaseTests
         User v_User = new() { Email = v_Email };
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailOrNickNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
         
-        m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<GenerateOptRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new UserAuthResponse(new UserAuth()));
+        m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<GenerateOptRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<UserAuth>(new UserAuth()));
 
         ForgotPasswordRequest v_Request = new(v_Email);
 

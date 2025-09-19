@@ -16,6 +16,8 @@ internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
     private readonly ILoggerFactory m_LoggerFactory;
     private readonly Lazy<IUserRepository> m_UserRepository;
     private readonly Lazy<IUserAuthRepository> m_UserAuthRepository;
+    private readonly Lazy<IThemeRepository> m_ThemeRepository;
+    private readonly Lazy<IDifficultyRepository> m_DifficultyRepository;
 
     public UnitOfWork(TContext p_DbContext, IMapper p_Mapper, ILoggerFactory p_LoggerFactory)
     {
@@ -25,6 +27,8 @@ internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
         m_LoggerFactory = p_LoggerFactory ?? throw new ArgumentNullException(nameof(p_LoggerFactory));
         m_UserRepository = CreateLazy<IUserRepository, UserRepository>();
         m_UserAuthRepository = CreateLazy<IUserAuthRepository, UserAuthRepository>();
+        m_ThemeRepository = CreateLazy<IThemeRepository, ThemeRepository>();
+        m_DifficultyRepository = CreateLazy<IDifficultyRepository, DifficultyRepository>();
     }
     public T ExecutionStrategy<T>(Func<T> p_Func)
     {
@@ -39,6 +43,8 @@ internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
 
     public IUserRepository UserRepository => m_UserRepository.Value;
     public IUserAuthRepository UserAuthRepository => m_UserAuthRepository.Value;
+    public IThemeRepository ThemeRepository => m_ThemeRepository.Value;
+    public IDifficultyRepository DifficultyRepository => m_DifficultyRepository.Value;
 
     public int Save()
     {
