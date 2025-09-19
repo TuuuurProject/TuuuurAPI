@@ -41,7 +41,7 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
 
                 // Assert
                 Check.ThatCode(() => v_UserRepository.GetUserByEmailAsync(v_User.Email, CancellationToken.None))
-                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id), nameof(User.UserAuth), nameof(UserUsr.UserAuthUat)).IsEqualTo(v_User);
+                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id), nameof(User.UserAuth), nameof(UserUsr.UserAuthUat),nameof(UserUsr.IdParty), nameof(UserUsr.UserPartyQuestionUpq), nameof(UserUsr.PartyPty), nameof(UserUsr.EloElo)).IsEqualTo(v_User);
             }
             finally
             {
@@ -66,7 +66,7 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
 
                 // Assert
                 Check.ThatCode(() => v_UserRepository.GetUserByNickNameAsync(v_User.NickName, CancellationToken.None))
-                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id), nameof(User.UserAuth), nameof(UserUsr.UserAuthUat)).IsEqualTo(v_User);
+                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id), nameof(User.UserAuth), nameof(UserUsr.UserAuthUat), nameof(UserUsr.IdParty), nameof(UserUsr.UserPartyQuestionUpq), nameof(UserUsr.PartyPty), nameof(UserUsr.EloElo)).IsEqualTo(v_User);
             }
             finally
             {
@@ -95,7 +95,7 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
 
                 // Assert
                 Check.ThatCode(() => m_SqlServerFixture.TestContext.UserUsr.First(p_P => p_P.NickName == v_User.NickName))
-                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id), nameof(User.UserAuth), nameof(UserUsr.UserAuthUat)).IsEqualTo(v_User);
+                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id), nameof(User.UserAuth), nameof(UserUsr.UserAuthUat), nameof(UserUsr.IdParty), nameof(UserUsr.UserPartyQuestionUpq), nameof(UserUsr.PartyPty), nameof(UserUsr.EloElo)).IsEqualTo(v_User);
             }
             finally
             {
