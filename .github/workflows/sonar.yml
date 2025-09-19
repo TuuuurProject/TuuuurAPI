@@ -20,7 +20,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Required for accurate blame and coverage
+          fetch-depth: 0
 
       - name: Cache SonarQube Cloud packages
         uses: actions/cache@v4
@@ -52,6 +52,18 @@ jobs:
       - name: Install Coverlet
         run: dotnet tool install --global coverlet.console
 
+      - name: Read sonar-exclusions.txt
+        id: exclusions
+        shell: powershell
+        run: |
+          if (-Not (Test-Path "sonar-exclusions.txt")) {
+              echo "exclusions=" >> $GITHUB_OUTPUT
+          } else {
+              $lines = Get-Content "sonar-exclusions.txt" | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" }
+              $exclusions = $lines -join ","
+              echo "exclusions=$exclusions" >> $GITHUB_OUTPUT
+          }
+
       - name: Begin SonarQube analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -63,7 +75,8 @@ jobs:
             /k:"TuuuurProject_TuuuurAPI" `
             /o:"tuuuurproject" `
             /d:sonar.token="$env:SONAR_TOKEN" `
-            /d:sonar.cs.opencover.reportsPaths="coverage/*.xml"
+            /d:sonar.cs.opencover.reportsPaths="coverage/*.xml" `
+            /d:sonar.exclusions="${{ steps.exclusions.outputs.exclusions }}"
           echo "=== DEBUG: End Begin step ==="
 
       - name: Restore NuGet packages
