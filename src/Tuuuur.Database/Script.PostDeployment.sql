@@ -56,8 +56,3 @@ IF NOT EXISTS (SELECT 1 FROM [dbo].[Theme_THM])
     END;
 GO
 
--- ======================
--- Question_QST + Anwser_ANS
--- ======================
-:r .\PostDeploy_Questions.sql
-
