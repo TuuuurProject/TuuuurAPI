@@ -41,16 +41,16 @@ IF NOT EXISTS (SELECT 1 FROM [dbo].[Theme_THM])
         SET IDENTITY_INSERT [dbo].[Theme_THM] ON;
 
         INSERT INTO [dbo].[Theme_THM] ([Id], [Icon], [Label]) VALUES
-                                                          (1, N'icon', N'Général'),
-                                                          (2, N'icon', N'Histoire'),
-                                                          (3, N'icon', N'Science'),
-                                                          (4, N'icon', N'Sport'),
-                                                          (5, N'icon', N'Musique'),
-                                                          (6, N'icon', N'Cinéma'),
-                                                          (7, N'icon', N'Art'),
-                                                          (8, N'icon', N'Géographie'),
-                                                          (9, N'icon', N'Technologie'),
-                                                          (10, N'icon', N'Jeux Vidéo');
+                                                          (1, N'wand-magic-sparkles', N'Général'),
+                                                          (2, N'building-columns', N'Histoire'),
+                                                          (3, N'flask', N'Science'),
+                                                          (4, N'medal', N'Sport'),
+                                                          (5, N'music', N'Musique'),
+                                                          (6, N'film', N'Cinéma'),
+                                                          (7, N'palette', N'Art'),
+                                                          (8, N'globe', N'Géographie'),
+                                                          (9, N'laptop-code', N'Technologie'),
+                                                          (10, N'gamepad', N'Jeux Vidéo');
 
         SET IDENTITY_INSERT [dbo].[Theme_THM] OFF;
     END;
