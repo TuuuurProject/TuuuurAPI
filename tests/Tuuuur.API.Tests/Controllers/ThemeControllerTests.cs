@@ -40,7 +40,6 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task GetAllThemes_ReturnsOkObjectResultAsync()
         {
             // Arrange
-            GenericEntityRequest<IEnumerable<Theme>> v_Request = new();
             m_MediatorMock.Setup(p_M =>
                 p_M.Send(It.IsAny<GenericEntityListRequest<Theme>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new GenericEntityListResponse<Theme>(new List<Theme>()));

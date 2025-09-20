@@ -40,7 +40,6 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task GetAllDifficulties_ReturnsOkObjectResultAsync()
         {
             // Arrange
-            GenericEntityRequest<IEnumerable<Difficulty>> v_Request = new();
             m_MediatorMock.Setup(p_M =>
                 p_M.Send(It.IsAny<GenericEntityListRequest<Difficulty>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new GenericEntityListResponse<Difficulty>(new List<Difficulty>()));
