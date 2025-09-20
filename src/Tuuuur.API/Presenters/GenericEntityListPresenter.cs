@@ -7,7 +7,7 @@ namespace Tuuuur.API.Presenters;
 /// Generic entity list presenter
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class GenericEntityListPresenter<T>:  AResponseMessageJsonPresenter<GenericEntityListResponse<T>> where T : IBOEntity
+public class GenericEntityListPresenter<T>:  AResponseMessageJsonPresenter<GenericEntityListResponse<T>> where T : class, IBOEntity
 {
     /// <inheritdoc />
     protected override object GetSuccessMember(GenericEntityListResponse<T> p_Response)
