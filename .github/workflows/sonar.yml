@@ -64,7 +64,7 @@ jobs:
             /o:"tuuuurproject" `
             /d:sonar.token="$env:SONAR_TOKEN" `
             /d:sonar.cs.opencover.reportsPaths="coverage/*.xml" `
-            /d:sonar.coverage.exclusions="**/*.sql" `
+            /d:sonar.coverage.exclusions="**/*.sql,**/*.cshtml" `
             /d:sonar.tsql.file.suffixes=".sql,.tsql"
           echo '=== DEBUG: End Begin step ==='
       - name: Restore NuGet packages
