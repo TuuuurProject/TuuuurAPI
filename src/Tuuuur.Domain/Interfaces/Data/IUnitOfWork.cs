@@ -8,6 +8,8 @@ public interface IUnitOfWork : IDisposable
     IUserAuthRepository UserAuthRepository { get; }
     IThemeRepository ThemeRepository { get; }
     IDifficultyRepository DifficultyRepository { get; }
+    IQuestionRepository QuestionRepository { get; }
+    IPartyRepository PartyRepository { get; }
 
     int Save();
 

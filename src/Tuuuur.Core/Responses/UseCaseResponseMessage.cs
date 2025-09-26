@@ -23,7 +23,6 @@ namespace Tuuuur.Core.Responses
     }
 
     public abstract class UseCaseResponseMessage<T> : UseCaseResponseMessage
-        where T : class
     {
         public T Value { get; set; }
 

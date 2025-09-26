@@ -24,7 +24,11 @@ public partial class BaseTuuuurContext : DbContext
 
     public virtual DbSet<PartyTypePty> PartyTypePty { get; set; }
 
+    public virtual DbSet<PartyUserPus> PartyUserPus { get; set; }
+
     public virtual DbSet<QuestionQst> QuestionQst { get; set; }
+
+    public virtual DbSet<QuestionThemeQth> QuestionThemeQth { get; set; }
 
     public virtual DbSet<ThemeThm> ThemeThm { get; set; }
 
@@ -92,11 +96,13 @@ public partial class BaseTuuuurContext : DbContext
 
             entity.ToTable("Party_PTY");
 
-            entity.HasIndex(e => e.Code, "IX_Party_Code").IsUnique();
+            entity.HasIndex(e => e.Code, "IX_Party_Code")
+                .IsUnique()
+                .HasFilter("([Active]=(1) AND [Code] IS NOT NULL)");
 
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.Active).HasDefaultValue(true);
             entity.Property(e => e.Code)
-                .IsRequired()
                 .HasMaxLength(6)
                 .IsUnicode(false);
             entity.Property(e => e.Dt).HasDefaultValueSql("(sysutcdatetime())");
@@ -148,6 +154,28 @@ public partial class BaseTuuuurContext : DbContext
                 .IsUnicode(false);
         });
 
+        modelBuilder.Entity<PartyUserPus>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_PARTYUSER_PUS");
+
+            entity.ToTable("PartyUser_PUS");
+
+            entity.HasIndex(e => new { e.IdUser, e.IdParty }, "IX_PartyUserUniq").IsUnique();
+
+            entity.Property(e => e.IdParty).HasColumnName("Id_Party");
+            entity.Property(e => e.IdUser).HasColumnName("Id_User");
+
+            entity.HasOne(d => d.IdPartyNavigation).WithMany(p => p.PartyUserPus)
+                .HasForeignKey(d => d.IdParty)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PartyUser_Party");
+
+            entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.PartyUserPus)
+                .HasForeignKey(d => d.IdUser)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PartyUser_User");
+        });
+
         modelBuilder.Entity<QuestionQst>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_QUESTION_QST");
@@ -163,25 +191,28 @@ public partial class BaseTuuuurContext : DbContext
                 .HasForeignKey(d => d.IdDifficulty)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Question_Difficulty");
+        });
 
-            entity.HasMany(d => d.IdTheme).WithMany(p => p.IdQuestion)
-                .UsingEntity<Dictionary<string, object>>(
-                    "QuestionThemeQth",
-                    r => r.HasOne<ThemeThm>().WithMany()
-                        .HasForeignKey("IdTheme")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_QuestionTheme_Theme"),
-                    l => l.HasOne<QuestionQst>().WithMany()
-                        .HasForeignKey("IdQuestion")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_QuestionTheme_Question"),
-                    j =>
-                    {
-                        j.HasKey("IdQuestion", "IdTheme").HasName("PK_QUESTION_THEME_QTH");
-                        j.ToTable("QuestionTheme_QTH");
-                        j.IndexerProperty<int>("IdQuestion").HasColumnName("Id_Question");
-                        j.IndexerProperty<int>("IdTheme").HasColumnName("Id_Theme");
-                    });
+        modelBuilder.Entity<QuestionThemeQth>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_QUESTION_THEME_QTH");
+
+            entity.ToTable("QuestionTheme_QTH");
+
+            entity.HasIndex(e => new { e.IdQuestion, e.IdTheme }, "IX_QuestionTheme").IsUnique();
+
+            entity.Property(e => e.IdQuestion).HasColumnName("Id_Question");
+            entity.Property(e => e.IdTheme).HasColumnName("Id_Theme");
+
+            entity.HasOne(d => d.IdQuestionNavigation).WithMany(p => p.QuestionThemeQth)
+                .HasForeignKey(d => d.IdQuestion)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_QuestionTheme_Question");
+
+            entity.HasOne(d => d.IdThemeNavigation).WithMany(p => p.QuestionThemeQth)
+                .HasForeignKey(d => d.IdTheme)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_QuestionTheme_Theme");
         });
 
         modelBuilder.Entity<ThemeThm>(entity =>
@@ -264,25 +295,6 @@ public partial class BaseTuuuurContext : DbContext
                 .IsRequired()
                 .HasMaxLength(250)
                 .IsUnicode(false);
-
-            entity.HasMany(d => d.IdParty).WithMany(p => p.IdUser)
-                .UsingEntity<Dictionary<string, object>>(
-                    "PartyUserPus",
-                    r => r.HasOne<PartyPty>().WithMany()
-                        .HasForeignKey("IdParty")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_PartyUser_Party"),
-                    l => l.HasOne<UserUsr>().WithMany()
-                        .HasForeignKey("IdUser")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_PartyUser_User"),
-                    j =>
-                    {
-                        j.HasKey("IdUser", "IdParty").HasName("PK_PARTYUSER_PUS");
-                        j.ToTable("PartyUser_PUS");
-                        j.IndexerProperty<int>("IdUser").HasColumnName("Id_User");
-                        j.IndexerProperty<int>("IdParty").HasColumnName("Id_Party");
-                    });
         });
 
         OnModelCreatingPartial(modelBuilder);

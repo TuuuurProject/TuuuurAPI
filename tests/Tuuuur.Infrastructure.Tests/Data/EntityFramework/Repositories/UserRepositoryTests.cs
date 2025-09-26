@@ -1,6 +1,4 @@
-﻿using LinqKit;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Interfaces.Data.Entities;
 using Tuuuur.Factory.Tests;
@@ -41,7 +39,7 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
 
                 // Assert
                 Check.ThatCode(() => v_UserRepository.GetUserByEmailAsync(v_User.Email, CancellationToken.None))
-                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id), nameof(User.UserAuth), nameof(UserUsr.UserAuthUat),nameof(UserUsr.IdParty), nameof(UserUsr.UserPartyQuestionUpq), nameof(UserUsr.PartyPty), nameof(UserUsr.EloElo)).IsEqualTo(v_User);
+                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id), nameof(User.UserAuth), nameof(UserUsr.PartyUserPus), nameof(UserUsr.UserAuthUat), nameof(UserUsr.UserPartyQuestionUpq), nameof(UserUsr.PartyPty), nameof(UserUsr.EloElo)).IsEqualTo(v_User);
             }
             finally
             {
@@ -66,7 +64,7 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
 
                 // Assert
                 Check.ThatCode(() => v_UserRepository.GetUserByNickNameAsync(v_User.NickName, CancellationToken.None))
-                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id), nameof(User.UserAuth), nameof(UserUsr.UserAuthUat), nameof(UserUsr.IdParty), nameof(UserUsr.UserPartyQuestionUpq), nameof(UserUsr.PartyPty), nameof(UserUsr.EloElo)).IsEqualTo(v_User);
+                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id), nameof(User.UserAuth), nameof(UserUsr.PartyUserPus), nameof(UserUsr.UserAuthUat), nameof(UserUsr.UserPartyQuestionUpq), nameof(UserUsr.PartyPty), nameof(UserUsr.EloElo)).IsEqualTo(v_User);
             }
             finally
             {
@@ -82,20 +80,18 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
                 // Arrange
                 UserRepository v_UserRepository = CreateUserRepository();
                 User v_User = BoFactory.CreateUser().Generate();
-                User v_DbUser;
-                int v_DbUserId = -1;
 
                 Check.ThatCode(async () =>
                 {
                     IMappingAddEntity<User, IEntity> v_MappingAddEntity = (await v_UserRepository.CreateUserAsync(v_User));
-                    v_DbUser = v_MappingAddEntity.MapBoEntity;
+                    _ = v_MappingAddEntity.MapBoEntity;
                     _ = await m_SqlServerFixture.TestContext.SaveChangesAsync();
-                    v_DbUserId = v_MappingAddEntity.MapBoEntity.Id;
+                    _ = v_MappingAddEntity.MapBoEntity.Id;
                 }).DoesNotThrow();
 
                 // Assert
                 Check.ThatCode(() => m_SqlServerFixture.TestContext.UserUsr.First(p_P => p_P.NickName == v_User.NickName))
-                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id), nameof(User.UserAuth), nameof(UserUsr.UserAuthUat), nameof(UserUsr.IdParty), nameof(UserUsr.UserPartyQuestionUpq), nameof(UserUsr.PartyPty), nameof(UserUsr.EloElo)).IsEqualTo(v_User);
+                    .WhichResult().Considering().Properties.Excluding(nameof(User.Id), nameof(User.UserAuth), nameof(UserUsr.UserAuthUat), nameof(UserUsr.PartyUserPus), nameof(UserUsr.UserPartyQuestionUpq), nameof(UserUsr.PartyPty), nameof(UserUsr.EloElo)).IsEqualTo(v_User);
             }
             finally
             {

@@ -4,8 +4,12 @@ using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Tuuuur.API.Notifications;
 using Tuuuur.API.Presenters;
 using Tuuuur.API.Presenters.Authentication;
+using Tuuuur.API.Security;
+using Tuuuur.Domain.Notifications;
+using Tuuuur.Domain.Security;
 
 namespace Tuuuur.API.Tests
 {
@@ -22,6 +26,9 @@ namespace Tuuuur.API.Tests
                 typeof(JwtAuthenticationPresenter),
                 typeof(ValidationPresenter),
                 typeof(EmptyPresenter),
+                typeof(GuidPresenter),
+                typeof(INotificationsService),
+                typeof(IUserRoleService)
             };
         }
 

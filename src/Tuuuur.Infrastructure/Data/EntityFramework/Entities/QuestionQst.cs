@@ -17,5 +17,5 @@ public partial class QuestionQst
 
     public virtual ICollection<PartyQuestionPqt> PartyQuestionPqt { get; set; } = new List<PartyQuestionPqt>();
 
-    public virtual ICollection<ThemeThm> IdTheme { get; set; } = new List<ThemeThm>();
+    public virtual ICollection<QuestionThemeQth> QuestionThemeQth { get; set; } = new List<QuestionThemeQth>();
 }

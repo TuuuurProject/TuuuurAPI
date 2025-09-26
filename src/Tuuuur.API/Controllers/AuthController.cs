@@ -1,6 +1,5 @@
 ﻿using Asp.Versioning;
 using AutoMapper;
-using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -40,7 +39,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public IActionResult Get()
     {
-        if (User?.Identity?.IsAuthenticated ?? false)
+        if (User.Identity?.IsAuthenticated ?? false)
         {
             m_Logger.LogInformation("User is logged");
             return Ok(new { User = User.Identity.Name, Claims = User.Claims.Select(p_C => new { p_C.Type, p_C.Value }) });
@@ -61,7 +60,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public IActionResult AdminOnly()
     {
-        if (User?.Identity?.IsAuthenticated ?? false)
+        if (User.Identity?.IsAuthenticated ?? false)
         {
             if (!User.IsInRole(RolesType.Admin)) return Forbid();
 
@@ -83,7 +82,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     /// <param name="p_CancellationToken"></param>
     /// <returns></returns>
     [AllowAnonymous]
-    [HttpPost("login")]
+    [HttpPost("Login")]
     [MapToApiVersion("1")]
     [ProducesResponseType(typeof(void),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -116,7 +115,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     /// <param name="p_CancellationToken"></param>
     /// <returns></returns>
     [AllowAnonymous]
-    [HttpPost("register")]
+    [HttpPost("Register")]
     [MapToApiVersion("1")]
     [ProducesResponseType(typeof(void),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -145,7 +144,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     /// </summary>
     /// <returns></returns>
     [AllowAnonymous]
-    [HttpPost("2fa/verify")]
+    [HttpPost("2fa/Verify")]
     [MapToApiVersion("1")]
     [ProducesResponseType(typeof(JwtAuthenticationResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -172,7 +171,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     /// </summary>
     /// <returns></returns>
     [AllowAnonymous]
-    [HttpPost("password/forgot")]
+    [HttpPost("Password/Forgot")]
     [MapToApiVersion("1")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> ForgotPasswordAsync(
@@ -199,7 +198,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     /// </summary>
     /// <returns></returns>
     [AllowAnonymous]
-    [HttpPost("password/reset")]
+    [HttpPost("Password/Reset")]
     [MapToApiVersion("1")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

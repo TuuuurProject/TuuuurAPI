@@ -1,7 +1,10 @@
 ﻿using Autofac;
 using System.Reflection;
 using Tuuuur.API.Presenters;
-using Tuuuur.Core.Responses;
+using Tuuuur.API.Notifications;
+using Tuuuur.API.Security;
+using Tuuuur.Domain.Notifications;
+using Tuuuur.Domain.Security;
 using Module = Autofac.Module;
 
 namespace Tuuuur.API;
@@ -35,7 +38,14 @@ internal class ApiModule : Module
             .InstancePerLifetimeScope();
 
         p_Builder.RegisterGeneric(typeof(GenericEntityPresenter<>))
-            .AsSelf()
+            .AsSelf();
+
+        p_Builder.RegisterType<NotificationsService>()
+            .As<INotificationsService>()
+            .InstancePerLifetimeScope();
+        
+        p_Builder.RegisterType<UserRoleService>()
+            .As<IUserRoleService>()
             .InstancePerLifetimeScope();
     }
 }

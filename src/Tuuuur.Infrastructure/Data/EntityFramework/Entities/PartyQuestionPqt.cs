@@ -9,7 +9,7 @@ public partial class PartyQuestionPqt
 
     public int IdQuestion { get; set; }
 
-    public int IdParty { get; set; }
+    public Guid IdParty { get; set; }
 
     public int Order { get; set; }
 

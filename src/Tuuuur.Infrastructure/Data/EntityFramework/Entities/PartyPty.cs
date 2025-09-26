@@ -5,7 +5,7 @@ namespace Tuuuur.Infrastructure.Data.EntityFramework.Entities;
 
 public partial class PartyPty
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     public DateTime Dt { get; set; }
 
@@ -23,5 +23,5 @@ public partial class PartyPty
 
     public virtual ICollection<PartyQuestionPqt> PartyQuestionPqt { get; set; } = new List<PartyQuestionPqt>();
 
-    public virtual ICollection<UserUsr> IdUser { get; set; } = new List<UserUsr>();
+    public virtual ICollection<PartyUserPus> PartyUserPus { get; set; } = new List<PartyUserPus>();
 }
