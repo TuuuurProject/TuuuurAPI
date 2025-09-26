@@ -56,3 +56,5 @@ IF NOT EXISTS (SELECT 1 FROM [dbo].[Theme_THM])
     END;
 GO
 
+:r .\PostDeployment\PostDeployQuestions.sql
+GO
