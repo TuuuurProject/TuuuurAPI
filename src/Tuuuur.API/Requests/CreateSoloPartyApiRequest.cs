@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using FluentValidation;
 using Tuuuur.Domain.Errors;
 
@@ -11,14 +12,17 @@ public record CreateSoloPartyApiRequest
     /// <summary>
     /// Selected themes
     /// </summary>
+    [JsonRequired]
     public int[] Themes { get; init; }
     /// <summary>
     /// Selected difficulties
     /// </summary>
+    [JsonRequired]
     public int[] Difficulties { get; init; }
     /// <summary>
     /// Number of questions
     /// </summary>
+    [JsonRequired]
     public int NbQuestions { get; init; }
 }
 /// <summary>

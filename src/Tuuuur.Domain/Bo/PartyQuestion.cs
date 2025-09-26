@@ -14,5 +14,5 @@ public class PartyQuestion : IBOEntity
 
     public Question Question { get; set; }
 
-    //public virtual ICollection<UserPartyQuestionUpq> UserPartyQuestionUpq { get; set; } = new List<UserPartyQuestionUpq>();
+    public List<UserPartyQuestion> UserPartyQuestion { get; set; } = [];
 }

@@ -9,6 +9,8 @@ internal class NotificationsService(
     ILogger<NotificationsService> p_Logger)
     : INotificationsService
 {
+    private readonly ILogger<NotificationsService> m_Logger = p_Logger;
+
     public Task PushMessageAsync<T>(ClientType p_ClientType, T p_Message, string p_User = null)
         {
             string v_Message = JsonSerializer.Serialize(p_Message);
