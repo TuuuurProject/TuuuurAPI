@@ -6,7 +6,7 @@ namespace Tuuuur.API.Requests;
 /// <summary>
 /// Request for reset password
 /// </summary>
-public record ResetPasswordRequest
+public record ResetPasswordApiRequest
 {
     /// <summary>
     /// Login (Email/Nickname) of the user
@@ -25,7 +25,7 @@ public record ResetPasswordRequest
 /// <summary>
 /// Validator for reset password request
 /// </summary>
-public class ResetPasswordRequestValidator : AbstractValidator<ResetPasswordRequest>
+public class ResetPasswordRequestValidator : AbstractValidator<ResetPasswordApiRequest>
 {
     /// <summary>
     /// ctor containing validation rules

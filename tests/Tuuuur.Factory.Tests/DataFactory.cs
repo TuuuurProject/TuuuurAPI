@@ -50,10 +50,23 @@ public static class BoFactory
             .RuleFor(p_O => p_O.IsNew, p_F => p_F.PickRandom(true, false))
             .RuleFor(p_O => p_O.IsAdmin, p_F => p_F.PickRandom(true, false));
     }
-    public static Faker<UserAuth> CreateUserAuth(int v_UserId)
+    public static Faker<UserAuth> CreateUserAuth(int p_UserId)
     {
         return new Faker<UserAuth>()
-            .RuleFor(p_O => p_O.UserId, v_UserId)
+            .RuleFor(p_O => p_O.UserId, p_UserId)
             .RuleFor(p_O => p_O.Code, p_F => p_F.Random.AlphaNumeric(6));
+    }
+    
+    public static Faker<Party> CreateParty()
+    {
+        return new Faker<Party>()
+            .RuleFor(p_Party => p_Party.Id, _ => Guid.NewGuid())
+            .RuleFor(p_Party => p_Party.Dt, p_F => p_F.Date.Recent(30))
+            .RuleFor(p_Party => p_Party.Code, p_F => p_F.Random.AlphaNumeric(6))
+            .RuleFor(p_Party => p_Party.IdPartyType, p_F => p_F.Random.Int(1, 10))
+            .RuleFor(p_Party => p_Party.IdUserHost, p_F => p_F.Random.Int(1, 1000))
+            .RuleFor(p_Party => p_Party.Active, p_F => p_F.Random.Bool())
+            .RuleFor(p_Party => p_Party.PartyQuestions, _ => [])
+            .RuleFor(p_Party => p_Party.PartyUsers, _ => []);
     }
 }

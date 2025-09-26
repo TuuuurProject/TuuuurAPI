@@ -6,7 +6,7 @@ namespace Tuuuur.API.Requests;
 /// <summary>
 /// Request for Email
 /// </summary>
-public abstract record EmailRequest
+public abstract record EmailApiRequest
 {
     /// <summary>
     /// Email of the user
@@ -17,7 +17,7 @@ public abstract record EmailRequest
 /// <summary>
 /// Validator for email request
 /// </summary>
-public class EmailRequestValidator : AbstractValidator<EmailRequest>
+public class EmailRequestValidator : AbstractValidator<EmailApiRequest>
 {
     /// <summary>
     /// ctor containing validation rules

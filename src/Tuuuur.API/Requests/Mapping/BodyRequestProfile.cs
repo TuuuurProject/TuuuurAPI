@@ -14,7 +14,7 @@ namespace Tuuuur.API.Requests.Mapping
         /// </summary>
         public BodyRequestProfile()
         {
-            CreateMap<RegisterRequest, User>()
+            CreateMap<RegisterApiRequest, User>()
                 .ForMember(p_Trg => p_Trg.Id, p_Opt => p_Opt.Ignore())
                 .ForMember(p_Trg => p_Trg.Avatar, p_Opt => p_Opt.Ignore())
                 .ForMember(p_Trg => p_Trg.ResetPasswordCode, p_Opt => p_Opt.Ignore())

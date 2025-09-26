@@ -6,7 +6,7 @@ namespace Tuuuur.API.Requests;
 /// <summary>
 /// Request for creating solo party
 /// </summary>
-public record CreateSoloPartyRequest
+public record CreateSoloPartyApiRequest
 {
     /// <summary>
     /// Selected themes
@@ -24,7 +24,7 @@ public record CreateSoloPartyRequest
 /// <summary>
 /// Validator for createsoloparty request
 /// </summary>
-public class CreateSoloPartyRequestValidator : AbstractValidator<CreateSoloPartyRequest>
+public class CreateSoloPartyRequestValidator : AbstractValidator<CreateSoloPartyApiRequest>
 {
     /// <summary>
     /// ctor containing validation rules

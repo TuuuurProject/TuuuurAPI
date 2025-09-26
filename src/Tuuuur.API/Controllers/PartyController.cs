@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Tuuuur.API.Extensions;
 using Tuuuur.API.Presenters;
 using Tuuuur.API.Requests;
+using Tuuuur.Core.Requests;
 using Tuuuur.Core.Responses;
 using ValidationResult = FluentValidation.Results.ValidationResult;
-using CoreRequest = Tuuuur.Core.Requests;
 
 namespace Tuuuur.API.Controllers;
 
@@ -33,12 +33,12 @@ public class PartyController(ILogger<PartyController> p_Logger, IMediator p_Medi
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateSoloPartyAsync(
-        [FromBody] CreateSoloPartyRequest p_Request,
+        [FromBody] CreateSoloPartyApiRequest p_ApiRequest,
         [FromServices] CreateSoloPartyRequestValidator p_Validator,
         [FromServices] GuidPresenter p_Presenter,
         CancellationToken p_CancellationToken)
     {
-        ValidationResult v_Result = await p_Validator.ValidateAsync(p_Request, p_CancellationToken);
+        ValidationResult v_Result = await p_Validator.ValidateAsync(p_ApiRequest, p_CancellationToken);
 
         if (!v_Result.IsValid)
         {
@@ -46,7 +46,7 @@ public class PartyController(ILogger<PartyController> p_Logger, IMediator p_Medi
             return m_ValidationPresenter.ContentResult;
         }
 
-        p_Presenter.Handle(await m_Mediator.Send(new CoreRequest.CreateSoloPartyRequest(p_Request.Themes, p_Request.Difficulties, p_Request.NbQuestions), p_CancellationToken));
+        p_Presenter.Handle(await m_Mediator.Send(new CreateSoloPartyRequest(p_ApiRequest.Themes, p_ApiRequest.Difficulties, p_ApiRequest.NbQuestions), p_CancellationToken));
 
         return p_Presenter.ContentResult;
     }
