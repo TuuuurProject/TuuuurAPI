@@ -57,17 +57,16 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          echo "=== DEBUG: Begin SonarQube analysis ==="
+          echo '=== DEBUG: Begin SonarQube analysis ==='
           if (-Not (Test-Path "coverage")) { New-Item -ItemType Directory -Path "coverage" -Force }
           .\.sonar\scanner\dotnet-sonarscanner begin `
             /k:"TuuuurProject_TuuuurAPI" `
             /o:"tuuuurproject" `
             /d:sonar.token="$env:SONAR_TOKEN" `
-            /d:sonar.cs.opencover.reportsPaths="coverage/*.xml `
-            /d:sonar.coverage.exclusions="**/*.sql `
-            /d:sonar.tsql.file.suffixes=.sql,.tsql"
-          echo "=== DEBUG: End Begin step ==="
-
+            /d:sonar.cs.opencover.reportsPaths="coverage/*.xml" `
+            /d:sonar.coverage.exclusions="**/*.sql" `
+            /d:sonar.tsql.file.suffixes=".sql,.tsql"
+          echo '=== DEBUG: End Begin step ==='
       - name: Restore NuGet packages
         shell: powershell
         run: dotnet restore
