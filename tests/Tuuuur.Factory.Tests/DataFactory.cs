@@ -35,19 +35,6 @@ public static class EfFactory
             .RuleFor(p_O => p_O.ExpiresAt, p_F => p_F.Date.Future())
             .RuleFor(p_O => p_O.Code, p_F => p_F.Random.AlphaNumeric(6));
     }
-    
-    public static Faker<PartyPty> CreateParty()
-    {
-        return new Faker<PartyPty>()
-            .RuleFor(p_Party => p_Party.Id, _ => Guid.NewGuid())
-            .RuleFor(p_Party => p_Party.Dt, p_F => p_F.Date.Recent(30))
-            .RuleFor(p_Party => p_Party.Code, p_F => p_F.Random.AlphaNumeric(6))
-            .RuleFor(p_Party => p_Party.IdPartyType, p_F => p_F.Random.Int(1, 10))
-            .RuleFor(p_Party => p_Party.IdUserHost, p_F => p_F.Random.Int(1, 1000))
-            .RuleFor(p_Party => p_Party.Active, p_F => p_F.Random.Bool())
-            .RuleFor(p_Party => p_Party.PartyQuestionPqt, _ => [])
-            .RuleFor(p_Party => p_Party.PartyUserPus, _ => []);
-    }
 }
 
 public static class BoFactory

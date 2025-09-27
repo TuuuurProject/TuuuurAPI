@@ -5,11 +5,9 @@ using Tuuuur.Domain.Notifications;
 namespace Tuuuur.API.Notifications;
 
 internal class NotificationsService(
-    IHubContext<NotificationsHub, INotificationClient> p_HubContext,
-    ILogger<NotificationsService> p_Logger)
+    IHubContext<NotificationsHub, INotificationClient> p_HubContext)
     : INotificationsService
 {
-    private readonly ILogger<NotificationsService> m_Logger = p_Logger;
 
     public Task PushMessageAsync<T>(ClientType p_ClientType, T p_Message, string p_User = null)
         {
