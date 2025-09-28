@@ -5,6 +5,7 @@ using Tuuuur.API.Notifications;
 using Tuuuur.API.Security;
 using Tuuuur.Domain.Notifications;
 using Tuuuur.Domain.Security;
+using Tuuuur.Domain.Configuration;
 using Module = Autofac.Module;
 
 namespace Tuuuur.API;
@@ -47,5 +48,7 @@ internal class ApiModule : Module
         p_Builder.RegisterType<UserRoleService>()
             .As<IUserRoleService>()
             .InstancePerLifetimeScope();
+            
+        p_Builder.RegisterConfiguration<GoogleConfiguration>();
     }
 }

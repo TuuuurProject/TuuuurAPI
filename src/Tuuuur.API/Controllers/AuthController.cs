@@ -1,6 +1,7 @@
 ﻿using Asp.Versioning;
 using AutoMapper;
 using FluentValidation.Results;
+using Google.Apis.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ using Tuuuur.API.Requests;
 using Tuuuur.Core.Requests.Authentication;
 using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Domain.Bo;
+using Tuuuur.Domain.Configuration;
 using Tuuuur.Domain.Security;
 using LoginRequest = Tuuuur.Core.Requests.Authentication.LoginRequest;
 
@@ -221,5 +223,67 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
             );
 
         return p_Presenter.ContentResult;
+    }
+
+    /// <summary>
+    /// Login with Google
+    /// </summary>
+    /// <param name="p_Request"></param>
+    /// <param name="p_Configuration"></param>
+    /// <param name="p_CancellationToken"></param>
+    /// <returns></returns>
+    [AllowAnonymous]
+    [HttpPost("Google/Login")]
+    public async Task<IActionResult> GoogleLoginAsync(
+        [FromBody] TokenRequest p_Request,
+        [FromServices] GoogleConfiguration p_Configuration,
+        CancellationToken p_CancellationToken = default)
+    {
+        try
+        {
+            GoogleJsonWebSignature.Payload v_Payload = await GoogleJsonWebSignature.ValidateAsync(
+                p_Request.Token,
+                new GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = [p_Configuration.ClientId]
+                });
+
+            return Ok(new { Email = v_Payload.Email, Name = v_Payload.Name });
+        }
+        catch (Exception v_Ex)
+        {
+            return Unauthorized(new { message = "Token invalide", error = v_Ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Register with Google
+    /// </summary>
+    /// <param name="p_Request"></param>
+    /// <param name="p_Configuration"></param>
+    /// <param name="p_CancellationToken"></param>
+    /// <returns></returns>
+    [AllowAnonymous]
+    [HttpPost("Google/Register")]
+    public async Task<IActionResult> GoogleRegisterAsync(
+        [FromBody] TokenRequest p_Request,
+        [FromServices] GoogleConfiguration p_Configuration,
+        CancellationToken p_CancellationToken = default)
+    {
+        try
+        {
+            GoogleJsonWebSignature.Payload v_Payload = await GoogleJsonWebSignature.ValidateAsync(
+                p_Request.Token,
+                new GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = [p_Configuration.ClientId]
+                });
+
+            return Ok(new { Email = v_Payload.Email, Name = v_Payload.Name });
+        }
+        catch (Exception v_Ex)
+        {
+            return Unauthorized(new { message = "Token invalide", error = v_Ex.Message });
+        }
     }
 }
