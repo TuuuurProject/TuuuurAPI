@@ -1,5 +1,7 @@
 ﻿using Autofac;
 using System.Reflection;
+using Tuuuur.API.Presenters;
+using Tuuuur.Core.Responses;
 using Module = Autofac.Module;
 
 namespace Tuuuur.API;
@@ -26,6 +28,14 @@ internal class ApiModule : Module
         // Add here your services
         p_Builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly())
             .Where(t => t.Name.EndsWith("Presenter"))
+            .InstancePerLifetimeScope();
+        
+        p_Builder.RegisterGeneric(typeof(GenericEntityListPresenter<>))
+            .AsSelf()
+            .InstancePerLifetimeScope();
+
+        p_Builder.RegisterGeneric(typeof(GenericEntityPresenter<>))
+            .AsSelf()
             .InstancePerLifetimeScope();
     }
 }

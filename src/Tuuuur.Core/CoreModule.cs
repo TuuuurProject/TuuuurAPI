@@ -1,5 +1,7 @@
 ﻿using Autofac;
 using Tuuuur.Core.Configuration;
+using Tuuuur.Core.Requests;
+using Tuuuur.Core.Responses;
 using Tuuuur.Domain.Configuration;
 
 namespace Tuuuur.Core;
@@ -25,5 +27,11 @@ public class CoreModule : Module
     {
         // Add here your services
         p_Builder.RegisterConfiguration<WebsiteConfiguration>();
+        
+        // Generic requests / responses
+        p_Builder.RegisterGeneric(typeof(GenericEntityRequest<>)).AsSelf().InstancePerLifetimeScope();
+        p_Builder.RegisterGeneric(typeof(GenericEntityResponse<>)).AsSelf().InstancePerLifetimeScope();
+        p_Builder.RegisterGeneric(typeof(GenericEntityListRequest<>)).AsSelf().InstancePerLifetimeScope();
+        p_Builder.RegisterGeneric(typeof(GenericEntityListResponse<>)).AsSelf().InstancePerLifetimeScope();
     }
 }

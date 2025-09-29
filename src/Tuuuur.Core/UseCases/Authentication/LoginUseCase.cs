@@ -39,7 +39,7 @@ internal class LoginUseCase(
                 return new EmptyResponse([new ErrorDto(DomainErrors.Authentication.Invalid, "Invalid login and/or password")]);
             
 
-            UserAuthResponse v_UserAuth = await p_Mediator.Send(new GenerateOptRequest(v_User),  cancellationToken);
+            GenericEntityResponse<UserAuth> v_UserAuth = await p_Mediator.Send(new GenerateOptRequest(v_User),  cancellationToken);
             if(!v_UserAuth.Success) return new EmptyResponse(v_UserAuth.Errors);
             
             TwoFactorAuthModel v_ModelToRender = new()

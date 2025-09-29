@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Configuration;
 using Tuuuur.Core.Requests.Authentication;
+using Tuuuur.Core.Responses;
 using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Emails.Models;
@@ -15,11 +16,11 @@ namespace Tuuuur.Core.UseCases.Authentication;
 
 internal class GenerateOptUseCase(
     IUnitOfWork p_UnitOfWork, 
-    ILogger<GenerateOptUseCase> p_Logger) : IRequestHandler<GenerateOptRequest, UserAuthResponse>
+    ILogger<GenerateOptUseCase> p_Logger) : IRequestHandler<GenerateOptRequest, GenericEntityResponse<UserAuth>>
 {
     [SuppressMessage("Style", "IDE1006:Styles d'affectation de noms", Justification = "Inherited named")]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public async Task<UserAuthResponse> Handle(GenerateOptRequest request, CancellationToken cancellationToken)
+    public async Task<GenericEntityResponse<UserAuth>> Handle(GenerateOptRequest request, CancellationToken cancellationToken)
     {
         try
         {
@@ -44,17 +45,17 @@ internal class GenerateOptUseCase(
                 await p_UnitOfWork.UserAuthRepository.AddAuthCodeAsync(v_Auth, cancellationToken);
             p_UnitOfWork.Save();
 
-            return new UserAuthResponse(v_UserAuth.MapBoEntity);
+            return new GenericEntityResponse<UserAuth>(v_UserAuth.MapBoEntity);
         }
         catch (InvalidOperationException v_Ex)
         {
             p_Logger.LogError(v_Ex, "The user has too many two-factor authentication (2FA) requests");
-            return new UserAuthResponse([v_Ex.ToError(DomainErrors.Authentication.Code.TooMuchDemand)]);
+            return new GenericEntityResponse<UserAuth>([v_Ex.ToError(DomainErrors.Authentication.Code.TooMuchDemand)]);
         }
         catch (Exception v_Ex)
         {
             p_Logger.LogError(v_Ex, "An error was thrown");
-            return new UserAuthResponse([v_Ex.ToError()]);
+            return new GenericEntityResponse<UserAuth>([v_Ex.ToError()]);
         }
     }
 }

@@ -14,5 +14,8 @@ internal class InfrastructureProfile : Profile
         CreateMap<UserAuthUat, UserAuth>()
             .ReverseMap()
             .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.Ignore());
+
+        CreateMap<ThemeThm, Theme>() .ReverseMap();
+        CreateMap<DifficultyDft, Difficulty>() .ReverseMap();
     }
 }

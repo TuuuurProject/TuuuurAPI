@@ -62,7 +62,7 @@ internal class RegistrationUseCase(
             IMappingAddEntity<User, IEntity> v_UserMap = await m_UnitOfWork.UserRepository.CreateUserAsync(p_Request.User, p_CancellationToken);
             m_UnitOfWork.Save();
 
-            UserAuthResponse v_UserAuth = await p_Mediator.Send(new GenerateOptRequest(v_UserMap.MapBoEntity),  p_CancellationToken);
+            GenericEntityResponse<UserAuth> v_UserAuth = await p_Mediator.Send(new GenerateOptRequest(v_UserMap.MapBoEntity),  p_CancellationToken);
             if(!v_UserAuth.Success) return new EmptyResponse(v_UserAuth.Errors);
             
             ConfirmAccountModel v_ModelToRender = new()

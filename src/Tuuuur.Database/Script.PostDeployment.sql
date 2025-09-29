@@ -8,10 +8,10 @@ IF NOT EXISTS (SELECT 1 FROM [ref].[Difficulty_DFT])
         SET IDENTITY_INSERT [ref].[Difficulty_DFT] ON;
 
         INSERT INTO [ref].[Difficulty_DFT] ([Id], [Label]) VALUES
-                                                               (1, 'Easy'),
-                                                               (2, 'Medium'),
-                                                               (3, 'Hard'),
-                                                               (4, 'Extrem');
+                                                               (1, N'Facile'),
+                                                               (2, N'Moyen'),
+                                                               (3, N'Difficile'),
+                                                               (4, N'Extrême');
 
         SET IDENTITY_INSERT [ref].[Difficulty_DFT] OFF;
     END;
@@ -25,9 +25,9 @@ IF NOT EXISTS (SELECT 1 FROM [ref].[PartyType_PTY])
         SET IDENTITY_INSERT [ref].[PartyType_PTY] ON;
 
         INSERT INTO [ref].[PartyType_PTY] ([Id], [Label]) VALUES
-                                                              (1, 'Group'),
-                                                              (2, 'Ranked'),
-                                                              (3, 'Solo');
+                                                              (1, N'Groupe'),
+                                                              (2, N'Classée'),
+                                                              (3, N'Solo');
 
         SET IDENTITY_INSERT [ref].[PartyType_PTY] OFF;
     END;
