@@ -66,12 +66,6 @@ internal class InfrastructureProfile : Profile
         CreateMap<PartyTypePty, PartyType>()
             .ReverseMap();
         
-        CreateMap<DifficultyDft, Difficulty>()
-            .ReverseMap();
-        
-        CreateMap<ThemeThm, Theme>()
-            .ReverseMap();
-        
         CreateMap<UserPartyQuestionUpq, UserPartyQuestion>()
             .ForMember(p_Trg => p_Trg.PartyQuestion, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdPartyQuestionNavigation))
             .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserNavigation))
