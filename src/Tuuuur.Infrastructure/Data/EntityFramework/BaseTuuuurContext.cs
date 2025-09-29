@@ -278,7 +278,7 @@ public partial class BaseTuuuurContext : DbContext
 
             entity.ToTable("User_USR");
 
-            entity.HasIndex(e => e.Email, "IX_UserEmail").IsUnique();
+            entity.HasIndex(e => new { e.Email, e.IsGoogleUser }, "IX_UserEmail").IsUnique();
 
             entity.HasIndex(e => e.NickName, "IX_UserNickName").IsUnique();
 
@@ -292,7 +292,6 @@ public partial class BaseTuuuurContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.Password)
-                .IsRequired()
                 .HasMaxLength(250)
                 .IsUnicode(false);
         });

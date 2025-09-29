@@ -21,6 +21,8 @@ public partial class UserUsr
 
     public bool IsNew { get; set; }
 
+    public bool IsGoogleUser { get; set; }
+
     public virtual ICollection<EloElo> EloElo { get; set; } = new List<EloElo>();
 
     public virtual ICollection<PartyPty> PartyPty { get; set; } = new List<PartyPty>();

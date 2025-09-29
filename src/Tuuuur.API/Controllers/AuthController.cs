@@ -5,10 +5,12 @@ using Google.Apis.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Tuuuur.API.Configuration;
 using Tuuuur.API.Presenters;
 using Tuuuur.API.Presenters.Authentication;
 using Tuuuur.API.Requests;
 using Tuuuur.Core.Requests.Authentication;
+using Tuuuur.Core.Requests.Authentication.Google;
 using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Configuration;
@@ -230,6 +232,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     /// </summary>
     /// <param name="p_Request"></param>
     /// <param name="p_Configuration"></param>
+    /// <param name="p_Presenter"></param>
     /// <param name="p_CancellationToken"></param>
     /// <returns></returns>
     [AllowAnonymous]
@@ -237,6 +240,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     public async Task<IActionResult> GoogleLoginAsync(
         [FromBody] TokenRequest p_Request,
         [FromServices] GoogleConfiguration p_Configuration,
+        [FromServices] JwtAuthenticationPresenter p_Presenter,
         CancellationToken p_CancellationToken = default)
     {
         try
@@ -248,7 +252,9 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
                     Audience = [p_Configuration.ClientId]
                 });
 
-            return Ok(new { Email = v_Payload.Email, Name = v_Payload.Name });
+            p_Presenter.Handle(await m_Mediator.Send(new GoogleLoginRequest(v_Payload.Email), p_CancellationToken));
+            
+            return p_Presenter.ContentResult;
         }
         catch (Exception v_Ex)
         {

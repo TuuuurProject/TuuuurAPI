@@ -5,6 +5,7 @@ using Tuuuur.API.Notifications;
 using Tuuuur.API.Security;
 using Tuuuur.Domain.Notifications;
 using Tuuuur.Domain.Security;
+using Tuuuur.API.Configuration;
 using Tuuuur.Domain.Configuration;
 using Module = Autofac.Module;
 

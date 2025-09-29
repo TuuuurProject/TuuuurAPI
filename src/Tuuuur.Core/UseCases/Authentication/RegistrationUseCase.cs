@@ -58,6 +58,7 @@ internal class RegistrationUseCase(
 
             p_Request.User.Password = v_HashResponse.Value;
             p_Request.User.IsNew = true;
+            p_Request.User.IsGoogleUser = false;
             
             IMappingAddEntity<User, IEntity> v_UserMap = await m_UnitOfWork.UserRepository.CreateUserAsync(p_Request.User, p_CancellationToken);
             m_UnitOfWork.Save();
