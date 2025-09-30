@@ -38,7 +38,8 @@ internal class VerifyAccountUseCase(IUnitOfWork p_UnitOfWork, ILogger<VerifyAcco
             return new JwtAuthenticationResponse(new UserToken
             {
                 Token = v_TokenInfos,
-                User = v_User
+                User = v_User,
+                IsGoogleUser = false
             });
         }
         catch (NotFoundException v_Ex)

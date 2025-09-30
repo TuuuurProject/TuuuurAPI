@@ -11,9 +11,11 @@ using Tuuuur.API.Presenters.Authentication;
 using Tuuuur.API.Requests;
 using Tuuuur.Core.Requests.Authentication;
 using Tuuuur.Core.Requests.Authentication.Google;
+using Tuuuur.Core.Responses;
 using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Configuration;
+using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Security;
 using LoginRequest = Tuuuur.Core.Requests.Authentication.LoginRequest;
 
@@ -133,7 +135,8 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
 
         if (!v_Result.IsValid)
         {
-            return BadRequest(v_Result.ToDictionary());
+            m_ValidationPresenter.Handle(v_Result);
+            return m_ValidationPresenter.ContentResult;
         }
 
         p_Presenter.Handle(await m_Mediator.Send(new RegistrationRequest(p_Mapper.Map<User>(p_RegisterApiRequest)), p_CancellationToken));
@@ -161,7 +164,8 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
 
         if (!v_Result.IsValid)
         {
-            return BadRequest(v_Result.ToDictionary());
+            m_ValidationPresenter.Handle(v_Result);
+            return m_ValidationPresenter.ContentResult;
         }
 
         p_Presenter.Handle(await m_Mediator.Send(new VerifyAccountRequest(p_RegisterApiRequest.Login, p_RegisterApiRequest.Code), p_CancellationToken));
@@ -188,7 +192,8 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
 
         if (!v_Result.IsValid)
         {
-            return BadRequest(v_Result.ToDictionary());
+            m_ValidationPresenter.Handle(v_Result);
+            return m_ValidationPresenter.ContentResult;
         }
 
         p_Presenter.Handle(await m_Mediator.Send(new ForgotPasswordRequest(p_ApiRequest.Login), p_CancellationToken));
@@ -215,7 +220,8 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
 
         if (!v_Result.IsValid)
         {
-            return BadRequest(v_Result.ToDictionary());
+            m_ValidationPresenter.Handle(v_Result);
+            return m_ValidationPresenter.ContentResult;
         }
 
         p_Presenter.Handle(
@@ -228,7 +234,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     }
 
     /// <summary>
-    /// Login with Google
+    /// Authentification with Google
     /// </summary>
     /// <param name="p_Request"></param>
     /// <param name="p_Configuration"></param>
@@ -236,8 +242,11 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     /// <param name="p_CancellationToken"></param>
     /// <returns></returns>
     [AllowAnonymous]
-    [HttpPost("Google/Login")]
-    public async Task<IActionResult> GoogleLoginAsync(
+    [ProducesResponseType(typeof(JwtAuthenticationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]    
+    [HttpPost("Google")]
+    public async Task<IActionResult> GoogleAuthentificationAsync(
         [FromBody] TokenRequest p_Request,
         [FromServices] GoogleConfiguration p_Configuration,
         [FromServices] JwtAuthenticationPresenter p_Presenter,
@@ -250,46 +259,16 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
                 new GoogleJsonWebSignature.ValidationSettings
                 {
                     Audience = [p_Configuration.ClientId]
-                });
+                }
+            );
 
-            p_Presenter.Handle(await m_Mediator.Send(new GoogleLoginRequest(v_Payload.Email), p_CancellationToken));
+            p_Presenter.Handle(await m_Mediator.Send(new GoogleAuthentificationRequest(v_Payload.Email), p_CancellationToken));
             
             return p_Presenter.ContentResult;
         }
         catch (Exception v_Ex)
         {
-            return Unauthorized(new { message = "Token invalide", error = v_Ex.Message });
-        }
-    }
-
-    /// <summary>
-    /// Register with Google
-    /// </summary>
-    /// <param name="p_Request"></param>
-    /// <param name="p_Configuration"></param>
-    /// <param name="p_CancellationToken"></param>
-    /// <returns></returns>
-    [AllowAnonymous]
-    [HttpPost("Google/Register")]
-    public async Task<IActionResult> GoogleRegisterAsync(
-        [FromBody] TokenRequest p_Request,
-        [FromServices] GoogleConfiguration p_Configuration,
-        CancellationToken p_CancellationToken = default)
-    {
-        try
-        {
-            GoogleJsonWebSignature.Payload v_Payload = await GoogleJsonWebSignature.ValidateAsync(
-                p_Request.Token,
-                new GoogleJsonWebSignature.ValidationSettings
-                {
-                    Audience = [p_Configuration.ClientId]
-                });
-
-            return Ok(new { Email = v_Payload.Email, Name = v_Payload.Name });
-        }
-        catch (Exception v_Ex)
-        {
-            return Unauthorized(new { message = "Token invalide", error = v_Ex.Message });
+            return Unauthorized(new ErrorDto(DomainErrors.Authentication.Invalid,v_Ex.Message ));
         }
     }
 }

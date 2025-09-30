@@ -20,7 +20,11 @@ internal class UserRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<U
     
     public async Task<User> GetUserByEmailOrNickNameAsync(string p_Login, CancellationToken p_CancellationToken = default)
     {
-        return Mapper.Map<User>(await FindBy(p_U => p_U.Email == p_Login || p_U.NickName == p_Login).SingleOrDefaultAsync(p_CancellationToken));
+        if (p_Login.Contains('@'))
+        {
+            return await GetUserByEmailAsync(p_Login, p_CancellationToken);
+        }
+        return Mapper.Map<User>(await FindBy(p_U => p_U.NickName == p_Login).SingleOrDefaultAsync(p_CancellationToken));
     }
     
     public async Task<User> GetUserByNickNameAsync(string p_NickaName, CancellationToken p_CancellationToken = default)

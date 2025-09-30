@@ -21,6 +21,7 @@ namespace Tuuuur.API.Requests.Mapping
                 .ForMember(p_Trg => p_Trg.IsNew, p_Opt => p_Opt.Ignore())
                 .ForMember(p_Trg => p_Trg.IsAdmin, p_Opt => p_Opt.Ignore())
                 .ForMember(p_Trg => p_Trg.UserAuth, p_Opt => p_Opt.Ignore())
+                .ForMember(p_Trg => p_Trg.IsGoogleUser, p_Opt => p_Opt.Ignore())
                 .ReverseMap();
         }
     }

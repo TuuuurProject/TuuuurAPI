@@ -26,7 +26,10 @@ internal class ResetPasswordUseCase(
             
             UserAuth v_UserAuth = await m_UnitOfWork.UserAuthRepository.GetUserAuthByUserIdAndCodeAsync(v_User.Id, request.Code, cancellationToken)
                                   ?? throw new NotFoundException(request.Code, nameof(UserAuth));
-
+            
+            if(v_User.IsGoogleUser)
+                throw new NotFoundException(request.Login, nameof(User));
+            
             StringResponse v_HashResponse = await p_Mediator.Send(new HashRequest(request.Password), cancellationToken);
             if (!v_HashResponse.Success) return new EmptyResponse(v_HashResponse.Errors);
 

@@ -7,6 +7,7 @@ WORKDIR /src
 COPY ["src/Tuuuur.API/Tuuuur.API.csproj", "src/Tuuuur.API/"]
 COPY ["src/Tuuuur.Core/Tuuuur.Core.csproj", "src/Tuuuur.Core/"]
 COPY ["src/Tuuuur.Domain/Tuuuur.Domain.csproj", "src/Tuuuur.Domain/"]
+COPY ["/src/Tuuuur.RazorTemplate/Tuuuur.RazorTemplate.csproj", "src/Tuuuur.RazorTemplate/"]
 COPY ["src/Tuuuur.Infrastructure/Tuuuur.Infrastructure.csproj", "src/Tuuuur.Infrastructure/"]
 RUN dotnet restore "src/Tuuuur.API/Tuuuur.API.csproj"
 COPY . .

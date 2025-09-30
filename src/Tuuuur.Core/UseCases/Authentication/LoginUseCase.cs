@@ -35,7 +35,7 @@ internal class LoginUseCase(
             // Forward errors if any
             if (!v_HashResponse.Success) return new EmptyResponse(v_HashResponse.Errors);
 
-            if (v_User is null || v_User.Password != v_HashResponse.Value || v_User.IsNew)
+            if (v_User is null || v_User.Password != v_HashResponse.Value || v_User.IsNew || v_User.IsGoogleUser)
                 return new EmptyResponse([new ErrorDto(DomainErrors.Authentication.Invalid, "Invalid login and/or password")]);
             
 
