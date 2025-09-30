@@ -3,4 +3,4 @@ using Tuuuur.Core.Responses.Authentication;
 
 namespace Tuuuur.Core.Requests.Authentication.Google;
 
-public record GoogleLoginRequest(string Email) : IRequest<JwtAuthenticationResponse>;
+public record GoogleAuthentificationRequest(string Email) : IRequest<JwtAuthenticationResponse>;

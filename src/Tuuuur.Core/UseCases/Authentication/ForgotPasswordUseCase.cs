@@ -29,7 +29,7 @@ internal class ForgotPasswordUseCase(
             User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailOrNickNameAsync(request.Login, cancellationToken);
 
             // Return 200 OK to prevent email enumeration.
-            if (v_User is null || v_User.IsNew)
+            if (v_User is null || v_User.IsNew || v_User.IsGoogleUser)
                 return new EmptyResponse();
             
             GenericEntityResponse<UserAuth> v_UserAuth = await p_Mediator.Send(new GenerateOptRequest(v_User),  cancellationToken);
