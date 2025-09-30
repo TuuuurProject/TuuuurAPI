@@ -4,6 +4,7 @@ using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Tuuuur.API.Configuration;
 using Tuuuur.API.Notifications;
 using Tuuuur.API.Presenters;
 using Tuuuur.API.Presenters.Authentication;
@@ -16,21 +17,17 @@ namespace Tuuuur.API.Tests
     public class ApiModuleTests
     {
         private static readonly string m_AutofacClass = $"{nameof(Autofac)}.";
-        private readonly IList<Type> m_TypesWanted;
-        private IList<Type> m_TypesLoaded;
-
-        public ApiModuleTests()
+        private readonly IList<Type> m_TypesWanted = new List<Type>
         {
-            m_TypesWanted = new List<Type>
-            {
-                typeof(JwtAuthenticationPresenter),
-                typeof(ValidationPresenter),
-                typeof(EmptyPresenter),
-                typeof(GuidPresenter),
-                typeof(INotificationsService),
-                typeof(IUserRoleService)
-            };
-        }
+            typeof(JwtAuthenticationPresenter),
+            typeof(ValidationPresenter),
+            typeof(EmptyPresenter),
+            typeof(GuidPresenter),
+            typeof(GoogleConfiguration),
+            typeof(INotificationsService),
+            typeof(IUserRoleService)
+        };
+        private IList<Type> m_TypesLoaded;
 
         [Fact]
         public void Should_Have_Register_Types()

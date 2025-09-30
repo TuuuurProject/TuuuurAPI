@@ -15,8 +15,7 @@ namespace Tuuuur.Core.UseCases.Authentication;
 
 internal partial class GoogleAuthentificationUseCase(
     IUnitOfWork p_UnitOfWork, 
-    ILogger<LoginUseCase> p_Logger,
-    IMediator p_Mediator,
+    ILogger<GoogleAuthentificationUseCase> p_Logger,
     IJwtFactory p_JwtFactory)
     : AUseCase(p_UnitOfWork, p_Logger), IRequestHandler<GoogleAuthentificationRequest, JwtAuthenticationResponse>
 {
