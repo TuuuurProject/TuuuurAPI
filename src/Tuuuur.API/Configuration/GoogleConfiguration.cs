@@ -11,10 +11,7 @@ public class GoogleConfiguration : AServiceConfiguration
     /// Client Id
     /// </summary>
     public string ClientId { get; set; }
-    /// <summary>
-    /// Client Secret
-    /// </summary>
-    public string ClientSecret { get; set; }
+    
     private const string SectionName = "Authentification:Google";
 
     /// <inheritdoc />
