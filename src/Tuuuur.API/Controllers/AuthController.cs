@@ -134,7 +134,8 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
 
         if (!v_Result.IsValid)
         {
-            return BadRequest(v_Result.ToDictionary());
+            m_ValidationPresenter.Handle(v_Result);
+            return m_ValidationPresenter.ContentResult;
         }
 
         p_Presenter.Handle(await m_Mediator.Send(new RegistrationRequest(p_Mapper.Map<User>(p_RegisterApiRequest)), p_CancellationToken));
@@ -162,7 +163,8 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
 
         if (!v_Result.IsValid)
         {
-            return BadRequest(v_Result.ToDictionary());
+            m_ValidationPresenter.Handle(v_Result);
+            return m_ValidationPresenter.ContentResult;
         }
 
         p_Presenter.Handle(await m_Mediator.Send(new VerifyAccountRequest(p_RegisterApiRequest.Login, p_RegisterApiRequest.Code), p_CancellationToken));
@@ -189,7 +191,8 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
 
         if (!v_Result.IsValid)
         {
-            return BadRequest(v_Result.ToDictionary());
+            m_ValidationPresenter.Handle(v_Result);
+            return m_ValidationPresenter.ContentResult;
         }
 
         p_Presenter.Handle(await m_Mediator.Send(new ForgotPasswordRequest(p_ApiRequest.Login), p_CancellationToken));
@@ -216,7 +219,8 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
 
         if (!v_Result.IsValid)
         {
-            return BadRequest(v_Result.ToDictionary());
+            m_ValidationPresenter.Handle(v_Result);
+            return m_ValidationPresenter.ContentResult;
         }
 
         p_Presenter.Handle(
