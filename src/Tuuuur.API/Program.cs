@@ -18,6 +18,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
 using System.Text.Json.Serialization;
+using Tuuuur.API.Notifications;
 
 namespace Tuuuur.API;
 
@@ -186,6 +187,9 @@ internal static class Program
             );
         });
         
+        // Add SignalR
+        v_Builder.Services.AddSignalR();
+        
         // Razor
         v_Builder.Services.AddRazorTemplating();
 
@@ -210,7 +214,9 @@ internal static class Program
         v_App.UseSerilogRequestLogging();
 
         v_App.UseMiddleware<HandleExceptionMiddleware>();
-
+        
+        v_App.MapHub<NotificationsHub>("notifications");
+        
         v_App.MapControllers();
         v_App.MapHealthChecksUI(p_Setup =>
         {

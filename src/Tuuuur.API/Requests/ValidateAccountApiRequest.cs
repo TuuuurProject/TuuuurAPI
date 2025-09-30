@@ -6,7 +6,7 @@ namespace Tuuuur.API.Requests;
 /// <summary>
 /// Request for account validation action
 /// </summary>
-public record ValidateAccountRequest
+public record ValidateAccountApiRequest
 {
     /// <summary>
     /// Login (Email or Nickname) of the user
@@ -21,7 +21,7 @@ public record ValidateAccountRequest
 /// <summary>
 /// Validator for account validation action
 /// </summary>
-public class ValidateAccountValidator : AbstractValidator<ValidateAccountRequest>
+public class ValidateAccountValidator : AbstractValidator<ValidateAccountApiRequest>
 {
     /// <summary>
     /// ctor containing validation rules

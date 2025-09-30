@@ -24,7 +24,6 @@
 
 	<ItemGroup>
 		<Folder Include="Interfaces\Token\" />
-		<Folder Include="Security\" />
 		<Folder Include="Token\" />
 	</ItemGroup>
 

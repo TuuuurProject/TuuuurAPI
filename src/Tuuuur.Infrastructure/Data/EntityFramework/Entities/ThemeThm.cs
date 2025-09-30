@@ -13,5 +13,5 @@ public partial class ThemeThm
 
     public virtual ICollection<EloElo> EloElo { get; set; } = new List<EloElo>();
 
-    public virtual ICollection<QuestionQst> IdQuestion { get; set; } = new List<QuestionQst>();
+    public virtual ICollection<QuestionThemeQth> QuestionThemeQth { get; set; } = new List<QuestionThemeQth>();
 }

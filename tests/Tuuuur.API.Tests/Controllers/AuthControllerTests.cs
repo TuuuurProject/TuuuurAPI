@@ -116,7 +116,7 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task LoginAsync_WithValidRequest_ReturnsOkObjectResultAsync()
         {
             // Arrange
-            Requests.AuthenticateRequest v_AuthenticateRequest = new()
+            Requests.AuthenticateApiRequest v_AuthenticateApiRequest = new()
             {
                 Login = "test@example.com",
                 Password = "Password123"
@@ -124,7 +124,7 @@ namespace Tuuuur.API.Tests.Controllers
             m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<LoginRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
 
             // Act
-            IActionResult v_Result = await m_Controller.LoginAsync(v_AuthenticateRequest, new AuthenticateRequestValidator(), new EmptyPresenter());
+            IActionResult v_Result = await m_Controller.LoginAsync(v_AuthenticateApiRequest, new AuthenticateRequestValidator(), new EmptyPresenter());
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();
@@ -134,14 +134,14 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task LoginAsync_WithInvalidRequest_ReturnsBadRequestObjectResultAsync()
         {
             // Arrange
-            Requests.AuthenticateRequest v_AuthenticateRequest = new()
+            Requests.AuthenticateApiRequest v_AuthenticateApiRequest = new()
             {
                 Login = "test@example.com",
                 Password = "password123"
             };
 
             // Act
-            IActionResult v_Result = await m_Controller.LoginAsync(v_AuthenticateRequest, new AuthenticateRequestValidator(), new EmptyPresenter());
+            IActionResult v_Result = await m_Controller.LoginAsync(v_AuthenticateApiRequest, new AuthenticateRequestValidator(), new EmptyPresenter());
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();
@@ -154,14 +154,14 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task ValidAccountAsync_WithInvalidRequest_ReturnsBadRequestObjectResultAsync()
         {
             // Arrange
-            ValidateAccountRequest v_LoginRequest = new()
+            ValidateAccountApiRequest v_LoginApiRequest = new()
             {
                 Login = "test@example.com",
                 Code = "3843"
             };
 
             // Act
-            IActionResult v_Result = await m_Controller.VerifyAccount2FaAsync(v_LoginRequest, new ValidateAccountValidator(), new JwtAuthenticationPresenter());
+            IActionResult v_Result = await m_Controller.VerifyAccount2FaAsync(v_LoginApiRequest, new ValidateAccountValidator(), new JwtAuthenticationPresenter());
 
             // Assert
             v_Result.Should().BeOfType<BadRequestObjectResult>();
@@ -171,7 +171,7 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task ValidAccountAsync_WithValidRequest_ReturnsOkObjectResultAsync()
         {
             // Arrange
-            ValidateAccountRequest v_LoginRequest = new()
+            ValidateAccountApiRequest v_LoginApiRequest = new()
             {
                 Login = "test@example.com",
                 Code = "654372"
@@ -184,7 +184,7 @@ namespace Tuuuur.API.Tests.Controllers
             m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<VerifyAccountRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new JwtAuthenticationResponse(v_AuthenticationResponse));
             
             // Act
-            IActionResult v_Result = await m_Controller.VerifyAccount2FaAsync(v_LoginRequest, new ValidateAccountValidator(), new JwtAuthenticationPresenter());
+            IActionResult v_Result = await m_Controller.VerifyAccount2FaAsync(v_LoginApiRequest, new ValidateAccountValidator(), new JwtAuthenticationPresenter());
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();
@@ -196,7 +196,7 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task RegisterAsync_WithRequest_ReturnsOkObjectResultAsync()
         {
             // Arrange
-            RegisterRequest v_RegisterRequest = new()
+            RegisterApiRequest v_RegisterApiRequest = new()
             {
                 Email = "test@example.com",
                 Password = "MySuper_Passw0rd12)",
@@ -204,7 +204,7 @@ namespace Tuuuur.API.Tests.Controllers
             };
             m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<RegistrationRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
             // Act
-            IActionResult v_Result = await m_Controller.RegisterAsync(v_RegisterRequest, new Mapper(BodyRequestMappingTests.InitializeAutoMapper()), new RegisterRequestValidator(), new EmptyPresenter());
+            IActionResult v_Result = await m_Controller.RegisterAsync(v_RegisterApiRequest, new Mapper(BodyRequestMappingTests.InitializeAutoMapper()), new RegisterRequestValidator(), new EmptyPresenter());
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();
@@ -216,14 +216,14 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task ForgotPasswordAsync_WithValidRequest_ReturnsOkObjectResultAsync()
         {
             // Arrange
-            Tuuuur.API.Requests.LoginRequest v_LoginRequest = new()
+            Tuuuur.API.Requests.LoginApiRequest v_LoginApiRequest = new()
             {
                 Login = "test@example.com",
             };
             m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<ForgotPasswordRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
             
             // Act
-            IActionResult v_Result = await m_Controller.ForgotPasswordAsync(v_LoginRequest, new LoginRequestValidator(), new EmptyPresenter());
+            IActionResult v_Result = await m_Controller.ForgotPasswordAsync(v_LoginApiRequest, new LoginRequestValidator(), new EmptyPresenter());
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();
@@ -235,7 +235,7 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task ResetPasswordAsync_WithValidRequest_ReturnsOkObjectResultAsync()
         {
             // Arrange
-            Requests.ResetPasswordRequest v_ResetPasswordRequest = new()
+            Requests.ResetPasswordApiRequest v_ResetPasswordApiRequest = new()
             {
                 Login = "test@example.com",
                 Password = "MySuper_Passw0rd12",
@@ -244,7 +244,7 @@ namespace Tuuuur.API.Tests.Controllers
             m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<Tuuuur.Core.Requests.Authentication.ResetPasswordRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
             
             // Act
-            IActionResult v_Result = await m_Controller.ResetPasswordAsync(v_ResetPasswordRequest, new ResetPasswordRequestValidator(), new EmptyPresenter());
+            IActionResult v_Result = await m_Controller.ResetPasswordAsync(v_ResetPasswordApiRequest, new ResetPasswordRequestValidator(), new EmptyPresenter());
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();

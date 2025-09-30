@@ -6,7 +6,7 @@ namespace Tuuuur.API.Requests;
 /// <summary>
 /// Request for register action
 /// </summary>
-public record RegisterRequest : EmailRequest
+public record RegisterApiRequest : EmailApiRequest
 {
     /// <summary>
     /// Nickname of the user to register
@@ -21,7 +21,7 @@ public record RegisterRequest : EmailRequest
 /// <summary>
 /// Validator for registration request
 /// </summary>
-public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
+public class RegisterRequestValidator : AbstractValidator<RegisterApiRequest>
 {
     /// <summary>
     /// ctor containing validation rules
@@ -29,7 +29,7 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
     public RegisterRequestValidator()
     {
         RuleFor(p_RegisterRequest => p_RegisterRequest)
-            .SetInheritanceValidator(p_PolymorphicValidator => p_PolymorphicValidator.Add<RegisterRequest>(new EmailRequestValidator()));
+            .SetInheritanceValidator(p_PolymorphicValidator => p_PolymorphicValidator.Add<RegisterApiRequest>(new EmailRequestValidator()));
             
         RuleFor(p_Request => p_Request.Password)
             .NotEmpty().WithErrorCode(DomainErrors.Authentication.Password.Empty)
