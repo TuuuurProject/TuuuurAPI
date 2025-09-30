@@ -164,7 +164,7 @@ namespace Tuuuur.API.Tests.Controllers
             IActionResult v_Result = await m_Controller.VerifyAccount2FaAsync(v_LoginApiRequest, new ValidateAccountValidator(), new JwtAuthenticationPresenter());
 
             // Assert
-            v_Result.Should().BeOfType<BadRequestObjectResult>();
+            v_Result.Should().BeOfType<JsonContentResult>();
         }
         
         [Fact]

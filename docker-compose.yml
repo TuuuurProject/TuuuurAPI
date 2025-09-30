@@ -34,6 +34,7 @@ services:
     environment:
       - ConnectionStrings__Tuuuur=Server=sqlserver,1433;Initial Catalog=Tuuuur-dev;Persist Security Info=False;User ID=sa;Password=YourStrong!Passw0rd;MultipleActiveResultSets=False;Encrypt=False;TrustServerCertificate=True;Connection Timeout=30
       - JwtSettings__Key=${JWT_KEY}
+      - Authentification__Google__ClientId=${GOOGLE_CLIENT_ID}
       - SmtpEmailConfiguration__FromAddress=${SMTP_FROM_ADDRESS}
       - SmtpEmailConfiguration__FromName=${SMTP_FROM_NAME}
       - SmtpEmailConfiguration__SmtpAddress=${SMTP_HOST}

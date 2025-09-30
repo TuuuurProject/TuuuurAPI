@@ -56,7 +56,8 @@ internal partial class GoogleAuthentificationUseCase(
             return new JwtAuthenticationResponse(new UserToken
             {
                 Token = v_TokenInfos,
-                User = v_User
+                User = v_User,
+                IsGoogleUser = true
             });
         }
         catch (Exception v_Ex)

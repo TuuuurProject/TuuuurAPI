@@ -11,6 +11,7 @@ using Tuuuur.API.Presenters.Authentication;
 using Tuuuur.API.Requests;
 using Tuuuur.Core.Requests.Authentication;
 using Tuuuur.Core.Requests.Authentication.Google;
+using Tuuuur.Core.Responses;
 using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Configuration;
@@ -241,6 +242,9 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     /// <param name="p_CancellationToken"></param>
     /// <returns></returns>
     [AllowAnonymous]
+    [ProducesResponseType(typeof(JwtAuthenticationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]    
     [HttpPost("Google")]
     public async Task<IActionResult> GoogleAuthentificationAsync(
         [FromBody] TokenRequest p_Request,
@@ -264,7 +268,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
         }
         catch (Exception v_Ex)
         {
-            return Unauthorized(new { message = DomainErrors.Authentication.Invalid, error = v_Ex.Message });
+            return Unauthorized(new ErrorDto(DomainErrors.Authentication.Invalid,v_Ex.Message ));
         }
     }
 }
