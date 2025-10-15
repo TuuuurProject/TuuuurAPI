@@ -1,10 +1,7 @@
-using MediatR;
 using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Requests;
-using Tuuuur.Core.Requests.Authentication;
 using Tuuuur.Core.Responses;
-using Tuuuur.Core.Responses.Authentication;
-using Tuuuur.Core.UseCases;
+using Tuuuur.Core.UseCases.Parties;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Interfaces.Data.Entities;

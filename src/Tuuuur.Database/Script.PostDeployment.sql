@@ -55,6 +55,3 @@ IF NOT EXISTS (SELECT 1 FROM [dbo].[Theme_THM])
         SET IDENTITY_INSERT [dbo].[Theme_THM] OFF;
     END;
 GO
-
-:r .\PostDeployment\PostDeployQuestions.sql
-GO

@@ -5,12 +5,12 @@ using Tuuuur.Core.Requests;
 using Tuuuur.Core.Responses;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Bo.Enum;
+using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Interfaces.Data.Entities;
-using Tuuuur.Domain.Notifications;
 using Tuuuur.Domain.Security;
 
-namespace Tuuuur.Core.UseCases;
+namespace Tuuuur.Core.UseCases.Parties;
 
 internal class CreateSoloPartyUseCase(
     IUnitOfWork p_UnitOfWork, 
@@ -42,8 +42,7 @@ internal class CreateSoloPartyUseCase(
                     .Select((p_Question, p_Order) => new PartyQuestion()
                     {
                         IdQuestion = p_Question.Id,
-                        Order = p_Order,
-                        Question = p_Question
+                        Order = p_Order + 1,
                     })
                     .ToList(),          
                 Active = true,
@@ -54,6 +53,11 @@ internal class CreateSoloPartyUseCase(
             m_UnitOfWork.Save();
             
             return new GuidResponse(v_MappingAddEntity.MapBoEntity.Id);
+        }
+        catch (NotFoundException v_Ex)
+        {
+            m_Logger.LogError(v_Ex, "Data not found");
+            return new GuidResponse([v_Ex.ToError(DomainErrors.Data.NotFound)]);
         }
         catch (Exception v_Ex)
         {

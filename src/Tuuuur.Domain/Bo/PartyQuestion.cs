@@ -14,5 +14,5 @@ public class PartyQuestion : IBOEntity
 
     public Question Question { get; set; }
 
-    public List<UserPartyQuestion> UserPartyQuestion { get; set; } = [];
+    public UserPartyQuestion UserPartyQuestion { get; set; }
 }

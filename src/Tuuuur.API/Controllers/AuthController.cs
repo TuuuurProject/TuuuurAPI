@@ -12,12 +12,10 @@ using Tuuuur.API.Requests;
 using Tuuuur.Core.Requests.Authentication;
 using Tuuuur.Core.Requests.Authentication.Google;
 using Tuuuur.Core.Responses;
-using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Domain.Bo;
-using Tuuuur.Domain.Configuration;
 using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Security;
-using LoginRequest = Tuuuur.Core.Requests.Authentication.LoginRequest;
+using Tuuuur.Domain.Token;
 
 namespace Tuuuur.API.Controllers;
 
@@ -87,7 +85,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     /// <param name="p_CancellationToken"></param>
     /// <returns></returns>
     [AllowAnonymous]
-    [HttpPost("Login")]
+    [HttpPost("login")]
     [MapToApiVersion("1")]
     [ProducesResponseType(typeof(void),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -120,7 +118,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     /// <param name="p_CancellationToken"></param>
     /// <returns></returns>
     [AllowAnonymous]
-    [HttpPost("Register")]
+    [HttpPost("register")]
     [MapToApiVersion("1")]
     [ProducesResponseType(typeof(void),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -150,9 +148,9 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     /// </summary>
     /// <returns></returns>
     [AllowAnonymous]
-    [HttpPost("2fa/Verify")]
+    [HttpPost("2fa/verify")]
     [MapToApiVersion("1")]
-    [ProducesResponseType(typeof(JwtAuthenticationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(UserToken), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> VerifyAccount2FaAsync(
         [FromBody] ValidateAccountApiRequest p_RegisterApiRequest,
@@ -178,16 +176,15 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     /// </summary>
     /// <returns></returns>
     [AllowAnonymous]
-    [HttpPost("Password/Forgot")]
+    [HttpPost("password/forgot")]
     [MapToApiVersion("1")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> ForgotPasswordAsync(
-        [FromBody] Requests.LoginApiRequest p_ApiRequest,
+        [FromBody] LoginApiRequest p_ApiRequest,
         [FromServices] LoginRequestValidator p_Validator,
         [FromServices] EmptyPresenter p_Presenter,
         CancellationToken p_CancellationToken = default)
     {
-        
         ValidationResult v_Result = await p_Validator.ValidateAsync(p_ApiRequest, p_CancellationToken);
 
         if (!v_Result.IsValid)
@@ -206,7 +203,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     /// </summary>
     /// <returns></returns>
     [AllowAnonymous]
-    [HttpPost("Password/Reset")]
+    [HttpPost("password/reset")]
     [MapToApiVersion("1")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -226,7 +223,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
 
         p_Presenter.Handle(
             await m_Mediator.Send(
-                new Core.Requests.Authentication.ResetPasswordRequest(p_ApiRequest.Login, p_ApiRequest.Password, p_ApiRequest.Code), 
+                new ResetPasswordRequest(p_ApiRequest.Login, p_ApiRequest.Password, p_ApiRequest.Code), 
                 p_CancellationToken)
             );
 
@@ -242,10 +239,10 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     /// <param name="p_CancellationToken"></param>
     /// <returns></returns>
     [AllowAnonymous]
-    [ProducesResponseType(typeof(JwtAuthenticationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(UserToken), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]    
-    [HttpPost("Google")]
+    [HttpPost("google")]
     public async Task<IActionResult> GoogleAuthentificationAsync(
         [FromBody] TokenRequest p_Request,
         [FromServices] GoogleConfiguration p_Configuration,

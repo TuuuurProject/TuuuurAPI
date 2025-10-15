@@ -17,6 +17,8 @@ public partial class PartyPty
 
     public bool Active { get; set; }
 
+    public bool Finish { get; set; }
+
     public virtual PartyTypePty IdPartyTypeNavigation { get; set; }
 
     public virtual UserUsr IdUserHostNavigation { get; set; }

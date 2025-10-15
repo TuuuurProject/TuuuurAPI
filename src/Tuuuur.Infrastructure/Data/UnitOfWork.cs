@@ -20,6 +20,7 @@ internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
     private readonly Lazy<IDifficultyRepository> m_DifficultyRepository;
     private readonly Lazy<IQuestionRepository> m_QuestionRepository;
     private readonly Lazy<IPartyRepository> m_PartyRepository;
+    private readonly Lazy<IUserPartyQuestionRepository> m_UserPartyQuestionRepository;
 
     public UnitOfWork(TContext p_DbContext, IMapper p_Mapper, ILoggerFactory p_LoggerFactory)
     {
@@ -33,6 +34,7 @@ internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
         m_DifficultyRepository = CreateLazy<IDifficultyRepository, DifficultyRepository>();
         m_QuestionRepository = CreateLazy<IQuestionRepository, QuestionRepository>();
         m_PartyRepository = CreateLazy<IPartyRepository, PartyRepository>();
+        m_UserPartyQuestionRepository = CreateLazy<IUserPartyQuestionRepository, UserPartyQuestionRepository>();
     }
     public T ExecutionStrategy<T>(Func<T> p_Func)
     {
@@ -51,6 +53,7 @@ internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
     public IDifficultyRepository DifficultyRepository => m_DifficultyRepository.Value;
     public IQuestionRepository QuestionRepository => m_QuestionRepository.Value;
     public IPartyRepository PartyRepository => m_PartyRepository.Value;
+    public IUserPartyQuestionRepository UserPartyQuestionRepository => m_UserPartyQuestionRepository.Value;
 
     public int Save()
     {

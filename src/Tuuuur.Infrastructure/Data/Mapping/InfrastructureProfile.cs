@@ -34,9 +34,11 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.PartyType, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdPartyTypeNavigation))
             .ForMember(p_Trg => p_Trg.IdUserHost, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserHost))
             .ForMember(p_Trg => p_Trg.Active, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Active))
+            .ForMember(p_Trg => p_Trg.Finish, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Finish))
             .ForMember(p_Trg => p_Trg.PartyQuestions, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt))
             .ForMember(p_Trg => p_Trg.PartyUsers, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyUserPus))
             .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserHostNavigation))
+            .ForMember(p_Trg => p_Trg.Score, p_Opt => p_Opt.Ignore())
             .ReverseMap();
 
         CreateMap<PartyQuestionPqt, PartyQuestion>()
@@ -45,8 +47,8 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.IdParty, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdParty))
             .ForMember(p_Trg => p_Trg.Order, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Order))
             .ForMember(p_Trg => p_Trg.Party, p_Opt => p_Opt.Ignore())
-            .ForMember(p_Trg => p_Trg.Question, p_Opt => p_Opt.Ignore())
-            .ForMember(p_Trg => p_Trg.UserPartyQuestion, p_Opt => p_Opt.Ignore())
+            .ForMember(p_Trg => p_Trg.Question, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdQuestionNavigation))
+            .ForMember(p_Trg => p_Trg.UserPartyQuestion, p_Opt => p_Opt.MapFrom(p_Src => p_Src.UserPartyQuestionUpq.FirstOrDefault()))
             .ReverseMap();
         
         CreateMap<PartyUserPus, PartyUser>()
@@ -69,6 +71,7 @@ internal class InfrastructureProfile : Profile
         CreateMap<UserPartyQuestionUpq, UserPartyQuestion>()
             .ForMember(p_Trg => p_Trg.PartyQuestion, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdPartyQuestionNavigation))
             .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserNavigation))
+            .ForMember(p_Trg => p_Trg.Anwser, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdAnwserNavigation))
             .ReverseMap();
         
         CreateMap<QuestionThemeQth, QuestionTheme>()
