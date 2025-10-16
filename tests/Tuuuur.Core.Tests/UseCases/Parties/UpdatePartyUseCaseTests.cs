@@ -43,7 +43,9 @@ public class UpdatePartyUseCaseTests
             {
                 UserPartyQuestion = new UserPartyQuestion()
                 {
-                    Correct = null
+                    Correct = null,
+                    DtAnsweredAt = DateTime.Now,
+                    DtPresentedAt = DateTime.Now.AddSeconds(3),
                 },
                 Order = 1,
                 Question = new Question()
@@ -52,7 +54,8 @@ public class UpdatePartyUseCaseTests
                     [
                         new Answer()
                         {
-                            Id = v_AnwserId
+                            Id = v_AnwserId,
+                            Valid = true
                         }
                     ]
                 }
