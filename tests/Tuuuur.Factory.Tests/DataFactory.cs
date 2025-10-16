@@ -67,6 +67,6 @@ public static class BoFactory
             .RuleFor(p_Party => p_Party.IdUserHost, p_F => p_F.Random.Int(1, 1000))
             .RuleFor(p_Party => p_Party.Active, p_F => p_F.Random.Bool())
             .RuleFor(p_Party => p_Party.PartyQuestions, _ => [])
-            .RuleFor(p_Party => p_Party.PartyUsers, _ => []);
+            .RuleFor(p_Party => p_Party.PartyUsers, p_Faker => new Faker<PartyUser>().Generate(5));
     }
 }

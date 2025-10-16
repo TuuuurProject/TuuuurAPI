@@ -4,11 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Tuuuur.API.Controllers;
 using Tuuuur.API.Presenters;
 using Tuuuur.API.Requests;
 using Tuuuur.Core.Requests;
 using Tuuuur.Core.Responses;
+using Tuuuur.Domain.Bo;
 
 namespace Tuuuur.API.Tests.Controllers
 {
@@ -24,6 +26,7 @@ namespace Tuuuur.API.Tests.Controllers
             m_MediatorMock = new Mock<IMediator>();
             m_Controller = new PartyController(m_LoggerMock.Object, m_MediatorMock.Object, new ValidationPresenter());
         }
+        
         [Fact]
         public async Task CreateSoloPartyAsync_ReturnsOkObjectResult()
         {
@@ -43,11 +46,52 @@ namespace Tuuuur.API.Tests.Controllers
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();
-            if (v_Result is JsonContentResult v_JsonResult)
+            v_Result.Should().BeOfType<JsonContentResult>();
+            ContentResult v_ContentResult = v_Result.As<ContentResult>();
+            v_ContentResult.StatusCode.Should().Be(StatusCodes.Status200OK);
+            v_ContentResult.Content.Should().Contain(v_Id.ToString());
+        }
+        
+        [Fact]
+        public async Task GetPartyStateAsync_ReturnsOkObjectResult()
+        {
+            // Arrange
+            Guid v_Id = Guid.NewGuid();
+
+            Party v_Party = new();
+
+            m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<GetPartyStateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<Party>(v_Party));
+            
+            // Act
+            IActionResult v_Result = await m_Controller.GetPartyStateAsync(v_Id, new GenericEntityPresenter<Party>(), CancellationToken.None);
+
+            // Assert
+            v_Result.Should().BeOfType<JsonContentResult>();
+            ContentResult v_ContentResult = v_Result.As<ContentResult>();
+            v_ContentResult.StatusCode.Should().Be(StatusCodes.Status200OK);
+        }
+        
+        [Fact]
+        public async Task UpdatePartyStateAsync_ReturnsOkObjectResult()
+        {
+            // Arrange
+            Guid v_Id = Guid.NewGuid();
+            
+            AnwserApiRequest v_Request = new()
             {
-                v_JsonResult.StatusCode.Should().Be(200);
-                v_JsonResult.Content.Should().Contain(v_Id.ToString());
-            }
+                AnwserId = 1,
+            };
+            Party v_Party = new();
+
+            m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<UpdatePartyStateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<Party>(v_Party));
+            
+            // Act
+            IActionResult v_Result = await m_Controller.UpdatePartyStateAsync(v_Id, v_Request, new AnwserApiRequestValidator(), new GenericEntityPresenter<Party>(), CancellationToken.None);
+
+            // Assert
+            v_Result.Should().BeOfType<JsonContentResult>();
+            ContentResult v_ContentResult = v_Result.As<ContentResult>();
+            v_ContentResult.StatusCode.Should().Be(StatusCodes.Status200OK);
         }
     }
 }

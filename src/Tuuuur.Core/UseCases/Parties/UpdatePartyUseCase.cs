@@ -11,9 +11,9 @@ using Tuuuur.Domain.Security;
 
 namespace Tuuuur.Core.UseCases.Parties;
 
-internal class UpdatePartyStateUseCase(
+internal class UpdatePartyUseCase(
     IUnitOfWork p_UnitOfWork, 
-    ILogger<UpdatePartyStateUseCase> p_Logger, 
+    ILogger<UpdatePartyUseCase> p_Logger, 
     IUserRoleService p_UserRoleService)
     : AUseCase(p_UnitOfWork, p_Logger), IRequestHandler<UpdatePartyStateRequest, GenericEntityResponse<Party>>
 {
@@ -42,6 +42,10 @@ internal class UpdatePartyStateUseCase(
             if (v_Answer is null)
                 throw new NotFoundException(request.AnwserId.ToString(), nameof(Answer));
 
+            if (v_PartyQuestion.UserPartyQuestion is null)
+            {
+                throw new NotFoundException(request.AnwserId.ToString(), nameof(UserPartyQuestion));
+            }
             UserPartyQuestion v_UserPartyQuestion = v_PartyQuestion.UserPartyQuestion;
             if(v_UserPartyQuestion is null || v_UserPartyQuestion.IdAnwser is not null)
                 throw new NotFoundException(v_PartyQuestion.Id.ToString(), nameof(UserPartyQuestion));
@@ -58,7 +62,7 @@ internal class UpdatePartyStateUseCase(
                 v_UserPartyQuestion.Score = 0;
             }
 
-            if (v_UserPartyQuestion.PartyQuestion.Order == v_Party.PartyQuestions.Count)
+            if (v_PartyQuestion.Order == v_Party.PartyQuestions.Count)
             {
                 v_Party.Finish = true;
                 await m_UnitOfWork.PartyRepository.UpdateAsync(v_Party);

@@ -10,9 +10,9 @@ using Tuuuur.Domain.Security;
 
 namespace Tuuuur.Core.UseCases.Parties;
 
-internal class GetPartyStateUseCase(
+internal class GetPartyUseCase(
     IUnitOfWork p_UnitOfWork, 
-    ILogger<GetPartyStateUseCase> p_Logger, 
+    ILogger<GetPartyUseCase> p_Logger, 
     IUserRoleService p_UserRoleService)
     : AUseCase(p_UnitOfWork, p_Logger), IRequestHandler<GetPartyStateRequest, GenericEntityResponse<Party>>
 {

@@ -25,6 +25,6 @@ public class AnwserApiRequestValidator : AbstractValidator<AnwserApiRequest>
     public AnwserApiRequestValidator()
     {
         RuleFor(p_Request => p_Request.AnwserId)
-            .NotEmpty().NotNull().WithErrorCode(DomainErrors.Authentication.Login.InvalidEmail);
+            .NotEmpty().NotNull().WithErrorCode(DomainErrors.Party.Anwser.Empty);
     }
 }
