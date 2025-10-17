@@ -6,6 +6,7 @@ using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Bo.Enum;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Interfaces.Data.Entities;
+using Tuuuur.Domain.Interfaces.Services;
 using Tuuuur.Domain.Security;
 using Tuuuur.Factory.Tests;
 
@@ -16,6 +17,7 @@ public class UpdatePartyUseCaseTests
     private readonly Mock<IUnitOfWork> m_UnitOfWorkMock;
     private readonly Mock<ILogger<UpdatePartyUseCase>> m_LoggerMock;
     private readonly Mock<IUserRoleService> m_UserRoleService;
+    private readonly Mock<ICalculService> m_CalculService;
 
     private readonly UpdatePartyUseCase m_UseCase;
     
@@ -24,8 +26,9 @@ public class UpdatePartyUseCaseTests
         m_UnitOfWorkMock = new Mock<IUnitOfWork>();
         m_LoggerMock = new Mock<ILogger<UpdatePartyUseCase>>();
         m_UserRoleService = new Mock<IUserRoleService>();
+        m_CalculService = new Mock<ICalculService>();
 
-        m_UseCase = new UpdatePartyUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_UserRoleService.Object);
+        m_UseCase = new UpdatePartyUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_CalculService.Object, m_UserRoleService.Object);
     }
     
     [Fact]
@@ -64,6 +67,9 @@ public class UpdatePartyUseCaseTests
         ];
         
         m_UserRoleService.Setup(p_P => p_P.GetCurrentUserEmail()).Returns(v_User.Email);
+        m_CalculService.Setup(p_U => p_U.CalculateScore(It.IsAny<DateTime>(), It.IsAny<DateTime?>())).Returns(753);
+
+        
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
         m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party);
         m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.UpdateAsync(It.IsAny<Party>())).Returns(Task.CompletedTask);

@@ -2,8 +2,10 @@
 using Autofac.Core;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Interfaces.Emails;
+using Tuuuur.Domain.Interfaces.Services;
 using Tuuuur.Domain.Interfaces.Token;
 using Tuuuur.Infrastructure.Emails;
+using Tuuuur.Infrastructure.Services;
 
 namespace Tuuuur.Infrastructure.Tests
 {
@@ -21,6 +23,7 @@ namespace Tuuuur.Infrastructure.Tests
                 typeof(IJwtFactory),
                 typeof(IEmailService),
                 typeof(IRenderingService),
+                typeof(ICalculService),
                 typeof(SmtpEmailConfiguration)
             };
         }

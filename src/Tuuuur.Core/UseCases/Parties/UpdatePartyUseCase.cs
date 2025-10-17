@@ -7,6 +7,7 @@ using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Bo.Enum;
 using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Interfaces.Data;
+using Tuuuur.Domain.Interfaces.Services;
 using Tuuuur.Domain.Security;
 
 namespace Tuuuur.Core.UseCases.Parties;
@@ -14,6 +15,7 @@ namespace Tuuuur.Core.UseCases.Parties;
 internal class UpdatePartyUseCase(
     IUnitOfWork p_UnitOfWork, 
     ILogger<UpdatePartyUseCase> p_Logger, 
+    ICalculService p_CalculService,
     IUserRoleService p_UserRoleService)
     : AUseCase(p_UnitOfWork, p_Logger), IRequestHandler<UpdatePartyStateRequest, GenericEntityResponse<Party>>
 {
@@ -55,7 +57,7 @@ internal class UpdatePartyUseCase(
             v_UserPartyQuestion.DtAnsweredAt = v_CurrentDateTime;
             if (v_Answer.Valid.HasValue && v_Answer.Valid.Value)
             {
-                v_UserPartyQuestion.CalculateScore(1000, 30);
+                v_UserPartyQuestion.Score = p_CalculService.CalculateScore(v_UserPartyQuestion.DtPresentedAt, v_UserPartyQuestion.DtAnsweredAt);
             }
             else
             {
