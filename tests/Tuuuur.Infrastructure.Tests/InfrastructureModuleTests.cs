@@ -24,7 +24,8 @@ namespace Tuuuur.Infrastructure.Tests
                 typeof(IEmailService),
                 typeof(IRenderingService),
                 typeof(ICalculService),
-                typeof(SmtpEmailConfiguration)
+                typeof(SmtpEmailConfiguration),
+                typeof(CalculConfiguration)
             };
         }
 
