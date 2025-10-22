@@ -49,6 +49,8 @@ public class InfrastructureModule : Module
         p_Builder.RegisterType<CalculService>()
             .As<ICalculService>()
             .InstancePerLifetimeScope();
+        
+        p_Builder.RegisterConfiguration<CalculConfiguration>();
     }
 }
 
