@@ -47,7 +47,7 @@ internal class JwtFactory : IJwtFactory
                     Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.Role, v_Role)
             ]),
-            Expires = DateTime.UtcNow.AddMinutes(m_JwtConfiguration.Validity),
+            Expires = DateTime.UtcNow.AddMinutes(m_JwtConfiguration.Validity), 
             Issuer = m_JwtConfiguration.Issuer,
             Audience = m_JwtConfiguration.Audience,
             SigningCredentials = new SigningCredentials

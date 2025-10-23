@@ -2,7 +2,7 @@ namespace Tuuuur.Domain.Bo.Enum;
 
 public enum PartyTypeType
 {
-    Group,
-    Ranked,
-    Solo
+    Group = 1,
+    Ranked = 2,
+    Solo = 3
 }

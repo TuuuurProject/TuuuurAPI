@@ -1,6 +1,6 @@
 namespace Tuuuur.Domain.Bo;
 
-public class UserPartyQuestion
+public class UserPartyQuestion : IBOEntity
 {
     public int Id { get; set; }
 
@@ -8,9 +8,17 @@ public class UserPartyQuestion
 
     public int IdUser { get; set; }
 
-    public DateTime Dt { get; set; }
+    public DateTime DtPresentedAt { get; set; }
 
-    public bool Correct { get; set; }
+    public DateTime? DtAnsweredAt { get; set; }
+    
+    public int? IdAnwser { get; set; }
+
+    public bool? Correct { get; set; }
+    
+    public int Score { get; set; }
+    
+    public virtual Answer Anwser { get; set; }
 
     public virtual PartyQuestion PartyQuestion { get; set; }
 

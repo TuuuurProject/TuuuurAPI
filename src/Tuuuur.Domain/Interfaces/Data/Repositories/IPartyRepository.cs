@@ -7,4 +7,7 @@ public interface IPartyRepository : IGenericRepository
 {
     Task<IMappingAddEntity<Party, IEntity>> CreatePartyAsync(Party p_Party,
         CancellationToken p_CancellationToken = default);
+
+    Task<Party> GetByIdAsync(Guid p_PartyId, int p_UserId, CancellationToken p_CancellationToken = default);
+    Task UpdateAsync(Party p_Party);
 }

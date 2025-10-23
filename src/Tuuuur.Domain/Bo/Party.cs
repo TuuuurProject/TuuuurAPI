@@ -13,6 +13,9 @@ public class Party : IBOEntity
     public int IdUserHost { get; set; }
 
     public bool Active { get; set; }
+    public bool Finish { get; set; }
+    
+    public int Score => PartyQuestions.Sum(p_P => p_P.UserPartyQuestion.Score);
 
     public virtual PartyType PartyType { get; set; }
 

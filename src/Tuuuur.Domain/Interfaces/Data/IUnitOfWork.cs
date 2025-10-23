@@ -10,6 +10,7 @@ public interface IUnitOfWork : IDisposable
     IDifficultyRepository DifficultyRepository { get; }
     IQuestionRepository QuestionRepository { get; }
     IPartyRepository PartyRepository { get; }
+    IUserPartyQuestionRepository UserPartyQuestionRepository { get; }
 
     int Save();
 

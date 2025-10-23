@@ -14,4 +14,6 @@ public partial class AnswerAns
     public bool Valid { get; set; }
 
     public virtual QuestionQst IdQuestionNavigation { get; set; }
+
+    public virtual ICollection<UserPartyQuestionUpq> UserPartyQuestionUpq { get; set; } = new List<UserPartyQuestionUpq>();
 }

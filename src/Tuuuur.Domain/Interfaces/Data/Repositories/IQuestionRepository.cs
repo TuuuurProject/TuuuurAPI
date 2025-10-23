@@ -6,4 +6,6 @@ public interface IQuestionRepository : IGenericRepository
 {
     Task<IEnumerable<Question>> GetQuestionsByThemesIdsAndDifficultiesIdsAndNumberOfQuestionsAsync(int[] p_ThemesIds,
         int[] p_DifficultiesIds, int p_NbQuestions, CancellationToken p_CancellationToken = default);
+
+    Task<Question> GetQuestionByIdWithAnwserAsync(int p_Id, CancellationToken p_CancellationToken = default);
 }

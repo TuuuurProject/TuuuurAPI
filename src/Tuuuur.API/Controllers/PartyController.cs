@@ -6,16 +6,14 @@ using Tuuuur.API.Presenters;
 using Tuuuur.API.Requests;
 using Tuuuur.Core.Requests;
 using Tuuuur.Core.Responses;
+using Tuuuur.Domain.Bo;
 using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace Tuuuur.API.Controllers;
 
 /// <summary>
-/// Controller used to handle actions bound to authentication and users
-/// </summary>
-/// <remarks>
-/// ctor
-/// </remarks>
+/// Controller used to handle actions bound to party
+/// </summary>§
 /// <param name="p_Logger"></param>
 /// <param name="p_Mediator"></param>
 /// <param name="p_ValidationPresenter"></param>
@@ -27,7 +25,7 @@ public class PartyController(ILogger<PartyController> p_Logger, IMediator p_Medi
     /// Create solo party
     /// </summary>
     /// <returns></returns>
-    [HttpPost("Solo")]
+    [HttpPost("solo")]
     [MapToApiVersion("1")]
     [ProducesResponseType(typeof(Guid),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
@@ -47,6 +45,59 @@ public class PartyController(ILogger<PartyController> p_Logger, IMediator p_Medi
         }
 
         p_Presenter.Handle(await m_Mediator.Send(new CreateSoloPartyRequest(p_ApiRequest.Themes, p_ApiRequest.Difficulties, p_ApiRequest.NbQuestions), p_CancellationToken));
+
+        return p_Presenter.ContentResult;
+    }
+    
+    /// <summary>
+    /// Fetch the party
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("{p_PartyId:guid}")]
+    [MapToApiVersion("1")]
+    [ProducesResponseType(typeof(Party),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetPartyStateAsync(
+        [FromRoute] Guid p_PartyId,
+        [FromServices] GenericEntityPresenter<Party> p_Presenter,
+        CancellationToken p_CancellationToken)
+    {
+        p_Presenter.Handle(await m_Mediator.Send(new GetPartyStateRequest(p_PartyId), p_CancellationToken));
+
+        return p_Presenter.ContentResult;
+    }
+    
+    /// <summary>
+    /// Anwser to a question
+    /// </summary>
+    /// <param name="p_PartyId"></param>
+    /// <param name="p_Request"></param>
+    /// <param name="p_Validator"></param>
+    /// <param name="p_Presenter"></param>
+    /// <param name="p_CancellationToken"></param>
+    /// <returns></returns>
+    [HttpPost("{p_PartyId:guid}")]
+    [MapToApiVersion("1")]
+    [ProducesResponseType(typeof(Party),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> UpdatePartyStateAsync(
+        [FromRoute] Guid p_PartyId,
+        [FromBody] AnwserApiRequest p_Request,
+        [FromServices] AnwserApiRequestValidator p_Validator,
+        [FromServices] GenericEntityPresenter<Party> p_Presenter,
+        CancellationToken p_CancellationToken)
+    {
+        ValidationResult v_Result = await p_Validator.ValidateAsync(p_Request, p_CancellationToken);
+
+        if (!v_Result.IsValid)
+        {
+            m_ValidationPresenter.Handle(v_Result);
+            return m_ValidationPresenter.ContentResult;
+        }
+        
+        p_Presenter.Handle(await m_Mediator.Send(new UpdatePartyStateRequest(p_PartyId, p_Request.AnwserId), p_CancellationToken));
 
         return p_Presenter.ContentResult;
     }

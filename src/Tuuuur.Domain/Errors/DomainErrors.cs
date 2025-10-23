@@ -60,6 +60,19 @@
                 public const string TooMuchDemand = CODE_PREFIX + "too-much-demand";
             }
         }
+
+        public static class Party
+        {
+            private const string PARTY_PREFIX = DOMAIN_PREFIX + "party.";
+            
+            public static class Anwser
+            {
+                private const string ANWSER_PREFIX = PARTY_PREFIX + "anwser.";
+                
+                public const string Empty = ANWSER_PREFIX + GeneralErrors.Empty;
+            }
+            
+        }
     }
 
     internal static class GeneralErrors
