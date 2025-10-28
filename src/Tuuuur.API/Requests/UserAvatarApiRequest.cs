@@ -19,6 +19,9 @@ public record UserAvatarApiRequest
 /// </summary>
 public class UserAvatarApiRequestValidator : AbstractValidator<UserAvatarApiRequest>
 {
+    /// <summary>
+    /// ctor
+    /// </summary>
     public UserAvatarApiRequestValidator()
     {
         RuleFor(p_Request => p_Request.Avatar)
