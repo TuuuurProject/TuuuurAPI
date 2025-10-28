@@ -53,6 +53,7 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
                         nameof(Party.PartyType),
                         nameof(Party.IdPartyType),
                         nameof(Party.Score),
+                        nameof(Party.NbQuestions),
                         nameof(Party.User)
                         )
                     .IsEqualTo(v_Party);
