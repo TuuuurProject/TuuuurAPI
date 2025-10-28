@@ -47,4 +47,26 @@ public class UsersControllerTests
             v_JsonResult.StatusCode.Should().Be(200);
         }
     }
+    [Fact]
+    public async Task UpdateUserAvatarAsync_WhenAvatarIsNotInGoodFormat_ReturnsOkObjectResult()
+    {
+        // Arrange
+        UserAvatarApiRequest v_ApiRequest = new()
+        {
+            Avatar = "BadImageFormat"
+        };
+        User v_User = BoFactory.CreateUser();
+
+        m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<UpdateUserAvatarRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<User>(v_User));
+        
+        // Act
+        IActionResult v_Result = await m_Controller.UpdateUserAvatarAsync(v_ApiRequest, new UserAvatarApiRequestValidator(), new GenericEntityPresenter<User>(), CancellationToken.None);
+
+        // Assert
+        v_Result.Should().BeOfType<JsonContentResult>();
+        if (v_Result is JsonContentResult v_JsonResult)
+        {
+            v_JsonResult.StatusCode.Should().Be(400);
+        }
+    }
 }
