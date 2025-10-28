@@ -71,7 +71,7 @@ internal class InfrastructureProfile : Profile
         CreateMap<UserPartyQuestionUpq, UserPartyQuestion>()
             .ForMember(p_Trg => p_Trg.PartyQuestion, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdPartyQuestionNavigation))
             .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserNavigation))
-            .ForMember(p_Trg => p_Trg.Anwser, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdAnwserNavigation))
+            .ForMember(p_Trg => p_Trg.Answer, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdAnswerNavigation))
             .ReverseMap();
         
         CreateMap<QuestionThemeQth, QuestionTheme>()

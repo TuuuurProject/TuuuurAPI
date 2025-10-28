@@ -27,7 +27,7 @@ internal class QuestionRepository(DbContext p_DbContext, IMapper p_Mapper, ILogg
         return Mapper.Map<IEnumerable<Question>>(v_Query);
     }
 
-    public async Task<Question> GetQuestionByIdWithAnwserAsync(int p_Id, CancellationToken p_CancellationToken = default)
+    public async Task<Question> GetQuestionByIdWithAnswerAsync(int p_Id, CancellationToken p_CancellationToken = default)
     {
         QuestionQst v_QuestionQst = await FindBy(
             p_P => p_P.Id == p_Id, 

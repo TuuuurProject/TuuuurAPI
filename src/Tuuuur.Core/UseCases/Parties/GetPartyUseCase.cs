@@ -59,10 +59,11 @@ internal class GetPartyUseCase(
             }
             
             v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(p_StateRequest.PartyId, v_User.Id, cancellationToken);
+            v_Party.NbQuestions = v_Party.PartyQuestions.Count;
             v_Party.PartyQuestions = v_Party.PartyQuestions.Where(p_P => p_P.UserPartyQuestion is not null).ToList();
             
             v_Party.PartyQuestions
-                .Where(p_Question => p_Question.UserPartyQuestion.IdAnwser == null)
+                .Where(p_Question => p_Question.UserPartyQuestion.IdAnswer == null)
                 .ToList()
                 .ForEach(p_Question => 
                 {

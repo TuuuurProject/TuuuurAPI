@@ -40,19 +40,19 @@ internal class UpdatePartyUseCase(
             if (v_PartyQuestion is null)
                 throw new InvalidOperationException();
             
-            Answer v_Answer = v_PartyQuestion.Question.Answer.FirstOrDefault(p_P => p_P.Id == request.AnwserId);
+            Answer v_Answer = v_PartyQuestion.Question.Answer.FirstOrDefault(p_P => p_P.Id == request.AnswerId);
             if (v_Answer is null)
-                throw new NotFoundException(request.AnwserId.ToString(), nameof(Answer));
+                throw new NotFoundException(request.AnswerId.ToString(), nameof(Answer));
 
             if (v_PartyQuestion.UserPartyQuestion is null)
             {
-                throw new NotFoundException(request.AnwserId.ToString(), nameof(UserPartyQuestion));
+                throw new NotFoundException(request.AnswerId.ToString(), nameof(UserPartyQuestion));
             }
             UserPartyQuestion v_UserPartyQuestion = v_PartyQuestion.UserPartyQuestion;
-            if(v_UserPartyQuestion is null || v_UserPartyQuestion.IdAnwser is not null)
+            if(v_UserPartyQuestion is null || v_UserPartyQuestion.IdAnswer is not null)
                 throw new NotFoundException(v_PartyQuestion.Id.ToString(), nameof(UserPartyQuestion));
 
-            v_UserPartyQuestion.IdAnwser = v_Answer.Id;
+            v_UserPartyQuestion.IdAnswer = v_Answer.Id;
             v_UserPartyQuestion.Correct = v_Answer.Valid;
             v_UserPartyQuestion.DtAnsweredAt = v_CurrentDateTime;
             if (v_Answer.Valid.HasValue && v_Answer.Valid.Value)
@@ -74,6 +74,7 @@ internal class UpdatePartyUseCase(
             _ = m_UnitOfWork.Save();
             
             v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(request.PartyId, v_User.Id, cancellationToken);
+            v_Party.NbQuestions = v_Party.PartyQuestions.Count;
             v_Party.PartyQuestions = v_Party.PartyQuestions.Where(p_P => p_P.UserPartyQuestion is not null).ToList();
             
             return new GenericEntityResponse<Party>(v_Party);

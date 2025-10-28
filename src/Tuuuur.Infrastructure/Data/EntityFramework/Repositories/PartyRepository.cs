@@ -38,7 +38,7 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
             .FirstOrDefaultAsync(p_CancellationToken);
         return Mapper.Map<Party>(v_PartyPty);
     }
-
+    
     public async Task UpdateAsync(Party p_Party)
     {
         PartyPty v_Entity = Mapper.Map<PartyPty>(p_Party);
