@@ -22,12 +22,12 @@
             private const string AUTHENT_PREFIX = DOMAIN_PREFIX + "authentication.";
 
             public const string Missmatch = AUTHENT_PREFIX + "missmatch";
-            public const string Invalid = AUTHENT_PREFIX + "invalid";
+            public const string Invalid = AUTHENT_PREFIX + GeneralErrors.Invalid;
 
             public static class NickName
             {
                 private const string NICKNAME_PREFIX = AUTHENT_PREFIX + "nickname.";
-                public const string Invalid_NickName = NICKNAME_PREFIX + Invalid;
+                public const string Invalid_NickName = NICKNAME_PREFIX + GeneralErrors.Invalid;
             }
 
             public static class Login
@@ -71,6 +71,19 @@
                 
                 public const string Empty = ANWSER_PREFIX + GeneralErrors.Empty;
             }
+        }
+
+        public static class User
+        {
+            private const string USER_PREFIX = DOMAIN_PREFIX + "user.";
+
+            public static class Avatar
+            {
+                private const string AVATAR_PREFIX = USER_PREFIX + "avatar.";
+                public const string Empty = AVATAR_PREFIX + GeneralErrors.Empty;
+                public const string InvalidFormat = AVATAR_PREFIX + GeneralErrors.Invalid;
+                
+            }
             
         }
     }
@@ -80,6 +93,7 @@
         public const string Empty = "empty";
         public const string Duplicated = "duplicated";
         public const string NotExist = "not-exist";
+        public const string Invalid = "invalid";
 
         public static class InvalidFormat
         {

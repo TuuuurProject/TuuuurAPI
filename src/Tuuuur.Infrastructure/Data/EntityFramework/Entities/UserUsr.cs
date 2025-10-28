@@ -13,7 +13,7 @@ public partial class UserUsr
 
     public string Password { get; set; }
 
-    public byte[] Avatar { get; set; }
+    public string Avatar { get; set; }
 
     public Guid? ResetPasswordCode { get; set; }
 
