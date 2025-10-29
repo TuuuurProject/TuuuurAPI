@@ -65,11 +65,11 @@
         {
             private const string PARTY_PREFIX = DOMAIN_PREFIX + "party.";
             
-            public static class Anwser
+            public static class Answer
             {
-                private const string ANWSER_PREFIX = PARTY_PREFIX + "anwser.";
+                private const string ANSWER_PREFIX = PARTY_PREFIX + "anwser.";
                 
-                public const string Empty = ANWSER_PREFIX + GeneralErrors.Empty;
+                public const string Empty = ANSWER_PREFIX + GeneralErrors.Empty;
             }
             
         }

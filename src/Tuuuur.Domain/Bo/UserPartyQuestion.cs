@@ -12,13 +12,13 @@ public class UserPartyQuestion : IBOEntity
 
     public DateTime? DtAnsweredAt { get; set; }
     
-    public int? IdAnwser { get; set; }
+    public int? IdAnswer { get; set; }
 
     public bool? Correct { get; set; }
     
     public int Score { get; set; }
     
-    public virtual Answer Anwser { get; set; }
+    public virtual Answer Answer { get; set; }
 
     public virtual PartyQuestion PartyQuestion { get; set; }
 

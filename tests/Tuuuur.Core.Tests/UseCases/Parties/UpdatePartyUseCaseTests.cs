@@ -37,7 +37,7 @@ public class UpdatePartyUseCaseTests
         // Arrange
         User v_User = BoFactory.CreateUser().Generate();
         Party v_Party = BoFactory.CreateParty().Generate();
-        int v_AnwserId = 1;
+        int v_AnswerId = 1;
         v_Party.IdPartyType = (int)PartyTypeType.Solo;
         v_Party.PartyUsers = [new PartyUser { User = v_User }];
         v_Party.PartyQuestions =
@@ -57,7 +57,7 @@ public class UpdatePartyUseCaseTests
                     [
                         new Answer()
                         {
-                            Id = v_AnwserId,
+                            Id = v_AnswerId,
                             Valid = true
                         }
                     ]

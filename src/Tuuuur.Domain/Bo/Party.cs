@@ -9,13 +9,18 @@ public class Party : IBOEntity
     public string Code { get; set; }
 
     public int IdPartyType { get; set; }
-
+    
     public int IdUserHost { get; set; }
-
+    
     public bool Active { get; set; }
+    
     public bool Finish { get; set; }
     
+    
     public int Score => PartyQuestions.Sum(p_P => p_P.UserPartyQuestion.Score);
+    
+    
+    public int NbQuestions { get; set; }
 
     public virtual PartyType PartyType { get; set; }
 

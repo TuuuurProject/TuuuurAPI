@@ -77,16 +77,16 @@ namespace Tuuuur.API.Tests.Controllers
             // Arrange
             Guid v_Id = Guid.NewGuid();
             
-            AnwserApiRequest v_Request = new()
+            AnswerApiRequest v_Request = new()
             {
-                AnwserId = 1,
+                AnswerId = 1,
             };
             Party v_Party = new();
 
             m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<UpdatePartyStateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<Party>(v_Party));
             
             // Act
-            IActionResult v_Result = await m_Controller.UpdatePartyStateAsync(v_Id, v_Request, new AnwserApiRequestValidator(), new GenericEntityPresenter<Party>(), CancellationToken.None);
+            IActionResult v_Result = await m_Controller.UpdatePartyStateAsync(v_Id, v_Request, new AnswerApiRequestValidator(), new GenericEntityPresenter<Party>(), CancellationToken.None);
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();

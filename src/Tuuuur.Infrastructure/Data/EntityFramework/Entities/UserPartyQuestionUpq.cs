@@ -17,11 +17,11 @@ public partial class UserPartyQuestionUpq
 
     public int? Score { get; set; }
 
-    public int? IdAnwser { get; set; }
+    public int? IdAnswer { get; set; }
 
     public bool? Correct { get; set; }
 
-    public virtual AnswerAns IdAnwserNavigation { get; set; }
+    public virtual AnswerAns IdAnswerNavigation { get; set; }
 
     public virtual PartyQuestionPqt IdPartyQuestionNavigation { get; set; }
 

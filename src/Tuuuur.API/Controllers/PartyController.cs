@@ -69,7 +69,7 @@ public class PartyController(ILogger<PartyController> p_Logger, IMediator p_Medi
     }
     
     /// <summary>
-    /// Anwser to a question
+    /// Answer to a question
     /// </summary>
     /// <param name="p_PartyId"></param>
     /// <param name="p_Request"></param>
@@ -84,8 +84,8 @@ public class PartyController(ILogger<PartyController> p_Logger, IMediator p_Medi
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdatePartyStateAsync(
         [FromRoute] Guid p_PartyId,
-        [FromBody] AnwserApiRequest p_Request,
-        [FromServices] AnwserApiRequestValidator p_Validator,
+        [FromBody] AnswerApiRequest p_Request,
+        [FromServices] AnswerApiRequestValidator p_Validator,
         [FromServices] GenericEntityPresenter<Party> p_Presenter,
         CancellationToken p_CancellationToken)
     {
@@ -97,7 +97,7 @@ public class PartyController(ILogger<PartyController> p_Logger, IMediator p_Medi
             return m_ValidationPresenter.ContentResult;
         }
         
-        p_Presenter.Handle(await m_Mediator.Send(new UpdatePartyStateRequest(p_PartyId, p_Request.AnwserId), p_CancellationToken));
+        p_Presenter.Handle(await m_Mediator.Send(new UpdatePartyStateRequest(p_PartyId, p_Request.AnswerId), p_CancellationToken));
 
         return p_Presenter.ContentResult;
     }
