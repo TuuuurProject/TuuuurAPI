@@ -28,6 +28,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Tuuuur.API\Tuuuur.API.csproj" />
+		<ProjectReference Include="..\Tuuuur.Factory.Tests\Tuuuur.Factory.Tests.csproj" />
 	</ItemGroup>
 
 </Project>
