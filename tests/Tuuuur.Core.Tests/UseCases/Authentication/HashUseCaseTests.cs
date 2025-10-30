@@ -2,31 +2,33 @@
 using Tuuuur.Core.Requests.Tools;
 using Tuuuur.Core.Responses;
 using Tuuuur.Core.UseCases.Authentication;
+using Tuuuur.Domain.Interfaces.Data;
 
-namespace Tuuuur.Core.Tests.UseCases.Authentication
+namespace Tuuuur.Core.Tests.UseCases.Authentication;
+
+public class HashUseCaseTests
 {
-    public class HashUseCaseTests
+    private readonly HashUseCase m_UseCase;
+
+    public HashUseCaseTests()
     {
-        private readonly HashUseCase m_HashUseCase;
+        Mock<IUnitOfWork> v_UnitOfWorkMock = new();
+        Mock<ILogger<HashUseCase>> v_LoggerMock = new();
+        m_UseCase = new HashUseCase(v_LoggerMock.Object, v_UnitOfWorkMock.Object);
+    }
 
-        public HashUseCaseTests()
-        {
-            m_HashUseCase = new HashUseCase(Mock.Of<ILogger<HashUseCase>>());
-        }
+    [Fact]
+    public async Task Handle_WhenValidRequest_ShouldReturnHashedValueAsync()
+    {
+        // Arrange
+        HashRequest v_Request = new HashRequest("test123");
 
-        [Fact]
-        public async Task Handle_WhenValidRequest_ShouldReturnHashedValueAsync()
-        {
-            // Arrange
-            HashRequest v_Request = new HashRequest("test123");
+        // Act
+        StringResponse v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
 
-            // Act
-            StringResponse v_Result = await m_HashUseCase.Handle(v_Request, default);
-
-            // Assert
-            Assert.NotNull(v_Result);
-            Assert.NotEmpty(v_Result.Value);
-            Assert.True(v_Result.Success);
-        }
+        // Assert
+        Assert.NotNull(v_Result);
+        Assert.NotEmpty(v_Result.Value);
+        Assert.True(v_Result.Success);
     }
 }

@@ -19,17 +19,16 @@ namespace Tuuuur.Core.Tests.UseCases.Authentication
     public class GoogleAuthentificationUseCaseTests
     {
         private readonly Mock<IUnitOfWork> m_UnitOfWorkMock;
-        private readonly Mock<ILogger<GoogleAuthentificationUseCase>> m_LoggerMock;
         private readonly Mock<IJwtFactory> m_JwtFactoryMock;
         private readonly GoogleAuthentificationUseCase m_UseCase;
 
         public GoogleAuthentificationUseCaseTests()
         {
             m_UnitOfWorkMock = new Mock<IUnitOfWork>();
-            m_LoggerMock = new Mock<ILogger<GoogleAuthentificationUseCase>>();
+            Mock<ILogger<GoogleAuthentificationUseCase>> v_LoggerMock = new();
             m_JwtFactoryMock = new Mock<IJwtFactory>();
 
-            m_UseCase = new GoogleAuthentificationUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_JwtFactoryMock.Object);
+            m_UseCase = new GoogleAuthentificationUseCase(m_UnitOfWorkMock.Object, v_LoggerMock.Object, m_JwtFactoryMock.Object);
         }
 
         [Fact]

@@ -17,20 +17,18 @@ internal class UpdatePartyUseCase(
     ILogger<UpdatePartyUseCase> p_Logger, 
     ICalculService p_CalculService,
     IUserRoleService p_UserRoleService)
-    : AUseCase(p_UnitOfWork, p_Logger), IRequestHandler<UpdatePartyStateRequest, GenericEntityResponse<Party>>
+    : ADbUseCase<UpdatePartyStateRequest, GenericEntityResponse<Party>>(p_Logger,  p_UnitOfWork)
 {
-    [SuppressMessage("Style", "IDE1006:Styles d'affectation de noms", Justification = "Inherited named")]
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public async Task<GenericEntityResponse<Party>> Handle(UpdatePartyStateRequest request, CancellationToken cancellationToken)
+    protected override async Task<GenericEntityResponse<Party>> HandleLogic(UpdatePartyStateRequest p_Request, CancellationToken p_CancellationToken)
     {
-        try
-        {
             DateTime v_CurrentDateTime = DateTime.UtcNow;
             string v_UserEmail = p_UserRoleService.GetCurrentUserEmail();
-            User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_UserEmail, cancellationToken)
-                ?? throw new NotFoundException(v_UserEmail, nameof(User));
+            User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_UserEmail, p_CancellationToken);
+            
+            if(v_User == null)
+                return new GenericEntityResponse<Party>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
 
-            Party v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(request.PartyId, v_User.Id, cancellationToken);
+            Party v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(p_Request.PartyId, v_User.Id, p_CancellationToken);
             if (v_Party.Finish)
             {
                 throw new InvalidOperationException();
@@ -40,17 +38,18 @@ internal class UpdatePartyUseCase(
             if (v_PartyQuestion is null)
                 throw new InvalidOperationException();
             
-            Answer v_Answer = v_PartyQuestion.Question.Answer.FirstOrDefault(p_P => p_P.Id == request.AnswerId);
+            Answer v_Answer = v_PartyQuestion.Question.Answer.FirstOrDefault(p_P => p_P.Id == p_Request.AnswerId);
             if (v_Answer is null)
-                throw new NotFoundException(request.AnswerId.ToString(), nameof(Answer));
+                return new GenericEntityResponse<Party>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Answer)} was not found, Key: {p_Request.AnswerId.ToString()}")]);
+            
 
             if (v_PartyQuestion.UserPartyQuestion is null)
             {
-                throw new NotFoundException(request.AnswerId.ToString(), nameof(UserPartyQuestion));
+                return new GenericEntityResponse<Party>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(UserPartyQuestion)} was not found, Key: {p_Request.AnswerId.ToString()}")]);
             }
             UserPartyQuestion v_UserPartyQuestion = v_PartyQuestion.UserPartyQuestion;
             if(v_UserPartyQuestion is null || v_UserPartyQuestion.IdAnswer is not null)
-                throw new NotFoundException(v_PartyQuestion.Id.ToString(), nameof(UserPartyQuestion));
+                return new GenericEntityResponse<Party>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(UserPartyQuestion)} was not found, Key: {v_PartyQuestion.Id.ToString()}")]);
 
             v_UserPartyQuestion.IdAnswer = v_Answer.Id;
             v_UserPartyQuestion.Correct = v_Answer.Valid;
@@ -73,21 +72,10 @@ internal class UpdatePartyUseCase(
             await m_UnitOfWork.UserPartyQuestionRepository.UpdateAsync(v_UserPartyQuestion);
             _ = m_UnitOfWork.Save();
             
-            v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(request.PartyId, v_User.Id, cancellationToken);
+            v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(p_Request.PartyId, v_User.Id, p_CancellationToken);
             v_Party.NbQuestions = v_Party.PartyQuestions.Count;
             v_Party.PartyQuestions = v_Party.PartyQuestions.Where(p_P => p_P.UserPartyQuestion is not null).ToList();
             
             return new GenericEntityResponse<Party>(v_Party);
-        }
-        catch (NotFoundException v_Ex)
-        {
-            m_Logger.LogError(v_Ex, "Data not found");
-            return new GenericEntityResponse<Party>([v_Ex.ToError(DomainErrors.Data.NotFound)]);
-        }
-        catch (Exception v_Ex)
-        {
-            m_Logger.LogError(v_Ex, "An error was thrown");
-            return new GenericEntityResponse<Party>([v_Ex.ToError()]);
-        }
     }
 }
