@@ -85,18 +85,9 @@ public class PartyController(ILogger<PartyController> p_Logger, IMediator p_Medi
     public async Task<IActionResult> UpdatePartyStateAsync(
         [FromRoute] Guid p_PartyId,
         [FromBody] AnswerApiRequest p_Request,
-        [FromServices] AnswerApiRequestValidator p_Validator,
         [FromServices] GenericEntityPresenter<Party> p_Presenter,
         CancellationToken p_CancellationToken)
     {
-        ValidationResult v_Result = await p_Validator.ValidateAsync(p_Request, p_CancellationToken);
-
-        if (!v_Result.IsValid)
-        {
-            m_ValidationPresenter.Handle(v_Result);
-            return m_ValidationPresenter.ContentResult;
-        }
-        
         p_Presenter.Handle(await m_Mediator.Send(new UpdatePartyStateRequest(p_PartyId, p_Request.AnswerId), p_CancellationToken));
 
         return p_Presenter.ContentResult;
