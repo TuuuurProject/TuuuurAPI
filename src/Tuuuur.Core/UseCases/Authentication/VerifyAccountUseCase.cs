@@ -13,44 +13,36 @@ using Tuuuur.Domain.Token;
 
 namespace Tuuuur.Core.UseCases.Authentication;
 
-internal class VerifyAccountUseCase(IUnitOfWork p_UnitOfWork, ILogger<VerifyAccountUseCase> p_Logger, IJwtFactory p_JwtFactory)
-    : AUseCase(p_UnitOfWork, p_Logger), IRequestHandler<VerifyAccountRequest, JwtAuthenticationResponse>
+internal class VerifyAccountUseCase(
+    IUnitOfWork p_UnitOfWork, 
+    ILogger<VerifyAccountUseCase> p_Logger, 
+    IJwtFactory p_JwtFactory)
+    : ADbUseCase<VerifyAccountRequest, JwtAuthenticationResponse>(p_Logger, p_UnitOfWork)
 {
-    [SuppressMessage("Style", "IDE1006:Styles d'affectation de noms", Justification = "Inherited named")]
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public async Task<JwtAuthenticationResponse> Handle(VerifyAccountRequest request, CancellationToken cancellationToken)
+    protected override async Task<JwtAuthenticationResponse> HandleLogic(VerifyAccountRequest p_Request, CancellationToken p_CancellationToken)
     {
-        try
-        {
-            User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailOrNickNameAsync(request.Login, cancellationToken) 
-                ?? throw new NotFoundException(request.Login, nameof(User));
-            
-            UserAuth v_UserAuth = await m_UnitOfWork.UserAuthRepository.GetUserAuthByUserIdAndCodeAsync(v_User.Id, request.Code, cancellationToken)
-                ?? throw new NotFoundException(request.Code, nameof(UserAuth));
-            
-            v_User.IsNew = false;
-            await m_UnitOfWork.UserRepository.UpdateUserAsync(v_User, cancellationToken);
-            await m_UnitOfWork.UserAuthRepository.DeleteUserAuthAsync(v_UserAuth.Id, cancellationToken);
-            _ = m_UnitOfWork.Save();
+        User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailOrNickNameAsync(p_Request.Login, p_CancellationToken);
+        
+        if(v_User == null)
+            return new JwtAuthenticationResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {p_Request.Login}")]);
 
-            JwtTokenResponse v_TokenInfos = p_JwtFactory.CreateToken(v_User);
+        UserAuth v_UserAuth = await m_UnitOfWork.UserAuthRepository.GetUserAuthByUserIdAndCodeAsync(v_User.Id, p_Request.Code, p_CancellationToken);
+           
+        if(v_UserAuth == null)
+            return new JwtAuthenticationResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(UserAuth)} was not found, Key: {p_Request.Code}")]);
+        
+        v_User.IsNew = false;
+        await m_UnitOfWork.UserRepository.UpdateUserAsync(v_User, p_CancellationToken);
+        await m_UnitOfWork.UserAuthRepository.DeleteUserAuthAsync(v_UserAuth.Id, p_CancellationToken);
+        _ = m_UnitOfWork.Save();
 
-            return new JwtAuthenticationResponse(new UserToken
-            {
-                Token = v_TokenInfos,
-                User = v_User,
-                IsGoogleUser = false
-            });
-        }
-        catch (NotFoundException v_Ex)
+        JwtTokenResponse v_TokenInfos = p_JwtFactory.CreateToken(v_User);
+
+        return new JwtAuthenticationResponse(new UserToken
         {
-            m_Logger.LogError(v_Ex, "Data not found");
-            return new JwtAuthenticationResponse([v_Ex.ToError(DomainErrors.Data.NotFound)]);
-        }
-        catch (Exception v_Ex)
-        {
-            m_Logger.LogError(v_Ex, "An error was thrown");
-            return new JwtAuthenticationResponse([v_Ex.ToError()]);
-        }
+            Token = v_TokenInfos,
+            User = v_User,
+            IsGoogleUser = false
+        });
     }
 }

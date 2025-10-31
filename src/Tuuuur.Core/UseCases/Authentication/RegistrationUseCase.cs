@@ -4,7 +4,6 @@ using System.Data;
 using Tuuuur.Core.Requests.Authentication;
 using Tuuuur.Core.Requests.Tools;
 using Tuuuur.Core.Responses;
-using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Emails.Models;
 using Tuuuur.Domain.Errors;
@@ -29,17 +28,13 @@ internal class RegistrationUseCase(
     IMediator p_Mediator,
     IRenderingService p_RenderingService, 
     IEmailService p_EmailService)
-    : AUseCase(p_UnitOfWork, p_Logger), IRequestHandler<RegistrationRequest, EmptyResponse>
+    : ADbUseCase<RegistrationRequest, EmptyResponse>(p_Logger, p_UnitOfWork)
 {
-
-    [SuppressMessage("Style", "IDE1006:Styles d'affectation de noms", Justification = "Inherited named")]
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-
-    public async Task<EmptyResponse> Handle(RegistrationRequest request, CancellationToken cancellationToken)
+    protected override async Task<EmptyResponse> HandleLogic(RegistrationRequest p_Request, CancellationToken p_CancellationToken)
     {
-        return await m_UnitOfWork.ExecutionStrategy(async () => await RegisterUserAsync(request, cancellationToken));
+        return await m_UnitOfWork.ExecutionStrategy(async () => await RegisterUserAsync(p_Request, p_CancellationToken));
     }
-    
+
     private async Task<EmptyResponse> RegisterUserAsync(RegistrationRequest p_Request, CancellationToken p_CancellationToken)
     {
         try 

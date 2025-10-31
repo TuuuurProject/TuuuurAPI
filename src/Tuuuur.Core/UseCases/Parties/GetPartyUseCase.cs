@@ -5,6 +5,7 @@ using Tuuuur.Core.Requests;
 using Tuuuur.Core.Responses;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Bo.Enum;
+using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Security;
 
@@ -14,25 +15,23 @@ internal class GetPartyUseCase(
     IUnitOfWork p_UnitOfWork, 
     ILogger<GetPartyUseCase> p_Logger, 
     IUserRoleService p_UserRoleService)
-    : AUseCase(p_UnitOfWork, p_Logger), IRequestHandler<GetPartyStateRequest, GenericEntityResponse<Party>>
+    : ADbUseCase<GetPartyStateRequest, GenericEntityResponse<Party>>(p_Logger,  p_UnitOfWork)
 {
-    [SuppressMessage("Style", "IDE1006:Styles d'affectation de noms", Justification = "Inherited named")]
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public async Task<GenericEntityResponse<Party>> Handle(GetPartyStateRequest p_StateRequest, CancellationToken cancellationToken)
+    protected override async Task<GenericEntityResponse<Party>> HandleLogic(GetPartyStateRequest p_Request, CancellationToken p_CancellationToken)
     {
-        try
-        {
             string v_UserEmail = p_UserRoleService.GetCurrentUserEmail();
-            User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_UserEmail, cancellationToken)
-                ?? throw new NotFoundException(v_UserEmail, nameof(User));
+            User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_UserEmail, p_CancellationToken);
+            
+            if(v_User == null)
+                return new GenericEntityResponse<Party>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
 
-            Party v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(p_StateRequest.PartyId, v_User.Id, cancellationToken);
+            Party v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(p_Request.PartyId, v_User.Id, p_CancellationToken);
             
             // Check if the party type is correct
             // Check if the party contains only 1 player
             // Check that the player is this user
             if (v_Party is null || v_Party.IdPartyType != (int)PartyTypeType.Solo || v_Party.PartyUsers.Count != 1 && v_Party.PartyUsers.First().IdUser != v_User.Id)
-                throw new NotFoundException(p_StateRequest.PartyId.ToString(), nameof(Party));
+                return new GenericEntityResponse<Party>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found, Key: {p_Request.PartyId.ToString()}")]);
 
             IEnumerable<UserPartyQuestion> v_UserPartyQuestions = v_Party.PartyQuestions.Select(p_P => p_P.UserPartyQuestion).Where(p_P => p_P is not null);
 
@@ -52,13 +51,13 @@ internal class GetPartyUseCase(
                         IdPartyQuestion = v_PartyQuestion.Id,
                         Correct = null,
                     };
-                    _ = await m_UnitOfWork.UserPartyQuestionRepository.CreateUserPartyQuestionAsync(v_UserPartyQuestionToAdd, cancellationToken);
+                    _ = await m_UnitOfWork.UserPartyQuestionRepository.CreateUserPartyQuestionAsync(v_UserPartyQuestionToAdd, p_CancellationToken);
                 }
 
                 _ = m_UnitOfWork.Save();
             }
             
-            v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(p_StateRequest.PartyId, v_User.Id, cancellationToken);
+            v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(p_Request.PartyId, v_User.Id, p_CancellationToken);
             v_Party.NbQuestions = v_Party.PartyQuestions.Count;
             v_Party.PartyQuestions = v_Party.PartyQuestions.Where(p_P => p_P.UserPartyQuestion is not null).ToList();
             
@@ -71,11 +70,5 @@ internal class GetPartyUseCase(
                 });
             
             return new GenericEntityResponse<Party>(v_Party);
-        }
-        catch (Exception v_Ex)
-        {
-            m_Logger.LogError(v_Ex, "An error was thrown");
-            return new GenericEntityResponse<Party>([v_Ex.ToError()]);
-        }
     }
 }
