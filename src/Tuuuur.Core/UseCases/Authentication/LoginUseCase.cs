@@ -55,5 +55,7 @@ internal class LoginUseCase(
             [v_User.Email],
             p_InlineImages: v_InlineImages,
             p_CancellationToken: p_CancellationToken);            
-        return new EmptyResponse();    }
+        
+        return new EmptyResponse();    
+    }
 }
