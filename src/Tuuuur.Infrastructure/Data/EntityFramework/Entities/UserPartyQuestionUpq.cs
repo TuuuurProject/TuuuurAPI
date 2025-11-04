@@ -21,6 +21,8 @@ public partial class UserPartyQuestionUpq
 
     public bool? Correct { get; set; }
 
+    public Guid AnswersOrder { get; set; }
+
     public virtual AnswerAns IdAnswerNavigation { get; set; }
 
     public virtual PartyQuestionPqt IdPartyQuestionNavigation { get; set; }

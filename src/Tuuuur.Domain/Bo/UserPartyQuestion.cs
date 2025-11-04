@@ -21,6 +21,8 @@ public class UserPartyQuestion : IBOEntity
     public virtual Answer Answer { get; set; }
 
     public virtual PartyQuestion PartyQuestion { get; set; }
+    
+    public Guid AnswersOrder { get; set; }
 
     public virtual User User { get; set; }
 }

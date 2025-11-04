@@ -1,5 +1,3 @@
-using Ardalis.GuardClauses;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Requests;
 using Tuuuur.Core.Responses;
@@ -68,6 +66,15 @@ internal class GetPartyUseCase(
                 {
                     p_Question.Question.Answer.ForEach(p_Answer => p_Answer.Valid = null);
                 });
+
+            foreach (PartyQuestion v_PartyQuestion in v_Party.PartyQuestions)
+            {
+                int v_Seed = v_PartyQuestion.UserPartyQuestion.AnswersOrder.GetHashCode();
+
+                Random v_Random = new(v_Seed);
+                
+                v_PartyQuestion.Question.Answer.OrderBy(_ => v_Random.Next()).ToList();
+            }
             
             return new GenericEntityResponse<Party>(v_Party);
     }

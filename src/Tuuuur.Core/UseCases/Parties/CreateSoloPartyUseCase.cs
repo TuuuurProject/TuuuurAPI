@@ -43,6 +43,10 @@ internal class CreateSoloPartyUseCase(
                 })
                 .ToList(),          
             Active = true,
+            PartyDifficulty = p_Request.DifficultiesIds
+                .Select(p_Id => new PartyDifficulty { IdDifficulty = p_Id }).ToList(),
+            PartyTheme = p_Request.ThemesIds
+                .Select(p_Id => new PartyTheme() { IdTheme = p_Id }).ToList()
         };
 
         IMappingAddEntity<Party, IEntity> v_MappingAddEntity =

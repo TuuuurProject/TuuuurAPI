@@ -26,9 +26,9 @@ namespace Tuuuur.API;
 internal static class Program
 {
     private const string HealthUrl = "/health";
-    private static readonly string[] m_SqlServerTags = new string[] { "db", "sql", "sqlserver" };
-    private static readonly string[] m_DbContextCheckTags = new string[] { "ef", "dbcontext" };
-    private static readonly string[] m_ProcessAllocatedMemoryHealthCheckTags = new string[] { "allocatedmemory", "memory" };
+    private static readonly string[] m_SqlServerTags = ["db", "sql", "sqlserver"];
+    private static readonly string[] m_DbContextCheckTags = ["ef", "dbcontext"];
+    private static readonly string[] m_ProcessAllocatedMemoryHealthCheckTags = ["allocatedmemory", "memory"];
 
     [SuppressMessage("Style", "IDE1006:Styles d'affectation de noms", Justification = "Inherited named")]
     public static async Task Main(string[] p_Args)
@@ -37,7 +37,7 @@ internal static class Program
 
         string v_ConnectionString =
             v_Builder.Configuration.GetConnectionString(TuuuurContext.ConnectionStringName);
-        int v_MaxAllocatedMemory = int.Parse(v_Builder.Configuration["AllocatedMemory"]);
+        int v_MaxAllocatedMemory = int.Parse(v_Builder.Configuration["AllocatedMemory"] ?? string.Empty);
         string v_XmlCommentsFilePath =
             $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}{typeof(Program).Assembly.GetName().Name}.xml";
 

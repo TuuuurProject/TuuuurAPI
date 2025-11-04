@@ -1,6 +1,6 @@
 namespace Tuuuur.Domain.Bo;
 
-public class Party : IBOEntity
+public record Party : IBOEntity
 {
     public Guid Id { get; set; }
 
@@ -29,4 +29,8 @@ public class Party : IBOEntity
     public virtual List<PartyQuestion> PartyQuestions { get; set; } = [];
 
     public virtual List<PartyUser> PartyUsers { get; set; } = [];
+
+    public virtual List<PartyDifficulty> PartyDifficulty { get; set; } = [];
+
+    public virtual List<PartyTheme> PartyTheme { get; set; } = [];
 }

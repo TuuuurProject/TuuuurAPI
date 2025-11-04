@@ -1,6 +1,4 @@
-﻿
-using AutoMapper;
-using LinqKit;
+﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Tuuuur.Domain.Bo;
@@ -27,11 +25,16 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
     {
         PartyPty v_PartyPty = await FindBy(p_P => p_P.Id == p_PartyId, 
                 p_Include: p_Includes => p_Includes
+                    .Include(p_P => p_P.PartyThemePth)
+                        .ThenInclude(p_P => p_P.IdThemeNavigation)
+                    .Include(p_P => p_P.PartyDifficultyPdf)
+                        .ThenInclude(p_P => p_P.IdDifficultyNavigation)
                     .Include(p_P => p_P.PartyQuestionPqt)
-                    .ThenInclude(p_P => p_P.IdQuestionNavigation)
-                    .ThenInclude(p_P => p_P.AnswerAns)
+                        .ThenInclude(p_P => p_P.IdQuestionNavigation)
+                        .ThenInclude(p_P => p_P.AnswerAns)
                     .Include(p_P => p_P.PartyQuestionPqt)
-                    .ThenInclude(p_P => p_P.UserPartyQuestionUpq.Where(p_UserPartyQuestionUpq =>  p_UserPartyQuestionUpq.IdUser == p_UserId))
+                        .ThenInclude(p_P => p_P.UserPartyQuestionUpq.Where(p_UserPartyQuestionUpq =>  p_UserPartyQuestionUpq.IdUser == p_UserId))
+                            .ThenInclude(p_P => p_P.IdAnswerNavigation)
                     .Include(p_P => p_P.PartyUserPus)
                     .Include(p_P => p_P.IdPartyTypeNavigation)
                     )

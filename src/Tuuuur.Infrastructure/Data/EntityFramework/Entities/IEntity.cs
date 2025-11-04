@@ -11,7 +11,6 @@ public partial class PartyTypePty : IEntity;
 public partial class QuestionQst : IEntity;
 public partial class PartyTypePty : IEntity;
 public partial class QuestionQst : IEntity;
-public partial class PartyPty : IEntity;
 public partial class ThemeThm : IEntity;
 public partial class UserAuthUat : IEntity;
 public partial class UserUsr : IEntity;
