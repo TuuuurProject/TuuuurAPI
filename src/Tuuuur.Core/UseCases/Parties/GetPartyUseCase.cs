@@ -73,7 +73,7 @@ internal class GetPartyUseCase(
 
                 Random v_Random = new(v_Seed);
                 
-                v_PartyQuestion.Question.Answer.OrderBy(_ => v_Random.Next()).ToList();
+                v_PartyQuestion.Question.Answer = v_PartyQuestion.Question.Answer.OrderBy(_ => v_Random.Next()).ToList();
             }
             
             return new GenericEntityResponse<Party>(v_Party);

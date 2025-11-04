@@ -105,17 +105,15 @@ namespace Tuuuur.Core.UseCases.Parties
             v_Party.NbQuestions = v_Party.PartyQuestions.Count;
             v_Party.PartyQuestions = v_Party.PartyQuestions.Where(p_P => p_P.UserPartyQuestion is not null).ToList();
             
-            
-            foreach (PartyQuestion v_PQ in v_Party.PartyQuestions)
+            foreach (PartyQuestion v_Question in v_Party.PartyQuestions)
             {
-                int v_Seed = v_PQ.UserPartyQuestion.AnswersOrder.GetHashCode();
+                int v_Seed = v_Question.UserPartyQuestion.AnswersOrder.GetHashCode();
 
                 Random v_Random = new(v_Seed);
                 
-                v_PQ.Question.Answer.OrderBy(_ => v_Random.Next()).ToList();
+                v_Question.Question.Answer = v_Question.Question.Answer.OrderBy(_ => v_Random.Next()).ToList();
             }
-
-
+            
             return new GenericEntityResponse<Party>(v_Party);
         }
     }
