@@ -23,7 +23,11 @@ public partial class PartyPty
 
     public virtual UserUsr IdUserHostNavigation { get; set; }
 
+    public virtual ICollection<PartyDifficultyPdf> PartyDifficultyPdf { get; set; } = new List<PartyDifficultyPdf>();
+
     public virtual ICollection<PartyQuestionPqt> PartyQuestionPqt { get; set; } = new List<PartyQuestionPqt>();
+
+    public virtual ICollection<PartyThemePth> PartyThemePth { get; set; } = new List<PartyThemePth>();
 
     public virtual ICollection<PartyUserPus> PartyUserPus { get; set; } = new List<PartyUserPus>();
 }

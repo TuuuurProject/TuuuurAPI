@@ -48,12 +48,16 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
                         nameof(PartyPty.PartyQuestionPqt),
                         nameof(PartyPty.IdUserHostNavigation),
                         nameof(PartyPty.IdPartyTypeNavigation),
+                        nameof(PartyPty.PartyDifficultyPdf),
+                        nameof(PartyPty.PartyThemePth),
                         nameof(Party.PartyUsers),
                         nameof(Party.PartyQuestions),
                         nameof(Party.PartyType),
                         nameof(Party.IdPartyType),
                         nameof(Party.Score),
                         nameof(Party.NbQuestions),
+                        nameof(Party.PartyTheme),
+                        nameof(Party.PartyDifficulty),
                         nameof(Party.User)
                         )
                     .IsEqualTo(v_Party);

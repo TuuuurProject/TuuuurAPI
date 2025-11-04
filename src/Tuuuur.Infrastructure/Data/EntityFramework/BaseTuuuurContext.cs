@@ -18,9 +18,13 @@ public partial class BaseTuuuurContext : DbContext
 
     public virtual DbSet<EloElo> EloElo { get; set; }
 
+    public virtual DbSet<PartyDifficultyPdf> PartyDifficultyPdf { get; set; }
+
     public virtual DbSet<PartyPty> PartyPty { get; set; }
 
     public virtual DbSet<PartyQuestionPqt> PartyQuestionPqt { get; set; }
+
+    public virtual DbSet<PartyThemePth> PartyThemePth { get; set; }
 
     public virtual DbSet<PartyTypePty> PartyTypePty { get; set; }
 
@@ -90,6 +94,24 @@ public partial class BaseTuuuurContext : DbContext
                 .HasConstraintName("FK_Elo_User");
         });
 
+        modelBuilder.Entity<PartyDifficultyPdf>(entity =>
+        {
+            entity.ToTable("PartyDifficulty_PDF");
+
+            entity.Property(e => e.IdDifficulty).HasColumnName("Id_Difficulty");
+            entity.Property(e => e.IdParty).HasColumnName("Id_Party");
+
+            entity.HasOne(d => d.IdDifficultyNavigation).WithMany(p => p.PartyDifficultyPdf)
+                .HasForeignKey(d => d.IdDifficulty)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PartyDifficulty_Theme");
+
+            entity.HasOne(d => d.IdPartyNavigation).WithMany(p => p.PartyDifficultyPdf)
+                .HasForeignKey(d => d.IdParty)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PartyDifficulty_Party");
+        });
+
         modelBuilder.Entity<PartyPty>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_PARTY_PTY");
@@ -140,6 +162,24 @@ public partial class BaseTuuuurContext : DbContext
                 .HasForeignKey(d => d.IdQuestion)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_PartyQuestion_Question");
+        });
+
+        modelBuilder.Entity<PartyThemePth>(entity =>
+        {
+            entity.ToTable("PartyTheme_PTH");
+
+            entity.Property(e => e.IdParty).HasColumnName("Id_Party");
+            entity.Property(e => e.IdTheme).HasColumnName("Id_Theme");
+
+            entity.HasOne(d => d.IdPartyNavigation).WithMany(p => p.PartyThemePth)
+                .HasForeignKey(d => d.IdParty)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PartyTheme_Party");
+
+            entity.HasOne(d => d.IdThemeNavigation).WithMany(p => p.PartyThemePth)
+                .HasForeignKey(d => d.IdTheme)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PartyTheme_Theme");
         });
 
         modelBuilder.Entity<PartyTypePty>(entity =>
@@ -257,6 +297,7 @@ public partial class BaseTuuuurContext : DbContext
 
             entity.HasIndex(e => new { e.IdUser, e.IdPartyQuestion }, "IX_UserPartyQuestion_User");
 
+            entity.Property(e => e.AnswersOrder).HasDefaultValueSql("(newid())");
             entity.Property(e => e.DtPresentedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.IdAnswer).HasColumnName("Id_Answer");
             entity.Property(e => e.IdPartyQuestion).HasColumnName("Id_Party_Question");

@@ -9,5 +9,7 @@ public partial class DifficultyDft
 
     public string Label { get; set; }
 
+    public virtual ICollection<PartyDifficultyPdf> PartyDifficultyPdf { get; set; } = new List<PartyDifficultyPdf>();
+
     public virtual ICollection<QuestionQst> QuestionQst { get; set; } = new List<QuestionQst>();
 }

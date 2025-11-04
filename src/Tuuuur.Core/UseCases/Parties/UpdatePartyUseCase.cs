@@ -77,10 +77,10 @@ namespace Tuuuur.Core.UseCases.Parties
             }
             else
             {
+                v_UserPartyQuestion.IdAnswer = v_Answer.Id;
                 if (v_Answer.Valid.HasValue && v_Answer.Valid.Value && v_Score > 0)
                 {
-                    v_UserPartyQuestion.IdAnswer = v_Answer.Id;
-                    v_UserPartyQuestion.Correct = v_Answer.Valid;
+                    v_UserPartyQuestion.Correct = true;
                     v_UserPartyQuestion.Score = v_Score;
                 }
                 else
@@ -104,7 +104,16 @@ namespace Tuuuur.Core.UseCases.Parties
                 p_CancellationToken);
             v_Party.NbQuestions = v_Party.PartyQuestions.Count;
             v_Party.PartyQuestions = v_Party.PartyQuestions.Where(p_P => p_P.UserPartyQuestion is not null).ToList();
+            
+            foreach (PartyQuestion v_Question in v_Party.PartyQuestions)
+            {
+                int v_Seed = v_Question.UserPartyQuestion.AnswersOrder.GetHashCode();
 
+                Random v_Random = new(v_Seed);
+                
+                v_Question.Question.Answer = v_Question.Question.Answer.OrderBy(_ => v_Random.Next()).ToList();
+            }
+            
             return new GenericEntityResponse<Party>(v_Party);
         }
     }
