@@ -19,6 +19,7 @@ using Serilog;
 using System.Text;
 using System.Text.Json.Serialization;
 using Tuuuur.API.Notifications;
+using Tuuuur.API.Transformers;
 
 namespace Tuuuur.API;
 
@@ -57,14 +58,23 @@ internal static class Program
         // Add services to the container.
         v_Builder.Services.AddValidatorsFromAssemblyContaining<ApiModule>();
         v_Builder.Services.AddMediatR(p_Config => p_Config.RegisterServicesFromAssembly(typeof(CoreModule).Assembly));
-        v_Builder.Services.AddControllers()
-            .AddJsonOptions(p_Options =>
+        v_Builder.Services.AddControllers(p_Options =>
+        {
+            p_Options.Conventions.Add(new Microsoft.AspNetCore.Mvc.ApplicationModels.RouteTokenTransformerConvention(
+                new KebabCaseParameterTransformer()));
+        }).AddJsonOptions(p_Options =>
                 {
                     // To enable display of enums as string
                     p_Options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                     p_Options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
                 }
             );
+        
+        v_Builder.Services.Configure<RouteOptions>(p_Options =>
+        {
+            p_Options.LowercaseUrls = true;
+            p_Options.LowercaseQueryStrings = true;
+        });
 
         // Swagger
         v_Builder.Services.AddEndpointsApiExplorer();

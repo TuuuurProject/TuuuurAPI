@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Tuuuur.Domain.Errors;
 
-namespace Tuuuur.API.Requests;
+namespace Tuuuur.API.Requests.Users;
 
 /// <summary>
 /// Request for update user avatar action

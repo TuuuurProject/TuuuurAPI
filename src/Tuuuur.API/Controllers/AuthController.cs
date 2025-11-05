@@ -9,6 +9,7 @@ using Tuuuur.API.Configuration;
 using Tuuuur.API.Presenters;
 using Tuuuur.API.Presenters.Authentication;
 using Tuuuur.API.Requests;
+using Tuuuur.API.Requests.Authentification;
 using Tuuuur.Core.Requests.Authentication;
 using Tuuuur.Core.Requests.Authentication.Google;
 using Tuuuur.Core.Responses;

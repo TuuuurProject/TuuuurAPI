@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity.Data;
+using Tuuuur.API.Requests.Authentification;
 using Tuuuur.Domain.Bo;
 
 namespace Tuuuur.API.Requests.Mapping

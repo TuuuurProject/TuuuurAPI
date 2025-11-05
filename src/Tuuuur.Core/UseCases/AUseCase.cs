@@ -3,7 +3,9 @@ using MediatR;
 using Tuuuur.Domain.Interfaces.Data;
 using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Responses;
+using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Errors;
+using Tuuuur.Domain.Security;
 
 namespace Tuuuur.Core.UseCases;
 

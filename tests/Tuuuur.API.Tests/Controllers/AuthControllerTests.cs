@@ -12,6 +12,7 @@ using Tuuuur.API.Controllers;
 using Tuuuur.API.Presenters;
 using Tuuuur.API.Presenters.Authentication;
 using Tuuuur.API.Requests;
+using Tuuuur.API.Requests.Authentification;
 using Tuuuur.API.Tests.Mapping;
 using Tuuuur.Core.Requests.Authentication;
 using Tuuuur.Core.Responses.Authentication;
@@ -116,7 +117,7 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task LoginAsync_WithValidRequest_ReturnsOkObjectResultAsync()
         {
             // Arrange
-            Requests.AuthenticateApiRequest v_AuthenticateApiRequest = new()
+            AuthenticateApiRequest v_AuthenticateApiRequest = new()
             {
                 Login = "test@example.com",
                 Password = "Password123"
@@ -134,7 +135,7 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task LoginAsync_WithInvalidRequest_ReturnsBadRequestObjectResultAsync()
         {
             // Arrange
-            Requests.AuthenticateApiRequest v_AuthenticateApiRequest = new()
+            AuthenticateApiRequest v_AuthenticateApiRequest = new()
             {
                 Login = "test@example.com",
                 Password = "password123"
@@ -235,7 +236,7 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task ResetPasswordAsync_WithValidRequest_ReturnsOkObjectResultAsync()
         {
             // Arrange
-            Requests.ResetPasswordApiRequest v_ResetPasswordApiRequest = new()
+            ResetPasswordApiRequest v_ResetPasswordApiRequest = new()
             {
                 Login = "test@example.com",
                 Password = "MySuper_Passw0rd12",

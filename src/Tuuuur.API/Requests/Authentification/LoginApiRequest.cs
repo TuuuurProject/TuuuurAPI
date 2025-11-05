@@ -4,23 +4,23 @@ using Tuuuur.Domain.Errors;
 namespace Tuuuur.API.Requests
 {
     /// <summary>
-    /// Request for login action
+    ///     Request for login action
     /// </summary>
     public record LoginApiRequest
     {
         /// <summary>
-        /// Login (Email/Nickname) of the user
+        ///     Login (Email/Nickname) of the user
         /// </summary>
         public string Login { get; set; }
     }
 
     /// <summary>
-    /// Validator for login request
+    ///     Validator for login request
     /// </summary>
     public class LoginRequestValidator : AbstractValidator<LoginApiRequest>
     {
         /// <summary>
-        /// ctor containing validation rules
+        ///     ctor containing validation rules
         /// </summary>
         public LoginRequestValidator()
         {

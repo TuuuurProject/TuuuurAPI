@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Tuuuur.API.Controllers;
 using Tuuuur.API.Presenters;
 using Tuuuur.API.Requests;
+using Tuuuur.API.Requests.Users;
 using Tuuuur.Core.Requests.Users;
 using Tuuuur.Core.Responses;
 using Tuuuur.Domain.Bo;
@@ -13,16 +14,16 @@ using Tuuuur.Factory.Tests;
 
 namespace Tuuuur.API.Tests.Controllers;
 
-public class UsersControllerTests
+public class MeControllerTests
 {
     private readonly Mock<IMediator> m_MediatorMock;
-    private readonly UsersController m_Controller;
+    private readonly MeController m_Controller;
 
-    public UsersControllerTests()
+    public MeControllerTests()
     {
-        Mock<ILogger<UsersController>> v_LoggerMock = new();
+        Mock<ILogger<MeController>> v_LoggerMock = new();
         m_MediatorMock = new Mock<IMediator>();
-        m_Controller = new UsersController(v_LoggerMock.Object, m_MediatorMock.Object, new ValidationPresenter());
+        m_Controller = new MeController(v_LoggerMock.Object, m_MediatorMock.Object, new ValidationPresenter());
     }
     
     [Fact]

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Requests;
+using Tuuuur.Core.Requests.Parties;
 using Tuuuur.Core.Responses;
 using Tuuuur.Core.UseCases.Parties;
 using Tuuuur.Domain.Bo;
