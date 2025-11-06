@@ -1,7 +1,6 @@
 ﻿using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Tuuuur.API.Extensions;
 using Tuuuur.API.Presenters;
 using Tuuuur.API.Requests;
 using Tuuuur.Core.Requests;
@@ -74,7 +73,6 @@ public class PartyController(ILogger<PartyController> p_Logger, IMediator p_Medi
     /// </summary>
     /// <param name="p_PartyId"></param>
     /// <param name="p_Request"></param>
-    /// <param name="p_Validator"></param>
     /// <param name="p_Presenter"></param>
     /// <param name="p_CancellationToken"></param>
     /// <returns></returns>
