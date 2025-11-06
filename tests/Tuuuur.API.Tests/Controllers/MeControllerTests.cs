@@ -48,6 +48,7 @@ public class MeControllerTests
             v_JsonResult.StatusCode.Should().Be(200);
         }
     }
+    
     [Fact]
     public async Task UpdateUserAvatarAsync_WhenAvatarIsNotInGoodFormat_ReturnsOkObjectResult()
     {
@@ -68,6 +69,73 @@ public class MeControllerTests
         if (v_Result is JsonContentResult v_JsonResult)
         {
             v_JsonResult.StatusCode.Should().Be(400);
+        }
+    }
+    
+    [Fact]
+    public async Task GetUserAsync_ReturnsOkObjectResult()
+    {
+        // Arrange
+        User v_User = BoFactory.CreateUser();
+
+        m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<GetCurrentUserRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<User>(v_User));
+        
+        // Act
+        IActionResult v_Result = await m_Controller.GetUserAsync(new GenericEntityPresenter<User>(), CancellationToken.None);
+
+        // Assert
+        v_Result.Should().BeOfType<JsonContentResult>();
+        if (v_Result is JsonContentResult v_JsonResult)
+        {
+            v_JsonResult.StatusCode.Should().Be(200);
+        }
+    }
+    
+    [Fact]
+    public async Task UpdateUserPasswordAsync_ReturnsOkObjectResult()
+    {
+        // Arrange
+        ChangePasswordApiRequest v_ApiRequest = new()
+        {
+            CurrentPassword = "MySuperP0swuadi!",
+            NewPassword = "MyNewSuperPassword907)",
+        };
+        User v_User = BoFactory.CreateUser();
+
+        m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<User>(v_User));
+        
+        // Act
+        IActionResult v_Result = await m_Controller.UpdateUserPasswordAsync(v_ApiRequest, new ChangePasswordRequestValidator(), new GenericEntityPresenter<User>(), CancellationToken.None);
+
+        // Assert
+        v_Result.Should().BeOfType<JsonContentResult>();
+        if (v_Result is JsonContentResult v_JsonResult)
+        {
+            v_JsonResult.StatusCode.Should().Be(200);
+        }
+    }
+    
+    [Fact]
+    public async Task DeleteUserAsync_ReturnsOkObjectResult()
+    {
+        // Arrange
+        ChangePasswordApiRequest v_ApiRequest = new()
+        {
+            CurrentPassword = "currentpassword",
+            NewPassword = "newpassword",
+        };
+        User v_User = BoFactory.CreateUser();
+
+        m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<DeleteUserRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
+        
+        // Act
+        IActionResult v_Result = await m_Controller.DeleteUserAsync(new EmptyPresenter(), CancellationToken.None);
+
+        // Assert
+        v_Result.Should().BeOfType<JsonContentResult>();
+        if (v_Result is JsonContentResult v_JsonResult)
+        {
+            v_JsonResult.StatusCode.Should().Be(200);
         }
     }
 }
