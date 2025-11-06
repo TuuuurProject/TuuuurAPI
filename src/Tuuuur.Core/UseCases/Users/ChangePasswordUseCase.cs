@@ -32,7 +32,7 @@ internal class ChangePasswordUseCase(
             return new GenericEntityResponse<User>(v_HashCurrentPassword.Errors);
         
         if(v_HashCurrentPassword.Value != v_User.Password)
-            return new GenericEntityResponse<User>([new ErrorDto(DomainErrors.Authentication.Password.Invalid, "The current password is incorrect.")]);
+            return new GenericEntityResponse<User>([new ErrorDto(DomainErrors.Authentication.Invalid, "The current password is incorrect.")]);
         
         StringResponse v_HashNewPassword = await p_Mediator.Send(new HashRequest(p_Request.NewPassword), p_CancellationToken);
         

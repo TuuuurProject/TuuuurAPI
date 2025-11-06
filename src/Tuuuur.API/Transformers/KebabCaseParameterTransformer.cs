@@ -8,11 +8,13 @@ public partial class KebabCaseParameterTransformer : IOutboundParameterTransform
     /// <summary>
     ///  ctor
     /// </summary>
-    /// <param name="p_Value"></param>
+    /// <param name="value"></param>
     /// <returns></returns>
-    public string TransformOutbound(object p_Value)
+    [SuppressMessage("Style", "IDE1006:Styles d'affectation de noms", Justification = "Inherited named")]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    public string TransformOutbound(object value)
     {
-        return p_Value == null ? null : MyRegex().Replace(p_Value.ToString() ?? string.Empty, "$1-$2").ToLower();
+        return value == null ? null : MyRegex().Replace(value.ToString() ?? string.Empty, "$1-$2").ToLower();
     }
 
     [System.Text.RegularExpressions.GeneratedRegex("([a-z])([A-Z])")]

@@ -44,7 +44,6 @@
             {
                 private const string PASSWORD_PREFIX = AUTHENT_PREFIX + "password.";
 
-                public const string Invalid = PASSWORD_PREFIX + GeneralErrors.Invalid;
                 public const string Empty = PASSWORD_PREFIX + GeneralErrors.Empty;
                 public const string InvalidLength = PASSWORD_PREFIX + GeneralErrors.InvalidFormat.InvalidLength;
                 public const string InvalidUppercase = PASSWORD_PREFIX + GeneralErrors.InvalidFormat.InvalidUppercase;
