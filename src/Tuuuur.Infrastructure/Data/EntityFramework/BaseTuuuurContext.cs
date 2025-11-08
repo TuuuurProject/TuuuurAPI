@@ -322,7 +322,7 @@ public partial class BaseTuuuurContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK_USER_USR");
 
-            entity.ToTable("User_USR");
+            entity.ToTable("User_USR", tb => tb.HasTrigger("TR_User_DeleteCascade"));
 
             entity.HasIndex(e => new { e.Email, e.IsGoogleUser }, "IX_UserEmail").IsUnique();
 

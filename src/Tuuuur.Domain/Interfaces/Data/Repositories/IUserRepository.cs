@@ -1,5 +1,4 @@
-﻿
-using Tuuuur.Domain.Bo;
+﻿using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Interfaces.Data.Entities;
 
 namespace Tuuuur.Domain.Interfaces.Data.Repositories;
@@ -11,5 +10,5 @@ public interface IUserRepository : IGenericRepository
     Task<User> GetUserByNickNameAsync(string p_NickaName, CancellationToken p_CancellationToken = default);
     Task<IMappingAddEntity<User, IEntity>> CreateUserAsync(User p_User, CancellationToken p_CancellationToken = default);
     Task UpdateUserAsync(User p_User, CancellationToken p_CancellationToken = default);
-
+    Task DeleteUserAsync(int p_UserId, CancellationToken p_CancellationToken = default);
 }

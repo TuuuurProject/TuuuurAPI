@@ -47,4 +47,9 @@ internal class UserRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<U
 
         await UpdateAsync(v_Mapping.DtoEntity);
     }
+
+    public async Task DeleteUserAsync(int p_UserId, CancellationToken p_CancellationToken = default)
+    {
+        await DeleteAsync(p_UserId, p_CancellationToken);
+    }
 }

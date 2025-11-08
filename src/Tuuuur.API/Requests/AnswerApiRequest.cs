@@ -1,6 +1,3 @@
-using FluentValidation;
-using Tuuuur.Domain.Errors;
-
 namespace Tuuuur.API.Requests;
 
 /// <summary>
