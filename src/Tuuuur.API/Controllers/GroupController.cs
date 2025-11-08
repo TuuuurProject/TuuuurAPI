@@ -5,6 +5,7 @@ using Tuuuur.API.Extensions;
 using Tuuuur.API.Presenters;
 using Tuuuur.API.Requests;
 using Tuuuur.Core.Requests;
+using Tuuuur.Core.Requests.Group;
 using Tuuuur.Core.Responses;
 using Tuuuur.Domain.Bo;
 using ValidationResult = FluentValidation.Results.ValidationResult;
@@ -31,9 +32,12 @@ public class GroupController(ILogger<PartyController> p_Logger, IMediator p_Medi
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateGroupPartyAsync(
+        [FromServices] GenericEntityPresenter<Party> p_Presenter,
         CancellationToken p_CancellationToken)
     {
-        return Ok();
+        p_Presenter.Handle(await m_Mediator.Send(new CreateGroupPartyRequest(), p_CancellationToken));
+
+        return p_Presenter.ContentResult;
     }
     
     /// <summary>
