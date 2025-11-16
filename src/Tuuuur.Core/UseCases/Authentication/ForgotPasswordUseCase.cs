@@ -5,6 +5,7 @@ using Tuuuur.Core.Responses;
 using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Emails.Models;
+using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Images;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Interfaces.Emails;
@@ -23,9 +24,8 @@ internal class ForgotPasswordUseCase(
     {
         User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailOrNickNameAsync(p_Request.Login, p_CancellationToken);
 
-        // Return 200 OK to prevent email enumeration.
         if (v_User is null || v_User.IsNew || v_User.IsGoogleUser)
-            return new EmptyResponse();
+            return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {p_Request.Login}")]);
             
         GenericEntityResponse<UserAuth> v_UserAuth = await p_Mediator.Send(new GenerateOptRequest(v_User),  p_CancellationToken);
         if(!v_UserAuth.Success) return new EmptyResponse(v_UserAuth.Errors);
