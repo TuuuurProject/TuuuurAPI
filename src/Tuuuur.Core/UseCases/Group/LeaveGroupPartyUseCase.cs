@@ -36,24 +36,12 @@ internal class LeaveGroupPartyUseCase(IUnitOfWork p_UnitOfWork,
             v_Parties  = InMemoryDataStore.PartyInProgress.Where(p_Party => p_Party.PartyUsers.Any(u => u.IdUser == v_User.Id)).ToList();
         }
         
-        Party v_Party = null;
+        
         if (!v_Parties.Any())
         {
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found")]);
         }
-        if (v_Parties.Count() == 1)
-        {
-            v_Party = v_Parties.First();
-        }
-        else
-        {
-            v_Party = v_Parties.First();
-            foreach (Party v_Item in v_Parties.Where(p_P => p_P.Id != v_Party.Id))
-            {
-                PartyUser v_PartyUser = v_Item.PartyUsers.FirstOrDefault(p_PartyUser => p_PartyUser.IdUser == v_User.Id);
-                v_Item.PartyUsers.Remove(v_PartyUser);
-            }
-        }
+        Party v_Party = v_Parties.First();
         
         // If user is not in the party
         if(v_Party?.PartyUsers.FirstOrDefault(p_P => p_P.IdUser == v_User.Id) is null)
@@ -75,6 +63,7 @@ internal class LeaveGroupPartyUseCase(IUnitOfWork p_UnitOfWork,
                     v_Party.PartyUsers.Remove(v_PartyUser);
                 }
             }
+            
             // Send notification to other users
             foreach (PartyUser v_PartyUser in v_Party.PartyUsers.Where(p_P => p_P.IdUser != v_User.Id))
             {

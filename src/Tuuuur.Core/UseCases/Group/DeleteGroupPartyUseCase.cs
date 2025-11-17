@@ -30,7 +30,7 @@ internal class DeleteGroupPartyUseCase(IUnitOfWork p_UnitOfWork,
         lock (InMemoryDataStore.PartyInProgress)
         {
             // Check if the user is already in party
-            v_Parties  = InMemoryDataStore.PartyInProgress.Where(p_Party => p_Party.PartyUsers.Any(u => u.IdUser == v_User.Id)).ToList();
+            v_Parties  = InMemoryDataStore.PartyInProgress.Where(p_Party => p_Party.PartyUsers.Any(p_User => p_User.IdUser == v_User.Id)).ToList();
         }
         
         Party v_Party = null;
