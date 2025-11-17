@@ -71,12 +71,25 @@
         public static class Party
         {
             private const string PARTY_PREFIX = DOMAIN_PREFIX + "party.";
-            
+
+            public static class Id
+            {
+                private const string ID_PREFIX = DOMAIN_PREFIX + "id.";
+                public const string Empty = ID_PREFIX + GeneralErrors.Empty;
+                public const string Invalid = ID_PREFIX + GeneralErrors.Invalid;
+            }
             public static class Answer
             {
                 private const string ANSWER_PREFIX = PARTY_PREFIX + "anwser.";
                 
                 public const string Empty = ANSWER_PREFIX + GeneralErrors.Empty;
+            }
+
+            public static class Code
+            {
+                private const string CODE_PREFIX = DOMAIN_PREFIX + "code.";
+                public const string Empty = CODE_PREFIX + GeneralErrors.Empty;
+                public const string Invalid = CODE_PREFIX + GeneralErrors.Invalid;
             }
         }
 

@@ -1,7 +1,5 @@
 using System.Security.Cryptography;
-using System.Text;
 using Microsoft.Extensions.Logging;
-using Tuuuur.Core.Requests;
 using Tuuuur.Core.Requests.Group;
 using Tuuuur.Core.Responses;
 using Tuuuur.Domain;
@@ -43,13 +41,13 @@ internal class CreateGroupPartyUseCase(IUnitOfWork p_UnitOfWork,
             Id = Guid.NewGuid(),
             IdPartyType = (int)PartyTypeType.Group,
             Code = v_Code,
-            PartyUsers = [new PartyUser(){ IdUser = v_User.Id }],
             IdUserHost = v_User.Id,
         };
 
         lock (InMemoryDataStore.PartyInProgress)
         {
             InMemoryDataStore.PartyInProgress.Add(v_Party);
+            v_Party.PartyUsers.Add(new PartyUser{ IdUser = v_User.Id, User = v_User});
         }
         
         return new GenericEntityResponse<Party>(v_Party);

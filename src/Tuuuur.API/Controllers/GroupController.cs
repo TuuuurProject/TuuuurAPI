@@ -50,9 +50,31 @@ public class GroupController(ILogger<PartyController> p_Logger, IMediator p_Medi
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> JoinGroupPartyAsync(
+        [FromBody] CodeRequest p_Request,
+        [FromServices] GenericEntityPresenter<Party> p_Presenter,
         CancellationToken p_CancellationToken)
     {
-        return Ok();
+        p_Presenter.Handle(await m_Mediator.Send(new JoinGroupPartyRequest(p_Request.Code), p_CancellationToken));
+
+        return p_Presenter.ContentResult;
+    }
+    
+    /// <summary>
+    /// Leave group party
+    /// </summary>
+    /// <returns></returns>
+    [HttpPost("leave")]
+    [MapToApiVersion("1")]
+    [ProducesResponseType(typeof(Guid),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> LeaveGroupPartyAsync(
+        [FromServices] EmptyPresenter p_Presenter,
+        CancellationToken p_CancellationToken)
+    {
+        p_Presenter.Handle(await m_Mediator.Send(new LeaveGroupPartyRequest(), p_CancellationToken));
+
+        return p_Presenter.ContentResult;
     }
     
     /// <summary>
