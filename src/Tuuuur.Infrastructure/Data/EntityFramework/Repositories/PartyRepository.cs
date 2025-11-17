@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Tuuuur.Domain.Bo;
+using Tuuuur.Domain.Bo.Enum;
 using Tuuuur.Domain.Interfaces.Data.Entities;
 using Tuuuur.Domain.Interfaces.Data.Repositories;
 using Tuuuur.Infrastructure.Data.EntityFramework.Entities;
@@ -46,5 +47,31 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
     {
         PartyPty v_Entity = Mapper.Map<PartyPty>(p_Party);
         await base.UpdateAsync(v_Entity);
+    }
+
+    public async Task<IEnumerable<History>> GetUserHistoryAsync(
+        int p_UserId, 
+        int p_Page, 
+        int p_Size,
+        CancellationToken p_CancellationToken = default)
+    {
+        int v_Skip = (p_Page - 1) * p_Size;
+        
+        List<PartyPty> v_Parties = await FindBy(
+            p_P => p_P.IdUserHost == p_UserId,
+            p_Include: p_Includes => p_Includes
+                .Include(p_P => p_P.PartyThemePth)
+                    .ThenInclude(p_P => p_P.IdThemeNavigation)
+                .Include(p_P => p_P.PartyDifficultyPdf)
+                    .ThenInclude(p_P => p_P.IdDifficultyNavigation)
+                .Include(p_P => p_P.PartyQuestionPqt)
+                    .ThenInclude(p_P => p_P.UserPartyQuestionUpq.Where(p_UserPartyQuestionUpq =>  p_UserPartyQuestionUpq.IdUser == p_UserId))
+                .Include(p_P => p_P.PartyUserPus)
+                .Include(p_P => p_P.IdPartyTypeNavigation))
+            .OrderByDescending(p_P => p_P.Dt)
+            .Skip(v_Skip)
+            .Take(p_Size)
+            .ToListAsync(p_CancellationToken);
+        return Mapper.Map<IEnumerable<History>>(v_Parties);
     }
 }

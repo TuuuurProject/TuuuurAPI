@@ -7,8 +7,5 @@ public class PartyTheme : IBOEntity
     public Guid IdParty { get; set; }
 
     public int IdTheme { get; set; }
-    
-    public virtual Party Party { get; set; }
-
-    public virtual Theme Theme { get; set; }
+    public Theme Theme { get; set; }
 }

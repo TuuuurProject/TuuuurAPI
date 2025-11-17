@@ -17,6 +17,13 @@
             public const string IsNull = DATA_PREFIX + "isnull";
         }
 
+        public static class Pagination
+        {
+            private const string PAGINATION_PREFIX = DOMAIN_PREFIX + "pagination.";
+
+            public const string Invalid = PAGINATION_PREFIX + GeneralErrors.Invalid;
+        }
+
         public static class Authentication
         {
             private const string AUTHENT_PREFIX = DOMAIN_PREFIX + "authentication.";
