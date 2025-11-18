@@ -1,6 +1,6 @@
 namespace Tuuuur.Domain.Bo.Enum;
 
-public enum NotificationEnum
+public enum Notification
 {
     Join = 1,
     Leave = 2,

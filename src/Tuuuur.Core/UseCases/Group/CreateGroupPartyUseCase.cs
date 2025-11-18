@@ -35,7 +35,7 @@ internal class CreateGroupPartyUseCase(IUnitOfWork p_UnitOfWork,
         // If a party already exist, 
         if (v_Parties.Any())
         {
-            return new GenericEntityResponse<Party>(v_Parties.FirstOrDefault());
+            return new GenericEntityResponse<Party>(v_Parties.First());
         }
         
         // Create it

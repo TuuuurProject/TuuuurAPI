@@ -8,6 +8,7 @@ using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Notifications;
 using Tuuuur.Domain.Security;
+using Notification = Tuuuur.Domain.Bo.Enum.Notification;
 
 namespace Tuuuur.Core.UseCases.Group;
 
@@ -61,7 +62,7 @@ internal class DeleteGroupPartyUseCase(IUnitOfWork p_UnitOfWork,
         // Send notification to other users
         foreach (PartyUser v_PartyUser in v_Party.PartyUsers.Where(p_P => p_P.IdUser != v_User.Id))
         {
-            await p_NotificationsService.PushMessageAsync(ClientType.User, new Notification{ User = v_User, Action= nameof(NotificationEnum.Delete) }, v_PartyUser.User.NickName);
+            await p_NotificationsService.PushMessageAsync(ClientType.User, new Domain.Bo.Notification{ User = v_User, Action= nameof(Notification.Delete) }, v_PartyUser.User.NickName);
         }
         
         // Delete the party
