@@ -63,7 +63,7 @@ public class SoloController(ILogger<SoloController> p_Logger, IMediator p_Mediat
         [FromServices] GenericEntityPresenter<Party> p_Presenter,
         CancellationToken p_CancellationToken)
     {
-        p_Presenter.Handle(await m_Mediator.Send(new GetPartyStateRequest(p_PartyId), p_CancellationToken));
+        p_Presenter.Handle(await m_Mediator.Send(new GetSoloPartyStateRequest(p_PartyId), p_CancellationToken));
 
         return p_Presenter.ContentResult;
     }
@@ -87,7 +87,7 @@ public class SoloController(ILogger<SoloController> p_Logger, IMediator p_Mediat
         [FromServices] GenericEntityPresenter<Party> p_Presenter,
         CancellationToken p_CancellationToken)
     {
-        p_Presenter.Handle(await m_Mediator.Send(new UpdatePartyStateRequest(p_PartyId, p_Request.AnswerId), p_CancellationToken));
+        p_Presenter.Handle(await m_Mediator.Send(new UpdateSoloPartyStateRequest(p_PartyId, p_Request.AnswerId), p_CancellationToken));
 
         return p_Presenter.ContentResult;
     }

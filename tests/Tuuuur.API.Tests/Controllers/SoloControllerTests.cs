@@ -62,7 +62,7 @@ namespace Tuuuur.API.Tests.Controllers
 
             Party v_Party = new();
 
-            m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<GetPartyStateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<Party>(v_Party));
+            m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<GetSoloPartyStateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<Party>(v_Party));
             
             // Act
             IActionResult v_Result = await m_Controller.GetPartyStateAsync(v_Id, new GenericEntityPresenter<Party>(), CancellationToken.None);
@@ -85,7 +85,7 @@ namespace Tuuuur.API.Tests.Controllers
             };
             Party v_Party = new();
 
-            m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<UpdatePartyStateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<Party>(v_Party));
+            m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<UpdateSoloPartyStateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<Party>(v_Party));
             
             // Act
             IActionResult v_Result = await m_Controller.UpdatePartyStateAsync(v_Id, v_Request, new GenericEntityPresenter<Party>(), CancellationToken.None);

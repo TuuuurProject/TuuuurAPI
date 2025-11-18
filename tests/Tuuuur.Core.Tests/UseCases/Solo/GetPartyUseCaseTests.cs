@@ -42,7 +42,7 @@ public class GetPartyUseCaseTests
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
         m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party);
         
-        GetPartyStateRequest v_Request = new(Guid.Empty);
+        GetSoloPartyStateRequest v_Request = new(Guid.Empty);
 
         // Act
         GenericEntityResponse<Party> v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);

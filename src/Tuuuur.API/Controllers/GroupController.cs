@@ -19,7 +19,7 @@ namespace Tuuuur.API.Controllers;
 /// <param name="p_Mediator"></param>
 /// <param name="p_ValidationPresenter"></param>
 [ApiVersion("1")]
-public class GroupController(ILogger<SoloController> p_Logger, IMediator p_Mediator, ValidationPresenter p_ValidationPresenter)
+public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Mediator, ValidationPresenter p_ValidationPresenter)
     : BaseController(p_Logger, p_Mediator, p_ValidationPresenter)
 {
     /// <summary>
@@ -31,7 +31,7 @@ public class GroupController(ILogger<SoloController> p_Logger, IMediator p_Media
     [ProducesResponseType(typeof(Guid),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreateGroupPartyAsync(
+    public async Task<IActionResult> CreatePartyAsync(
         [FromServices] GenericEntityPresenter<Party> p_Presenter,
         CancellationToken p_CancellationToken)
     {
@@ -49,7 +49,7 @@ public class GroupController(ILogger<SoloController> p_Logger, IMediator p_Media
     [ProducesResponseType(typeof(Guid),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> JoinGroupPartyAsync(
+    public async Task<IActionResult> JoinPartyAsync(
         [FromBody] CodeRequest p_Request,
         [FromServices] GenericEntityPresenter<Party> p_Presenter,
         CancellationToken p_CancellationToken)
@@ -68,7 +68,7 @@ public class GroupController(ILogger<SoloController> p_Logger, IMediator p_Media
     [ProducesResponseType(typeof(Guid),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> LeaveGroupPartyAsync(
+    public async Task<IActionResult> LeavePartyAsync(
         [FromServices] EmptyPresenter p_Presenter,
         CancellationToken p_CancellationToken)
     {
@@ -81,12 +81,12 @@ public class GroupController(ILogger<SoloController> p_Logger, IMediator p_Media
     /// Start group party
     /// </summary>
     /// <returns></returns>
-    [HttpPost("{p_GroupeId}/start")]
+    [HttpPost("start")]
     [MapToApiVersion("1")]
     [ProducesResponseType(typeof(Guid),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> StartGroupPartyAsync(
+    public async Task<IActionResult> StartPartyAsync(
         [FromRoute] Guid p_GroupeId,
         CancellationToken p_CancellationToken)
     {
@@ -97,12 +97,12 @@ public class GroupController(ILogger<SoloController> p_Logger, IMediator p_Media
     /// Submit answer for group party
     /// </summary>
     /// <returns></returns>
-    [HttpPost("{p_GroupeId}/answer")]
+    [HttpPost("answer")]
     [MapToApiVersion("1")]
     [ProducesResponseType(typeof(Guid),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SubmitAnswerGroupPartyAsync(
+    public async Task<IActionResult> SubmitAnswerPartyAsync(
         [FromRoute] Guid p_GroupeId,
         CancellationToken p_CancellationToken)
     {
