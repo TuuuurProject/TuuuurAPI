@@ -32,7 +32,7 @@ internal class DeleteGroupPartyUseCase(IUnitOfWork p_UnitOfWork,
             // Check if the user is already in party
             v_Parties  = InMemoryDataStore.PartyInProgress.Where(p_Party => p_Party.PartyUsers.Any(p_User => p_User.IdUser == v_User.Id)).ToList();
         }
-        
+
         Party v_Party = null;
         if (!v_Parties.Any())
         {
@@ -44,11 +44,13 @@ internal class DeleteGroupPartyUseCase(IUnitOfWork p_UnitOfWork,
         }
         else
         {
-            v_Party = v_Parties.First();
-            foreach (Party v_Item in v_Parties.Where(p_P => p_P.Id != v_Party.Id))
+            //Delete the 
+            foreach (List<PartyUser> v_PartyUsers in v_Parties
+                         .Where(p_Party => v_Party != null && p_Party.Id != v_Party.Id)
+                         .Select(p_Party => p_Party.PartyUsers))
             {
-                PartyUser v_PartyUser = v_Item.PartyUsers.FirstOrDefault(p_PartyUser => p_PartyUser.IdUser == v_User.Id);
-                v_Item.PartyUsers.Remove(v_PartyUser);
+                PartyUser v_PartyUser = v_PartyUsers.FirstOrDefault(p_PartyUser => p_PartyUser.IdUser == v_User.Id);
+                v_PartyUsers.Remove(v_PartyUser);
             }
         }
         

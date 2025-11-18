@@ -4,5 +4,5 @@ namespace Tuuuur.Domain;
 
 public static class InMemoryDataStore
 {
-    public static List<Party> PartyInProgress = [];
+    public static readonly List<Party> PartyInProgress = [];
 }

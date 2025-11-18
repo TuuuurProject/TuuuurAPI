@@ -19,7 +19,7 @@ namespace Tuuuur.API.Controllers;
 /// <param name="p_Mediator"></param>
 /// <param name="p_ValidationPresenter"></param>
 [ApiVersion("1")]
-public class GroupController(ILogger<PartyController> p_Logger, IMediator p_Mediator, ValidationPresenter p_ValidationPresenter)
+public class GroupController(ILogger<SoloController> p_Logger, IMediator p_Mediator, ValidationPresenter p_ValidationPresenter)
     : BaseController(p_Logger, p_Mediator, p_ValidationPresenter)
 {
     /// <summary>

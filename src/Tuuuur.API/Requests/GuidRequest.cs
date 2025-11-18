@@ -19,9 +19,12 @@ public record GuidRequest
 /// </summary>
 public class GuidRequestValidator : AbstractValidator<GuidRequest>
 {
+    /// <summary>
+    /// ctor
+    /// </summary>
     public GuidRequestValidator()
     {
-        RuleFor(r => r.Id)
+        RuleFor(p_Request => p_Request.Id)
             .NotEmpty()
             .WithErrorCode(DomainErrors.Party.Id.Empty);
     }

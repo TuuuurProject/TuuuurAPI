@@ -16,17 +16,17 @@ using Tuuuur.Domain.Bo;
 
 namespace Tuuuur.API.Tests.Controllers
 {
-    public class PartyControllerTests
+    public class SoloControllerTests
     {
-        private readonly Mock<ILogger<PartyController>> m_LoggerMock;
+        private readonly Mock<ILogger<SoloController>> m_LoggerMock;
         private readonly Mock<IMediator> m_MediatorMock;
-        private readonly PartyController m_Controller;
+        private readonly SoloController m_Controller;
 
-        public PartyControllerTests()
+        public SoloControllerTests()
         {
-            m_LoggerMock = new Mock<ILogger<PartyController>>();
+            m_LoggerMock = new Mock<ILogger<SoloController>>();
             m_MediatorMock = new Mock<IMediator>();
-            m_Controller = new PartyController(m_LoggerMock.Object, m_MediatorMock.Object, new ValidationPresenter());
+            m_Controller = new SoloController(m_LoggerMock.Object, m_MediatorMock.Object, new ValidationPresenter());
         }
         
         [Fact]

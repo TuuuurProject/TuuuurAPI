@@ -25,6 +25,20 @@ internal class CreateGroupPartyUseCase(IUnitOfWork p_UnitOfWork,
         if(v_User == null)
             return new GenericEntityResponse<Party>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
         
+        IEnumerable<Party> v_Parties;
+        lock (InMemoryDataStore.PartyInProgress)
+        {
+            // Check if the user is already in party
+            v_Parties  = InMemoryDataStore.PartyInProgress.Where(p_Party => p_Party.PartyUsers.Any(p_User => p_User.IdUser == v_User.Id)).ToList();
+        }
+
+        // If a party already exist, 
+        if (v_Parties.Any())
+        {
+            return new GenericEntityResponse<Party>(v_Parties.FirstOrDefault());
+        }
+        
+        // Create it
         int v_Number;
         using (RandomNumberGenerator v_Generator = RandomNumberGenerator.Create())
         {
