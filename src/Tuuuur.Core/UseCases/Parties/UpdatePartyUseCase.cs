@@ -15,9 +15,9 @@ namespace Tuuuur.Core.UseCases.Parties
         ILogger<UpdatePartyUseCase> p_Logger,
         ICalculService p_CalculService,
         IUserRoleService p_UserRoleService)
-        : ADbUseCase<UpdatePartyStateRequest, GenericEntityResponse<Party>>(p_Logger, p_UnitOfWork)
+        : ADbUseCase<UpdateSoloPartyStateRequest, GenericEntityResponse<Party>>(p_Logger, p_UnitOfWork)
     {
-        protected override async Task<GenericEntityResponse<Party>> HandleLogic(UpdatePartyStateRequest p_Request,
+        protected override async Task<GenericEntityResponse<Party>> HandleLogic(UpdateSoloPartyStateRequest p_Request,
             CancellationToken p_CancellationToken)
         {
             DateTime v_CurrentDateTime = DateTime.UtcNow;

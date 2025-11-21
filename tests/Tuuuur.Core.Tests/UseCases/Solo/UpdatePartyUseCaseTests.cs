@@ -76,7 +76,7 @@ public class UpdatePartyUseCaseTests
         m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.UpdateAsync(It.IsAny<Party>())).Returns(Task.CompletedTask);
         m_UnitOfWorkMock.Setup(p_U => p_U.UserPartyQuestionRepository.UpdateAsync(It.IsAny<UserPartyQuestion>())).Returns(Task.CompletedTask);
         
-        UpdatePartyStateRequest v_Request = new(Guid.Empty, 1);
+        UpdateSoloPartyStateRequest v_Request = new(Guid.Empty, 1);
 
         // Act
         GenericEntityResponse<Party> v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);

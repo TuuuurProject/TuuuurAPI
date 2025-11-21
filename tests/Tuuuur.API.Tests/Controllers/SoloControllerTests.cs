@@ -16,17 +16,17 @@ using Tuuuur.Domain.Bo;
 
 namespace Tuuuur.API.Tests.Controllers
 {
-    public class PartyControllerTests
+    public class SoloControllerTests
     {
-        private readonly Mock<ILogger<PartyController>> m_LoggerMock;
+        private readonly Mock<ILogger<SoloController>> m_LoggerMock;
         private readonly Mock<IMediator> m_MediatorMock;
-        private readonly PartyController m_Controller;
+        private readonly SoloController m_Controller;
 
-        public PartyControllerTests()
+        public SoloControllerTests()
         {
-            m_LoggerMock = new Mock<ILogger<PartyController>>();
+            m_LoggerMock = new Mock<ILogger<SoloController>>();
             m_MediatorMock = new Mock<IMediator>();
-            m_Controller = new PartyController(m_LoggerMock.Object, m_MediatorMock.Object, new ValidationPresenter());
+            m_Controller = new SoloController(m_LoggerMock.Object, m_MediatorMock.Object, new ValidationPresenter());
         }
         
         [Fact]
@@ -62,7 +62,7 @@ namespace Tuuuur.API.Tests.Controllers
 
             Party v_Party = new();
 
-            m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<GetPartyStateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<Party>(v_Party));
+            m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<GetSoloPartyStateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<Party>(v_Party));
             
             // Act
             IActionResult v_Result = await m_Controller.GetPartyStateAsync(v_Id, new GenericEntityPresenter<Party>(), CancellationToken.None);
@@ -85,7 +85,7 @@ namespace Tuuuur.API.Tests.Controllers
             };
             Party v_Party = new();
 
-            m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<UpdatePartyStateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<Party>(v_Party));
+            m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<UpdateSoloPartyStateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<Party>(v_Party));
             
             // Act
             IActionResult v_Result = await m_Controller.UpdatePartyStateAsync(v_Id, v_Request, new GenericEntityPresenter<Party>(), CancellationToken.None);

@@ -1,32 +1,38 @@
+using MediatR;
 using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Requests;
-using Tuuuur.Core.Requests.Parties;
+using Tuuuur.Core.Requests.Group;
 using Tuuuur.Core.Responses;
-using Tuuuur.Core.UseCases.Parties;
+using Tuuuur.Core.UseCases.Group;
+using Tuuuur.Domain;
 using Tuuuur.Domain.Bo;
-using Tuuuur.Domain.Bo.Enum;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Interfaces.Data.Entities;
+using Tuuuur.Domain.Notifications;
 using Tuuuur.Domain.Security;
 using Tuuuur.Factory.Tests;
 
-namespace Tuuuur.Core.Tests.UseCases.Parties;
+namespace Tuuuur.Core.Tests.UseCases.Group;
 
-public class GetPartyUseCaseTests
+public class LeaveGroupPartyUseCaseTests
 {
     private readonly Mock<IUnitOfWork> m_UnitOfWorkMock;
-    private readonly Mock<ILogger<GetPartyUseCase>> m_LoggerMock;
+    private readonly Mock<ILogger<LeaveGroupPartyUseCase>> m_LoggerMock;
     private readonly Mock<IUserRoleService> m_UserRoleService;
+    private readonly Mock<IMediator> m_MediatorMock;
+    private readonly Mock<INotificationsService> m_NotificationsServiceMock;
 
-    private readonly GetPartyUseCase m_UseCase;
+    private readonly LeaveGroupPartyUseCase m_UseCase;
     
-    public GetPartyUseCaseTests()
+    public LeaveGroupPartyUseCaseTests()
     {
         m_UnitOfWorkMock = new Mock<IUnitOfWork>();
-        m_LoggerMock = new Mock<ILogger<GetPartyUseCase>>();
+        m_LoggerMock = new Mock<ILogger<LeaveGroupPartyUseCase>>();
         m_UserRoleService = new Mock<IUserRoleService>();
+        m_MediatorMock = new Mock<IMediator>();
+        m_NotificationsServiceMock = new Mock<INotificationsService>();
 
-        m_UseCase = new GetPartyUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_UserRoleService.Object);
+        m_UseCase = new LeaveGroupPartyUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_UserRoleService.Object, m_MediatorMock.Object, m_NotificationsServiceMock.Object);
     }
     
     [Fact]
@@ -35,17 +41,16 @@ public class GetPartyUseCaseTests
         // Arrange
         User v_User = BoFactory.CreateUser().Generate();
         Party v_Party = BoFactory.CreateParty().Generate();
-        v_Party.IdPartyType = (int)PartyTypeType.Solo;
-        v_Party.PartyUsers = [new () { User = v_User }];
-        
         m_UserRoleService.Setup(p_P => p_P.GetCurrentUserEmail()).Returns(v_User.Email);
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
-        m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party);
         
-        GetPartyStateRequest v_Request = new(Guid.Empty);
+        v_Party.PartyUsers.Add(new PartyUser(){ User =  v_User, IdUser =  v_User.Id });
+        InMemoryDataStore.PartyInProgress.Add(v_Party);
+        
+        LeaveGroupPartyRequest v_Request = new();
 
         // Act
-        GenericEntityResponse<Party> v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
+        EmptyResponse v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(v_Result);

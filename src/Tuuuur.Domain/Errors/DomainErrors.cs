@@ -1,114 +1,129 @@
-﻿namespace Tuuuur.Domain.Errors
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Tuuuur.Domain.Errors;
+
+[ExcludeFromCodeCoverage]
+public static class DomainErrors
 {
-    public static class DomainErrors
+    private const string DOMAIN_PREFIX = "tuuuur.";
+
+    public const string UnknowError = DOMAIN_PREFIX + "unknown-error";
+
+    public static class Data
     {
-        private const string DOMAIN_PREFIX = "tuuuur.";
+        private const string DATA_PREFIX = DOMAIN_PREFIX + "data.";
 
-        public const string UnknowError = DOMAIN_PREFIX + "unknown-error";
+        public const string NotFound = DATA_PREFIX + "notfound";
 
-        public static class Data
+        public const string AlreadyExist = DATA_PREFIX + "alreadyexist";
+
+        public const string IsNull = DATA_PREFIX + "isnull";
+    }
+
+    public static class Pagination
+    {
+        private const string PAGINATION_PREFIX = DOMAIN_PREFIX + "pagination.";
+
+        public const string Invalid = PAGINATION_PREFIX + GeneralErrors.Invalid;
+    }
+
+    public static class Authentication
+    {
+        private const string AUTHENT_PREFIX = DOMAIN_PREFIX + "authentication.";
+
+        public const string Missmatch = AUTHENT_PREFIX + "missmatch";
+        public const string Invalid = AUTHENT_PREFIX + GeneralErrors.Invalid;
+
+        public static class NickName
         {
-            private const string DATA_PREFIX = DOMAIN_PREFIX + "data.";
-
-            public const string NotFound = DATA_PREFIX + "notfound";
-
-            public const string AlreadyExist = DATA_PREFIX + "alreadyexist";
-
-            public const string IsNull = DATA_PREFIX + "isnull";
+            private const string NICKNAME_PREFIX = AUTHENT_PREFIX + "nickname.";
+            public const string Invalid_NickName = NICKNAME_PREFIX + GeneralErrors.Invalid;
         }
 
-        public static class Pagination
+        public static class Login
         {
-            private const string PAGINATION_PREFIX = DOMAIN_PREFIX + "pagination.";
+            private const string LOGIN_PREFIX = AUTHENT_PREFIX + "login.";
 
-            public const string Invalid = PAGINATION_PREFIX + GeneralErrors.Invalid;
+            public const string Empty = LOGIN_PREFIX + GeneralErrors.Empty;
+            public const string InvalidEmail = LOGIN_PREFIX + GeneralErrors.InvalidFormat.InvalidEmail;
+            public const string Duplicated = LOGIN_PREFIX + GeneralErrors.Duplicated;
+            public const string NotExist = LOGIN_PREFIX + GeneralErrors.NotExist;
         }
 
-        public static class Authentication
+        public static class Password
         {
-            private const string AUTHENT_PREFIX = DOMAIN_PREFIX + "authentication.";
+            private const string PASSWORD_PREFIX = AUTHENT_PREFIX + "password.";
 
-            public const string Missmatch = AUTHENT_PREFIX + "missmatch";
-            public const string Invalid = AUTHENT_PREFIX + GeneralErrors.Invalid;
-
-            public static class NickName
-            {
-                private const string NICKNAME_PREFIX = AUTHENT_PREFIX + "nickname.";
-                public const string Invalid_NickName = NICKNAME_PREFIX + GeneralErrors.Invalid;
-            }
-
-            public static class Login
-            {
-                private const string LOGIN_PREFIX = AUTHENT_PREFIX + "login.";
-
-                public const string Empty = LOGIN_PREFIX + GeneralErrors.Empty;
-                public const string InvalidEmail = LOGIN_PREFIX + GeneralErrors.InvalidFormat.InvalidEmail;
-                public const string Duplicated = LOGIN_PREFIX + GeneralErrors.Duplicated;
-                public const string NotExist = LOGIN_PREFIX + GeneralErrors.NotExist;
-            }
-
-            public static class Password
-            {
-                private const string PASSWORD_PREFIX = AUTHENT_PREFIX + "password.";
-
-                public const string Empty = PASSWORD_PREFIX + GeneralErrors.Empty;
-                public const string InvalidLength = PASSWORD_PREFIX + GeneralErrors.InvalidFormat.InvalidLength;
-                public const string InvalidUppercase = PASSWORD_PREFIX + GeneralErrors.InvalidFormat.InvalidUppercase;
-                public const string InvalidLowercase = PASSWORD_PREFIX + GeneralErrors.InvalidFormat.InvalidLowercase;
-                public const string InvalidNumber = PASSWORD_PREFIX + GeneralErrors.InvalidFormat.InvalidNumber;
-            }
-
-            public static class Code
-            {
-                private const string CODE_PREFIX = AUTHENT_PREFIX + "code.";
-                
-                public const string Empty = CODE_PREFIX + GeneralErrors.Empty;
-                public const string InvalidLength = CODE_PREFIX + GeneralErrors.InvalidFormat.InvalidLength;
-                public const string TooMuchDemand = CODE_PREFIX + "too-much-demand";
-            }
+            public const string Empty = PASSWORD_PREFIX + GeneralErrors.Empty;
+            public const string InvalidLength = PASSWORD_PREFIX + GeneralErrors.InvalidFormat.InvalidLength;
+            public const string InvalidUppercase = PASSWORD_PREFIX + GeneralErrors.InvalidFormat.InvalidUppercase;
+            public const string InvalidLowercase = PASSWORD_PREFIX + GeneralErrors.InvalidFormat.InvalidLowercase;
+            public const string InvalidNumber = PASSWORD_PREFIX + GeneralErrors.InvalidFormat.InvalidNumber;
         }
 
-        public static class Party
+        public static class Code
         {
-            private const string PARTY_PREFIX = DOMAIN_PREFIX + "party.";
+            private const string CODE_PREFIX = AUTHENT_PREFIX + "code.";
             
-            public static class Answer
-            {
-                private const string ANSWER_PREFIX = PARTY_PREFIX + "anwser.";
-                
-                public const string Empty = ANSWER_PREFIX + GeneralErrors.Empty;
-            }
-        }
-
-        public static class User
-        {
-            private const string USER_PREFIX = DOMAIN_PREFIX + "user.";
-
-            public static class Avatar
-            {
-                private const string AVATAR_PREFIX = USER_PREFIX + "avatar.";
-                public const string Empty = AVATAR_PREFIX + GeneralErrors.Empty;
-                public const string InvalidFormat = AVATAR_PREFIX + GeneralErrors.Invalid;
-                
-            }
-            
+            public const string Empty = CODE_PREFIX + GeneralErrors.Empty;
+            public const string InvalidLength = CODE_PREFIX + GeneralErrors.InvalidFormat.InvalidLength;
+            public const string TooMuchDemand = CODE_PREFIX + "too-much-demand";
         }
     }
 
-    internal static class GeneralErrors
+    public static class Party
     {
-        public const string Empty = "empty";
-        public const string Duplicated = "duplicated";
-        public const string NotExist = "not-exist";
-        public const string Invalid = "invalid";
+        private const string PARTY_PREFIX = DOMAIN_PREFIX + "party.";
 
-        public static class InvalidFormat
+        public static class Id
         {
-            public const string InvalidEmail = "invalid-email";
-            public const string InvalidLength = "invalid-length";
-            public const string InvalidUppercase = "invalid-uppercase";
-            public const string InvalidLowercase = "invalid-lowercase";
-            public const string InvalidNumber = "invalid-number";
+            private const string ID_PREFIX = DOMAIN_PREFIX + "id.";
+            public const string Empty = ID_PREFIX + GeneralErrors.Empty;
+            public const string Invalid = ID_PREFIX + GeneralErrors.Invalid;
         }
+        public static class Answer
+        {
+            private const string ANSWER_PREFIX = PARTY_PREFIX + "anwser.";
+            
+            public const string Empty = ANSWER_PREFIX + GeneralErrors.Empty;
+        }
+
+        public static class Code
+        {
+            private const string CODE_PREFIX = DOMAIN_PREFIX + "code.";
+            public const string Empty = CODE_PREFIX + GeneralErrors.Empty;
+            public const string Invalid = CODE_PREFIX + GeneralErrors.Invalid;
+        }
+    }
+
+    public static class User
+    {
+        private const string USER_PREFIX = DOMAIN_PREFIX + "user.";
+
+        public static class Avatar
+        {
+            private const string AVATAR_PREFIX = USER_PREFIX + "avatar.";
+            public const string Empty = AVATAR_PREFIX + GeneralErrors.Empty;
+            public const string InvalidFormat = AVATAR_PREFIX + GeneralErrors.Invalid;
+            
+        }
+        
+    }
+}
+
+internal static class GeneralErrors
+{
+    public const string Empty = "empty";
+    public const string Duplicated = "duplicated";
+    public const string NotExist = "not-exist";
+    public const string Invalid = "invalid";
+
+    public static class InvalidFormat
+    {
+        public const string InvalidEmail = "invalid-email";
+        public const string InvalidLength = "invalid-length";
+        public const string InvalidUppercase = "invalid-uppercase";
+        public const string InvalidLowercase = "invalid-lowercase";
+        public const string InvalidNumber = "invalid-number";
     }
 }

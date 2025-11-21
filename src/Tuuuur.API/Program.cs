@@ -183,13 +183,13 @@ internal static class Program
                     });
 
         // CORS
-        v_Builder.Services.AddCors(static options =>
+        v_Builder.Services.AddCors(static p_Options =>
         {
-            options.AddDefaultPolicy(
-                static policy =>
+            p_Options.AddDefaultPolicy(
+                static p_Policy =>
                 {
 #pragma warning disable S5122 //we accept any origin for this api
-                    policy.AllowAnyOrigin()
+                    p_Policy.AllowAnyOrigin()
                         .AllowAnyMethod()
                         .AllowAnyHeader();
 #pragma warning disable S5122

@@ -1,7 +1,6 @@
 ﻿using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Tuuuur.API.Extensions;
 using Tuuuur.API.Presenters;
 using Tuuuur.API.Requests;
 using Tuuuur.Core.Requests;
@@ -19,14 +18,14 @@ namespace Tuuuur.API.Controllers;
 /// <param name="p_Mediator"></param>
 /// <param name="p_ValidationPresenter"></param>
 [ApiVersion("1")]
-public class PartyController(ILogger<PartyController> p_Logger, IMediator p_Mediator, ValidationPresenter p_ValidationPresenter)
+public class SoloController(ILogger<SoloController> p_Logger, IMediator p_Mediator, ValidationPresenter p_ValidationPresenter)
     : BaseController(p_Logger, p_Mediator, p_ValidationPresenter)
 {
     /// <summary>
     /// Create solo party
     /// </summary>
     /// <returns></returns>
-    [HttpPost("solo")]
+    [HttpPost()]
     [MapToApiVersion("1")]
     [ProducesResponseType(typeof(Guid),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
@@ -51,7 +50,7 @@ public class PartyController(ILogger<PartyController> p_Logger, IMediator p_Medi
     }
     
     /// <summary>
-    /// Fetch the party
+    /// Fetch the solo party
     /// </summary>
     /// <returns></returns>
     [HttpGet("{p_PartyId:guid}")]
@@ -64,17 +63,16 @@ public class PartyController(ILogger<PartyController> p_Logger, IMediator p_Medi
         [FromServices] GenericEntityPresenter<Party> p_Presenter,
         CancellationToken p_CancellationToken)
     {
-        p_Presenter.Handle(await m_Mediator.Send(new GetPartyStateRequest(p_PartyId), p_CancellationToken));
+        p_Presenter.Handle(await m_Mediator.Send(new GetSoloPartyStateRequest(p_PartyId), p_CancellationToken));
 
         return p_Presenter.ContentResult;
     }
     
     /// <summary>
-    /// Answer to a question
+    /// Answer to a solo question
     /// </summary>
     /// <param name="p_PartyId"></param>
     /// <param name="p_Request"></param>
-    /// <param name="p_Validator"></param>
     /// <param name="p_Presenter"></param>
     /// <param name="p_CancellationToken"></param>
     /// <returns></returns>
@@ -89,7 +87,7 @@ public class PartyController(ILogger<PartyController> p_Logger, IMediator p_Medi
         [FromServices] GenericEntityPresenter<Party> p_Presenter,
         CancellationToken p_CancellationToken)
     {
-        p_Presenter.Handle(await m_Mediator.Send(new UpdatePartyStateRequest(p_PartyId, p_Request.AnswerId), p_CancellationToken));
+        p_Presenter.Handle(await m_Mediator.Send(new UpdateSoloPartyStateRequest(p_PartyId, p_Request.AnswerId), p_CancellationToken));
 
         return p_Presenter.ContentResult;
     }
