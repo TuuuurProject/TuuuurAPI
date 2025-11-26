@@ -3,7 +3,6 @@ using Tuuuur.Core.Requests.Group;
 using Tuuuur.Core.Responses;
 using Tuuuur.Domain;
 using Tuuuur.Domain.Bo;
-using Tuuuur.Domain.Bo.Enum;
 using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Notifications;
@@ -66,10 +65,8 @@ internal class JoinGroupPartyUseCase(IUnitOfWork p_UnitOfWork,
         }
 
         // Send notification to other users
-        foreach (PartyUser v_PartyUser in v_Party.PartyUsers.Where(p_P => p_P.IdUser != v_User.Id))
-        {
-            await p_NotificationsService.PushMessageAsync(ClientType.User, new Domain.Bo.Notification{ User = v_User, Action= nameof(Notification.Join) }, v_PartyUser.User.NickName);
-        }
+        string[] v_UsersInParty = v_Party.PartyUsers.Where(p_P => p_P.IdUser != v_User.Id).Select(p_P => p_P.User.NickName).ToArray();
+        await p_NotificationsService.PushMessageAsync(ClientType.Users, new Domain.Bo.Notification{ User = v_User, Action= nameof(Notification.Join) }, v_UsersInParty);
 
         return new GenericEntityResponse<Party>(v_Party);
     }

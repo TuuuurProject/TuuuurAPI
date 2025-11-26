@@ -66,10 +66,8 @@ internal class LeaveGroupPartyUseCase(IUnitOfWork p_UnitOfWork,
             }
             
             // Send notification to other users
-            foreach (PartyUser v_PartyUser in v_Party.PartyUsers.Where(p_P => p_P.IdUser != v_User.Id))
-            {
-                await p_NotificationsService.PushMessageAsync(ClientType.User, new Domain.Bo.Notification{ User = v_User, Action= nameof(Notification.Leave) }, v_PartyUser.User.NickName);
-            }
+            string[] v_UsersInParty = v_Party.PartyUsers.Where(p_P => p_P.IdUser != v_User.Id).Select(p_P => p_P.User.NickName).ToArray();
+            await p_NotificationsService.PushMessageAsync(ClientType.Users, new Domain.Bo.Notification{ User = v_User, Action= nameof(Notification.Leave) }, v_UsersInParty);
         }
 
         return new EmptyResponse();
