@@ -91,32 +91,4 @@ public class SoloController(ILogger<SoloController> p_Logger, IMediator p_Mediat
 
         return p_Presenter.ContentResult;
     }
-    
-    /// <summary>
-    /// Get history
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet("history")]
-    [MapToApiVersion("1")]
-    [ProducesResponseType(typeof(IEnumerable<Party>),StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetHistoryAsync(
-        [FromQuery] PaginationRequest p_Query,
-        [FromServices] PaginationRequestValidator p_Validator,
-        [FromServices] GenericEntityListPresenter<History> p_Presenter,
-        CancellationToken p_CancellationToken)
-    {
-        ValidationResult v_Result = await p_Validator.ValidateAsync(p_Query, p_CancellationToken);
-
-        if (!v_Result.IsValid)
-        {
-            m_ValidationPresenter.Handle(v_Result);
-            return m_ValidationPresenter.ContentResult;
-        }
-        
-        p_Presenter.Handle(await m_Mediator.Send(new GetHistoryRequest(p_Query.Page, p_Query.Size), p_CancellationToken));
-
-        return p_Presenter.ContentResult;
-    }
 }

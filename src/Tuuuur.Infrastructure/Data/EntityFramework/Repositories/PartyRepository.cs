@@ -49,13 +49,15 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
         await base.UpdateAsync(v_Entity);
     }
 
-    public async Task<IEnumerable<History>> GetUserHistoryAsync(
+    public async Task<HistoryPage> GetUserHistoryAsync(
         int p_UserId, 
         int p_Page, 
         int p_Size,
         CancellationToken p_CancellationToken = default)
     {
         int v_Skip = (p_Page - 1) * p_Size;
+        
+        long v_TotalCount = await CountAsync(p_P => p_P.IdUserHost == p_UserId, p_CancellationToken);
         
         List<PartyPty> v_Parties = await FindBy(
             p_P => p_P.IdUserHost == p_UserId,
@@ -72,6 +74,14 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
             .Skip(v_Skip)
             .Take(p_Size)
             .ToListAsync(p_CancellationToken);
-        return Mapper.Map<IEnumerable<History>>(v_Parties);
+        
+        IEnumerable<History> v_History = Mapper.Map<IEnumerable<History>>(v_Parties);
+        HistoryPage v_HistoryPage = new()
+        {
+            History = v_History,
+            CurrentPage = p_Page,
+            TotalPages = (int)Math.Ceiling((double)v_TotalCount / p_Size)
+        };
+        return v_HistoryPage;
     }
 }

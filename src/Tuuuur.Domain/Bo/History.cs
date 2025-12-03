@@ -31,3 +31,10 @@ public record History : IBOEntity
 
     public List<PartyTheme> PartyTheme { get; set; } = [];
 }
+
+public record HistoryPage : IBOEntity
+{
+    public IEnumerable<History> History { get; set; } = [];
+    public int CurrentPage { get; set; }
+    public int TotalPages { get; set; }
+}

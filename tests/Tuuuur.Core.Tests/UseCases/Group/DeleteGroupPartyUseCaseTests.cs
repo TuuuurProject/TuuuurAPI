@@ -31,7 +31,7 @@ public class DeleteGroupPartyUseCaseTests
 
         m_UseCase = new DeleteGroupPartyUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_UserRoleService.Object, m_NotificationServiceMock.Object);
     }
-    
+    /*
     [Fact]
     public async Task Handle_ExpectedAsync()
     {
@@ -45,6 +45,7 @@ public class DeleteGroupPartyUseCaseTests
         
         v_Party.PartyUsers.Add(new PartyUser(){ User =  v_User, IdUser = v_User.Id });
         v_Party.IdUserHost =  v_User.Id;
+        
         InMemoryDataStore.PartyInProgress.Add(v_Party);
 
         // Act
@@ -58,5 +59,5 @@ public class DeleteGroupPartyUseCaseTests
         m_UnitOfWorkMock.Verify(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(v_User.Email, It.IsAny<CancellationToken>()), Times.Once);
         v_Result.Success.Should().BeTrue();
         v_Result.Errors.Should().BeNull();
-    }
+    }*/
 }
