@@ -58,7 +58,9 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
                         nameof(Party.NbQuestions),
                         nameof(Party.PartyTheme),
                         nameof(Party.PartyDifficulty),
-                        nameof(Party.User)
+                        nameof(Party.User),
+                        nameof(Party.Percent),
+                        nameof(Party.Time)
                         )
                     .IsEqualTo(v_Party);
             }

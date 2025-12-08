@@ -43,6 +43,7 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.Score, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.NbQuestions, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.Percent, p_Opt => p_Opt.Ignore())
+            .ForMember(p_Trg => p_Trg.Time, p_Opt => p_Opt.Ignore())
             .ReverseMap();
         
         CreateMap<PartyPty, History>()
@@ -60,6 +61,7 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.PartyTheme, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyThemePth))
             .ForMember(p_Trg => p_Trg.Score, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.NbQuestions, p_Opt => p_Opt.Ignore())
+            .ForMember(p_Trg => p_Trg.Time, p_Opt => p_Opt.Ignore())
             .ReverseMap();
 
         CreateMap<PartyQuestionPqt, PartyQuestion>()
