@@ -16,6 +16,8 @@ public record History : IBOEntity
     
     public bool Finish { get; set; }
     
+    public double Percent => (double)PartyQuestions.Count(p_P => p_P.UserPartyQuestion?.Correct is true) / PartyQuestions.Count * 100;  
+    
     public int Score => PartyQuestions.Sum(p_P => p_P.UserPartyQuestion?.Score ?? 0);
 
     public int NbQuestions => PartyQuestions.Count;
@@ -37,4 +39,5 @@ public record HistoryPage : IBOEntity
     public IEnumerable<History> History { get; set; } = [];
     public int CurrentPage { get; set; }
     public int TotalPages { get; set; }
+    public int TotalParties { get; set; }
 }

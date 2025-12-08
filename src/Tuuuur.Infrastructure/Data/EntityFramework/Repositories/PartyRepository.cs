@@ -80,7 +80,8 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
         {
             History = v_History,
             CurrentPage = p_Page,
-            TotalPages = (int)Math.Ceiling((double)v_TotalCount / p_Size)
+            TotalPages = (int)Math.Ceiling((double)v_TotalCount / p_Size),
+            TotalParties = (int)v_TotalCount
         };
         return v_HistoryPage;
     }
