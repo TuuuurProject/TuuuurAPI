@@ -1,16 +1,13 @@
 using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Requests;
-using Tuuuur.Core.Requests.Parties;
 using Tuuuur.Core.Responses;
-using Tuuuur.Core.UseCases.Parties;
+using Tuuuur.Core.UseCases.History;
 using Tuuuur.Domain.Bo;
-using Tuuuur.Domain.Bo.Enum;
 using Tuuuur.Domain.Interfaces.Data;
-using Tuuuur.Domain.Interfaces.Data.Entities;
 using Tuuuur.Domain.Security;
 using Tuuuur.Factory.Tests;
 
-namespace Tuuuur.Core.Tests.UseCases.Parties;
+namespace Tuuuur.Core.Tests.UseCases;
 
 public class GetHistoryUseCaseTests
 {
@@ -37,11 +34,11 @@ public class GetHistoryUseCaseTests
         
         m_UserRoleService.Setup(p_P => p_P.GetCurrentUserEmail()).Returns(v_User.Email);
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
-        m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.GetUserHistoryAsync(It.IsAny<int>(),It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.GetUserHistoryAsync(It.IsAny<int>(),It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(new HistoryPage());
 
         GetHistoryRequest v_Request = new(1,50);
         // Act
-        GenericEntityListResponse<History> v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
+        GenericEntityResponse<HistoryPage> v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(v_Result);

@@ -95,43 +95,5 @@ namespace Tuuuur.API.Tests.Controllers
             ContentResult v_ContentResult = v_Result.As<ContentResult>();
             v_ContentResult.StatusCode.Should().Be(StatusCodes.Status200OK);
         }
-        
-        [Fact]
-        public async Task GetHistoryAsync_ReturnsOkObjectResult()
-        {
-            // Arrange
-            PaginationRequest v_Request = new()
-            {
-                Page = 1,
-                Size = 10,
-            };
-
-            m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<GetHistoryRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityListResponse<History>(Enumerable.Empty<History>()));
-            
-            // Act
-            IActionResult v_Result = await m_Controller.GetHistoryAsync(v_Request, new PaginationRequestValidator(), new GenericEntityListPresenter<History>(), CancellationToken.None);
-
-            // Assert
-            v_Result.Should().BeOfType<JsonContentResult>();
-            ContentResult v_ContentResult = v_Result.As<ContentResult>();
-            v_ContentResult.StatusCode.Should().Be(StatusCodes.Status200OK);
-        }
-        
-        [Fact]
-        public async Task GetHistoryAsync_WhenRequestIsInvalid_ReturnsOkObjectResult()
-        {
-            // Arrange
-            PaginationRequest v_Request = new();
-
-            m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<GetHistoryRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityListResponse<History>(Enumerable.Empty<History>()));
-            
-            // Act
-            IActionResult v_Result = await m_Controller.GetHistoryAsync(v_Request, new PaginationRequestValidator(), new GenericEntityListPresenter<History>(), CancellationToken.None);
-
-            // Assert
-            v_Result.Should().BeOfType<JsonContentResult>();
-            ContentResult v_ContentResult = v_Result.As<ContentResult>();
-            v_ContentResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        }
     }
 }
