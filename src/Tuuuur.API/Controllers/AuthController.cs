@@ -266,7 +266,10 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
         }
         catch (Exception v_Ex)
         {
-            return Unauthorized(new ErrorDto(DomainErrors.Authentication.Invalid,v_Ex.Message ));
+            return Unauthorized(new List<ErrorDto>
+            {
+                new(DomainErrors.Authentication.Invalid, v_Ex.Message)
+            });
         }
     }
 }
