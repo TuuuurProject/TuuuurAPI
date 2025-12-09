@@ -18,8 +18,12 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
 using System.Text.Json.Serialization;
+using StackExchange.Redis;
 using Tuuuur.API.Notifications;
 using Tuuuur.API.Transformers;
+using Tuuuur.Domain.Interfaces;
+using Tuuuur.Infrastructure.Cache.Services;
+using Tuuuur.Infrastructure.Services;
 
 namespace Tuuuur.API;
 
@@ -37,7 +41,10 @@ internal static class Program
         WebApplicationBuilder v_Builder = WebApplication.CreateBuilder(p_Args);
 
         string v_ConnectionString =
-            v_Builder.Configuration.GetConnectionString(TuuuurContext.ConnectionStringName);
+            v_Builder.Configuration.GetConnectionString(TuuuurContext.ConnectionStringName) ?? string.Empty;
+        
+        string v_RedisConnectionString = v_Builder.Configuration.GetConnectionString("Redis") ?? string.Empty;
+
         int v_MaxAllocatedMemory = int.Parse(v_Builder.Configuration["AllocatedMemory"] ?? string.Empty);
         string v_XmlCommentsFilePath =
             $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}{typeof(Program).Assembly.GetName().Name}.xml";
@@ -202,6 +209,11 @@ internal static class Program
         
         // Razor
         v_Builder.Services.AddRazorTemplating();
+        
+        // Redis
+        v_Builder.Services.AddSingleton<IConnectionMultiplexer>(await ConnectionMultiplexer.ConnectAsync(v_RedisConnectionString));
+        //v_Builder.Services.AddSingleton<ICacheService, CacheService>();
+        v_Builder.Services.AddSingleton(typeof(ICacheService<>), typeof(CacheService<>));
 
         WebApplication v_App = v_Builder.Build();
 
