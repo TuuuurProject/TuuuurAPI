@@ -8,6 +8,6 @@ namespace Tuuuur.API.Requests.Authentification
         /// <summary>
         ///     Token
         /// </summary>
-        public string Token { get; set; }
+        public string Token { get; init; }
     }
 }

@@ -33,6 +33,12 @@ public static class DomainErrors
 
         public const string Missmatch = AUTHENT_PREFIX + "missmatch";
         public const string Invalid = AUTHENT_PREFIX + GeneralErrors.Invalid;
+        
+        public static class Google
+        {
+            private const string GOOGLE_PREFIX = AUTHENT_PREFIX + "google.";
+            public const string Invalid_Google = GOOGLE_PREFIX + GeneralErrors.Invalid;
+        }
 
         public static class NickName
         {
