@@ -37,8 +37,4 @@
         <ProjectReference Include="..\Tuuuur.RazorTemplate\Tuuuur.RazorTemplate.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Cache\Mapping\" />
-    </ItemGroup>
-
 </Project>

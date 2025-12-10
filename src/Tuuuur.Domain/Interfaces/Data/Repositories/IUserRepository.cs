@@ -11,4 +11,5 @@ public interface IUserRepository : IGenericRepository
     Task<IMappingAddEntity<User, IEntity>> CreateUserAsync(User p_User, CancellationToken p_CancellationToken = default);
     Task UpdateUserAsync(User p_User, CancellationToken p_CancellationToken = default);
     Task DeleteUserAsync(int p_UserId, CancellationToken p_CancellationToken = default);
+    Task<User> GetUserByIdAsync(int p_Id, CancellationToken p_CancellationToken = default);
 }

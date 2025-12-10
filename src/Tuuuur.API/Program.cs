@@ -212,9 +212,8 @@ internal static class Program
         
         // Redis
         v_Builder.Services.AddSingleton<IConnectionMultiplexer>(await ConnectionMultiplexer.ConnectAsync(v_RedisConnectionString));
-        //v_Builder.Services.AddSingleton<ICacheService, CacheService>();
-        v_Builder.Services.AddSingleton(typeof(ICacheService<>), typeof(CacheService<>));
-
+        v_Builder.Services.AddSingleton<ICacheService, CacheService>();
+        
         WebApplication v_App = v_Builder.Build();
 
         // Configure the HTTP request pipeline.

@@ -2,7 +2,6 @@ using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Requests.Group;
 using Tuuuur.Core.Responses;
-using Tuuuur.Domain;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Bo.Enum;
 using Tuuuur.Domain.Errors;
@@ -15,7 +14,7 @@ namespace Tuuuur.Core.UseCases.Group;
 internal class CreateGroupPartyUseCase(IUnitOfWork p_UnitOfWork, 
     ILogger<CreateGroupPartyUseCase> p_Logger,
     IUserRoleService p_UserRoleService,
-    ICacheService<Party> p_CacheService): 
+    ICacheService p_CacheService): 
     ADbUseCase<CreateGroupPartyRequest, GenericEntityResponse<Party>>(p_Logger, p_UnitOfWork)
 {
     protected override async Task<GenericEntityResponse<Party>> HandleLogic(CreateGroupPartyRequest p_Request, CancellationToken p_CancellationToken)
@@ -27,20 +26,19 @@ internal class CreateGroupPartyUseCase(IUnitOfWork p_UnitOfWork,
         if(v_User == null)
             return new GenericEntityResponse<Party>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
         
-        IEnumerable<Party> v_Parties;
-        
-        //var res = await p_CacheService.GetDataAsync<object>("hr",  p_CancellationToken: p_CancellationToken);
-
-        lock (InMemoryDataStore.PartyInProgress)
-        {
-            // Check if the user is already in party
-            v_Parties  = InMemoryDataStore.PartyInProgress.Where(p_Party => p_Party.PartyUsers.Any(p_User => p_User.IdUser == v_User.Id)).ToList();
-        }
+        Guid? v_PartyId = await p_CacheService.GetAsync<Guid?>($"{nameof(User)}:{v_User.Id}:{nameof(Party)}", p_CancellationToken);
 
         // If a party already exist, 
-        if (v_Parties.Any())
+        if (v_PartyId is not null)
         {
-            return new GenericEntityResponse<Party>(v_Parties.First());
+            Party v_ExistingParty = await p_CacheService.GetAsync<Party>($"{nameof(Party)}:{v_PartyId}", p_CancellationToken);
+            List<int> v_UserInExistingParty = await p_CacheService.SetMembersAsync<int>($"{nameof(Party)}:{v_PartyId}:{nameof(User)}", p_CancellationToken: p_CancellationToken);
+            foreach (int v_UserId in v_UserInExistingParty)
+            {
+                v_ExistingParty.PartyUsers.Add(new PartyUser { User = await m_UnitOfWork.UserRepository.GetUserByIdAsync(v_UserId, p_CancellationToken), IdUser =  v_UserId});
+            }
+            
+            return new GenericEntityResponse<Party>(v_ExistingParty);
         }
         
         // Create it
@@ -61,16 +59,16 @@ internal class CreateGroupPartyUseCase(IUnitOfWork p_UnitOfWork,
             IdPartyType = (int)PartyTypeType.Group,
             Code = v_Code,
             IdUserHost = v_User.Id,
+            Dt =  DateTime.Now,
+            Active =  true,
         };
 
-        await p_CacheService.SetAsync(v_Party.Id.ToString(), v_Party, p_CancellationToken: p_CancellationToken);
-
-        /*
-        lock (InMemoryDataStore.PartyInProgress)
-        {
-            InMemoryDataStore.PartyInProgress.Add(v_Party);
-            v_Party.PartyUsers.Add(new PartyUser{ IdUser = v_User.Id, User = v_User});
-        }*/
+        await p_CacheService.SetAsync($"{nameof(Party)}:{v_Party.Id}", v_Party, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAsync($"{nameof(Party)}:{v_Party.Code}", v_Party, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAddAsync($"{nameof(Party)}:{v_Party.Id}:{nameof(User)}", v_User.Id, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAsync($"{nameof(User)}:{v_User.Id}:{nameof(Party)}", v_Party.Id, p_CancellationToken: p_CancellationToken);
+        
+        v_Party.PartyUsers.Add(new PartyUser(){IdUser =  v_User.Id, User =  v_User});
         
         return new GenericEntityResponse<Party>(v_Party);
     }

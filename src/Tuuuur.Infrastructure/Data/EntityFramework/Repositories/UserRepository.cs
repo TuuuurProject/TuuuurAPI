@@ -31,6 +31,7 @@ internal class UserRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<U
     {
         return Mapper.Map<User>(await FindBy(p_U => p_U.NickName == p_NickaName).SingleOrDefaultAsync(p_CancellationToken));
     }
+    
     public async Task<IMappingAddEntity<User, IEntity>> CreateUserAsync(User p_User, CancellationToken p_CancellationToken = default)
     {
         IMappingAddEntity<User, UserUsr> v_Mapping =
@@ -51,5 +52,10 @@ internal class UserRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<U
     public async Task DeleteUserAsync(int p_UserId, CancellationToken p_CancellationToken = default)
     {
         await DeleteAsync(p_UserId, p_CancellationToken);
+    }
+    
+    public async Task<User> GetUserByIdAsync(int p_Id, CancellationToken p_CancellationToken = default)
+    {
+        return Mapper.Map<User>(await FindBy(p_U => p_U.Id == p_Id).SingleOrDefaultAsync(p_CancellationToken));
     }
 }

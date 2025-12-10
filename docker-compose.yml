@@ -26,7 +26,8 @@ services:
       dockerfile: src/Tuuuur.Database/Dockerfile
     container_name: tuuur_migrate
     depends_on:
-      - sqlserver
+      - sqlserver:
+        condition: service_healthy
     restart: "no"
     networks:
       - tuuur-network
