@@ -40,7 +40,7 @@ internal class DeleteGroupPartyUseCase(IUnitOfWork p_UnitOfWork,
         List<int> v_UserInParty = await p_CacheService.SetMembersAsync<int>($"{nameof(Party)}:{v_Party.Id}:{nameof(User)}", p_CancellationToken: p_CancellationToken);
         
         // If the party not exist or if user is not the host
-        if(v_Party?.IdUserHost != v_User.Id)
+        if(v_Party.IdUserHost != v_User.Id)
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found")]);
         
         // Send notification to other users
