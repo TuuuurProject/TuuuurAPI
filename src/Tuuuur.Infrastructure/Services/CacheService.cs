@@ -2,7 +2,7 @@ using System.Text.Json;
 using StackExchange.Redis;
 using Tuuuur.Domain.Interfaces;
 
-namespace Tuuuur.Infrastructure.Cache.Services;
+namespace Tuuuur.Infrastructure.Services;
 
 public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
 {

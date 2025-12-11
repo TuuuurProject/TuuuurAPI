@@ -1,5 +1,5 @@
-
 services:
+  # --- SQL SERVER ---
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: sqlserver
@@ -19,6 +19,23 @@ services:
     networks:
       - tuuur-network
 
+  # --- REDIS ---
+  redis:
+    image: redis:latest
+    container_name: tuuuur_redis
+    restart: always
+    command: redis-server --requirepass "YourStrong!RedisPass"
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "YourStrong!RedisPass", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tuuur-network
+
+  # --- MIGRATIONS ---
   migrate:
     platform: linux/amd64
     build:
@@ -26,11 +43,13 @@ services:
       dockerfile: src/Tuuuur.Database/Dockerfile
     container_name: tuuur_migrate
     depends_on:
-      - sqlserver:
+      sqlserver:
         condition: service_healthy
     restart: "no"
     networks:
       - tuuur-network
+
+  # --- API ---
   api:
     build:
       context: .
@@ -40,8 +59,11 @@ services:
     depends_on:
       sqlserver:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       - ConnectionStrings__Tuuuur=Server=sqlserver,1433;Initial Catalog=Tuuuur-dev;Persist Security Info=False;User ID=sa;Password=YourStrong!Passw0rd;MultipleActiveResultSets=False;Encrypt=False;TrustServerCertificate=True;Connection Timeout=30
+      - ConnectionStrings__Redis=redis:6379,password=YourStrong!RedisPass
       - JwtSettings__Key=${JWT_KEY}
       - Authentification__Google__ClientId=${GOOGLE_CLIENT_ID}
       - SmtpEmailConfiguration__FromAddress=${SMTP_FROM_ADDRESS}

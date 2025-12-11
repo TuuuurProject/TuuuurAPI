@@ -1,9 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Requests.Group;
 using Tuuuur.Core.Responses;
-using Tuuuur.Domain;
 using Tuuuur.Domain.Bo;
-using Tuuuur.Domain.Bo.Enum;
 using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Interfaces;
 using Tuuuur.Domain.Interfaces.Data;

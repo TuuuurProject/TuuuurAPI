@@ -22,7 +22,6 @@ using StackExchange.Redis;
 using Tuuuur.API.Notifications;
 using Tuuuur.API.Transformers;
 using Tuuuur.Domain.Interfaces;
-using Tuuuur.Infrastructure.Cache.Services;
 using Tuuuur.Infrastructure.Services;
 
 namespace Tuuuur.API;
