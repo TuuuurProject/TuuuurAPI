@@ -15,29 +15,29 @@ using Tuuuur.Factory.Tests;
 
 namespace Tuuuur.Core.Tests.UseCases.Group;
 
-public class LeaveGroupPartyUseCaseTests
+public class LeaveGroupUseCaseTests
 {
     private readonly MockRepository m_MockRepository;
     private readonly Mock<IUnitOfWork> m_UnitOfWorkMock;
-    private readonly Mock<ILogger<LeaveGroupPartyUseCase>> m_LoggerMock;
+    private readonly Mock<ILogger<LeaveGroupUseCase>> m_LoggerMock;
     private readonly Mock<IUserRoleService> m_UserRoleServiceMock;
     private readonly Mock<IMediator> m_MediatorMock;
     private readonly Mock<INotificationsService> m_NotificationServiceMock;
     private readonly Mock<ICacheService> m_CacheServiceMock;
 
-    private readonly LeaveGroupPartyUseCase m_UseCase;
+    private readonly LeaveGroupUseCase m_UseCase;
     
-    public LeaveGroupPartyUseCaseTests()
+    public LeaveGroupUseCaseTests()
     {
         m_MockRepository = new MockRepository(MockBehavior.Strict);
         m_UnitOfWorkMock = m_MockRepository.Create<IUnitOfWork>();
-        m_LoggerMock = m_MockRepository.Create<ILogger<LeaveGroupPartyUseCase>>();
+        m_LoggerMock = m_MockRepository.Create<ILogger<LeaveGroupUseCase>>();
         m_MediatorMock = m_MockRepository.Create<IMediator>();
         m_UserRoleServiceMock = m_MockRepository.Create<IUserRoleService>();
         m_NotificationServiceMock = m_MockRepository.Create<INotificationsService>();
         m_CacheServiceMock = m_MockRepository.Create<ICacheService>();
 
-        m_UseCase = new LeaveGroupPartyUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_UserRoleServiceMock.Object, m_MediatorMock.Object, m_NotificationServiceMock.Object, m_CacheServiceMock.Object);
+        m_UseCase = new LeaveGroupUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_UserRoleServiceMock.Object, m_MediatorMock.Object, m_NotificationServiceMock.Object, m_CacheServiceMock.Object);
     }
     
     [Fact]

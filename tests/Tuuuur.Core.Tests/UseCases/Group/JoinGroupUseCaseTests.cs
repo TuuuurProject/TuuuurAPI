@@ -14,28 +14,27 @@ using Tuuuur.Factory.Tests;
 
 namespace Tuuuur.Core.Tests.UseCases.Group;
 
-public class DeleteGroupPartyUseCaseTests
+public class JoinGroupUseCaseTests
 {
     private readonly MockRepository m_MockRepository;
     private readonly Mock<IUnitOfWork> m_UnitOfWorkMock;
-    private readonly Mock<ILogger<DeleteGroupPartyUseCase>> m_LoggerMock;
+    private readonly Mock<ILogger<JoinGroupUseCase>> m_LoggerMock;
     private readonly Mock<IUserRoleService> m_UserRoleServiceMock;
     private readonly Mock<INotificationsService> m_NotificationServiceMock;
     private readonly Mock<ICacheService> m_CacheServiceMock;
 
-
-    private readonly DeleteGroupPartyUseCase m_UseCase;
+    private readonly JoinGroupUseCase m_UseCase;
     
-    public DeleteGroupPartyUseCaseTests()
+    public JoinGroupUseCaseTests()
     {
         m_MockRepository = new MockRepository(MockBehavior.Strict);
         m_UnitOfWorkMock = m_MockRepository.Create<IUnitOfWork>();
-        m_LoggerMock = m_MockRepository.Create<ILogger<DeleteGroupPartyUseCase>>();
+        m_LoggerMock = m_MockRepository.Create<ILogger<JoinGroupUseCase>>();
         m_UserRoleServiceMock = m_MockRepository.Create<IUserRoleService>();
         m_NotificationServiceMock = m_MockRepository.Create<INotificationsService>();
         m_CacheServiceMock = m_MockRepository.Create<ICacheService>();
 
-        m_UseCase = new DeleteGroupPartyUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_UserRoleServiceMock.Object, m_NotificationServiceMock.Object, m_CacheServiceMock.Object);
+        m_UseCase = new JoinGroupUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_UserRoleServiceMock.Object, m_CacheServiceMock.Object, m_NotificationServiceMock.Object);
     }
     
     [Fact]
@@ -44,22 +43,21 @@ public class DeleteGroupPartyUseCaseTests
         // Arrange
         User v_User = BoFactory.CreateUser().Generate();
         Party v_Party = BoFactory.CreateParty().Generate();
-        v_Party.IdUserHost = v_User.Id;
-        m_UserRoleServiceMock.Setup(p_P => p_P.GetCurrentUserEmail()).Returns(v_User.Email);
+        m_UserRoleServiceMock.Setup(p_U => p_U.GetCurrentUserEmail()).Returns(v_User.Email);
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
-        DeleteGroupPartyRequest v_Request = new();
-        
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<Guid?>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party.Id);
+        m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<Guid?>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((Guid?)null);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<Party>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetMembersAsync<int>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([v_User.Id]);
         
-        
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetMembersAsync<int>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([v_User.Id, v_User.Id + 1]);
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetAddAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetAsync(It.IsAny<string>(), It.IsAny<Guid>(), TimeSpan.Zero, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        m_NotificationServiceMock.Setup(p_Ns => p_Ns.PushMessageAsync(It.IsAny<ClientType>(), It.IsAny<Notification>(), It.IsAny<string>())).Returns(Task.CompletedTask);
+        JoinGroupPartyRequest v_Request = new(v_Party.Code);
+
         // Act
-        EmptyResponse v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
+        GenericEntityResponse<Party> v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(v_Result);

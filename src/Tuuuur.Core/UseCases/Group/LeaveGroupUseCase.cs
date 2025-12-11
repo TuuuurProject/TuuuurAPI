@@ -12,8 +12,8 @@ using Notification = Tuuuur.Domain.Bo.Enum.Notification;
 
 namespace Tuuuur.Core.UseCases.Group;
 
-internal class LeaveGroupPartyUseCase(IUnitOfWork p_UnitOfWork, 
-    ILogger<LeaveGroupPartyUseCase> p_Logger,
+internal class LeaveGroupUseCase(IUnitOfWork p_UnitOfWork, 
+    ILogger<LeaveGroupUseCase> p_Logger,
     IUserRoleService p_UserRoleService,
     IMediator p_Mediator,
     INotificationsService p_NotificationsService,
@@ -48,7 +48,17 @@ internal class LeaveGroupPartyUseCase(IUnitOfWork p_UnitOfWork,
         // If the host user leave the party, destroy the party
         if (v_Party.IdUserHost == v_User.Id)
         {
-            await p_Mediator.Send(new DeleteGroupPartyRequest(), CancellationToken.None);
+            // Send notification to other users
+            foreach (int v_UserIdToNotif in v_UserInParty.Where(p_P => p_P != v_User.Id))
+            {
+                User v_UserToNotify = await m_UnitOfWork.UserRepository.GetUserByIdAsync(v_UserIdToNotif, p_CancellationToken);
+                await p_NotificationsService.PushMessageAsync(ClientType.User, new Domain.Bo.Notification{ User = v_User, Action= nameof(Notification.Delete) }, v_UserToNotify.NickName);
+                await p_CacheService.RemoveAsync($"{nameof(User)}:{v_UserIdToNotif}:{nameof(Party)}", p_CancellationToken: p_CancellationToken);
+            }
+        
+            await p_CacheService.RemoveAsync($"{nameof(Party)}:{v_Party.Code}", p_CancellationToken: p_CancellationToken);
+            await p_CacheService.RemoveAsync($"{nameof(Party)}:{v_Party.Id}", p_CancellationToken: p_CancellationToken);
+            await p_CacheService.RemoveAsync($"{nameof(Party)}:{v_Party.Id}:{nameof(User)}", p_CancellationToken: p_CancellationToken);
         }
         else
         {
@@ -60,8 +70,9 @@ internal class LeaveGroupPartyUseCase(IUnitOfWork p_UnitOfWork,
             }
         
             await p_CacheService.SetRemoveAsync($"{nameof(Party)}:{v_Party.Id}:{nameof(User)}", v_User.Id, p_CancellationToken: p_CancellationToken);
-            await p_CacheService.RemoveAsync($"{nameof(User)}:{v_User.Id}:{nameof(Party)}", p_CancellationToken: p_CancellationToken);
         }
+
+        await p_CacheService.RemoveAsync($"{nameof(User)}:{v_User.Id}:{nameof(Party)}", p_CancellationToken: p_CancellationToken);
 
         return new EmptyResponse();
     }
