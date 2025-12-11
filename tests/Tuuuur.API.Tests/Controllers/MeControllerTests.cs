@@ -119,12 +119,7 @@ public class MeControllerTests
     public async Task DeleteUserAsync_ReturnsOkObjectResult()
     {
         // Arrange
-        ChangePasswordApiRequest v_ApiRequest = new()
-        {
-            CurrentPassword = "currentpassword",
-            NewPassword = "newpassword",
-        };
-        User v_User = BoFactory.CreateUser();
+        BoFactory.CreateUser();
 
         m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<DeleteUserRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
         
@@ -139,25 +134,20 @@ public class MeControllerTests
         }
     }
     
-    
-    
-    
-    
-    
     [Fact]
     public async Task UpdateUserNicknameAsync_ReturnsOkObjectResult()
     {
         // Arrange
-        UserAvatarApiRequest v_ApiRequest = new()
+        UserNicknameApiRequest v_ApiRequest = new()
         {
-            Avatar = "MonSuperNickname"
+            Nickname = "MonSuperNickname"
         };
         User v_User = BoFactory.CreateUser();
 
-        m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<UpdateUserAvatarRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<User>(v_User));
+        m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<UpdateUserNicknameRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<User>(v_User));
         
         // Act
-        IActionResult v_Result = await m_Controller.UpdateUserAvatarAsync(v_ApiRequest, new UserAvatarApiRequestValidator(), new GenericEntityPresenter<User>(), CancellationToken.None);
+        IActionResult v_Result = await m_Controller.UpdateUserNicknameAsync(v_ApiRequest, new UserNicknameApiRequestValidator(), new GenericEntityPresenter<User>(), CancellationToken.None);
 
         // Assert
         v_Result.Should().BeOfType<JsonContentResult>();
@@ -168,16 +158,16 @@ public class MeControllerTests
     }
     
     [Fact]
-    public async Task UpdateUserNicknameAsync_WhenNicknameisEmpty_ReturnsOkObjectResult()
+    public async Task UpdateUserNicknameAsync_WhenNicknameIsEmpty_ReturnsOkObjectResult()
     {
         // Arrange
-        UserAvatarApiRequest v_ApiRequest = new();
+        UserNicknameApiRequest v_ApiRequest = new();
         User v_User = BoFactory.CreateUser();
 
         m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<UpdateUserAvatarRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<User>(v_User));
         
         // Act
-        IActionResult v_Result = await m_Controller.UpdateUserAvatarAsync(v_ApiRequest, new UserAvatarApiRequestValidator(), new GenericEntityPresenter<User>(), CancellationToken.None);
+        IActionResult v_Result = await m_Controller.UpdateUserNicknameAsync(v_ApiRequest, new UserNicknameApiRequestValidator(), new GenericEntityPresenter<User>(), CancellationToken.None);
 
         // Assert
         v_Result.Should().BeOfType<JsonContentResult>();
