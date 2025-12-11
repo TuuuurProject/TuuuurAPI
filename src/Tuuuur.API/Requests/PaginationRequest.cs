@@ -27,6 +27,9 @@ public record PaginationRequest
 /// </summary>
 public class PaginationRequestValidator : AbstractValidator<PaginationRequest>
 {
+    /// <summary>
+    /// Ctor
+    /// </summary>
     public PaginationRequestValidator()
     {
         RuleFor(p_Request => p_Request.Page)
