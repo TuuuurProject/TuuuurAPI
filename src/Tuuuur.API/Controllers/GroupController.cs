@@ -1,14 +1,11 @@
 ﻿using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Tuuuur.API.Extensions;
 using Tuuuur.API.Presenters;
 using Tuuuur.API.Requests;
-using Tuuuur.Core.Requests;
 using Tuuuur.Core.Requests.Group;
 using Tuuuur.Core.Responses;
 using Tuuuur.Domain.Bo;
-using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace Tuuuur.API.Controllers;
 
@@ -90,6 +87,7 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
         [FromRoute] Guid p_GroupeId,
         CancellationToken p_CancellationToken)
     {
+        await Task.Delay(5, p_CancellationToken);
         return Ok();
     }
     
@@ -106,6 +104,7 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
         [FromRoute] Guid p_GroupeId,
         CancellationToken p_CancellationToken)
     {
+        await Task.Delay(5, p_CancellationToken);
         return Ok();
     }
 }

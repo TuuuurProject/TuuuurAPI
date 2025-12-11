@@ -119,6 +119,37 @@ public class MeController(ILogger<MeController> p_Logger, IMediator p_Mediator, 
     }
     
     /// <summary>
+    /// Update current user nickname
+    /// </summary>
+    /// <param name="p_Request"></param>
+    /// <param name="p_Validator"></param>
+    /// <param name="p_Presenter"></param>
+    /// <param name="p_CancellationToken"></param>
+    /// <returns></returns>
+    [HttpPut("nickname")]
+    [MapToApiVersion("1")]
+    [ProducesResponseType(typeof(GenericEntityListResponse<User>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<ErrorDto>),StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(IEnumerable<ErrorDto>),StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> UpdateUserNicknameAsync(
+        [FromBody] UserNicknameApiRequest p_Request,
+        [FromServices] UserNicknameApiRequestValidator p_Validator,
+        [FromServices] GenericEntityPresenter<User> p_Presenter,
+        CancellationToken p_CancellationToken = default)
+    {
+        ValidationResult v_Result = await p_Validator.ValidateAsync(p_Request, p_CancellationToken);
+
+        if (!v_Result.IsValid)
+        {
+            m_ValidationPresenter.Handle(v_Result);
+            return m_ValidationPresenter.ContentResult;
+        }
+
+        p_Presenter.Handle(await m_Mediator.Send(new UpdateUserNicknameRequest(p_Request.Nickname), p_CancellationToken));
+        return p_Presenter.ContentResult;
+    }
+    
+    /// <summary>
     /// Delete current user
     /// </summary>
     /// <param name="p_Presenter"></param>
