@@ -42,7 +42,7 @@ namespace Tuuuur.API.Requests.Authentification
             RuleFor(p_Request => p_Request.NickName)
                 .NotEmpty()
                 .Matches("^[a-zA-Z0-9_-]+$")
-                .WithMessage(DomainErrors.Authentication.NickName.Invalid_NickName);
+                .WithMessage(DomainErrors.Authentication.NickName.InvalidNickName);
         }
     }
 }

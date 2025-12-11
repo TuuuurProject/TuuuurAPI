@@ -44,7 +44,7 @@ internal partial class GoogleAuthentificationUseCase(
         }
         
         else if (!v_User.IsGoogleUser)
-            return new JwtAuthenticationResponse([new ErrorDto(DomainErrors.Authentication.Google.Invalid_Google, $"The email {p_Request.Email} is already registered but is not linked to Google. Please sign in using your credentials.")]);
+            return new JwtAuthenticationResponse([new ErrorDto(DomainErrors.Authentication.Google.InvalidGoogle, $"The email {p_Request.Email} is already registered but is not linked to Google. Please sign in using your credentials.")]);
             
         JwtTokenResponse v_TokenInfos = p_JwtFactory.CreateToken(v_User);
 
