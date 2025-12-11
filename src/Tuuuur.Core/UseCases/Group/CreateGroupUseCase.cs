@@ -41,10 +41,10 @@ internal class CreateGroupUseCase(IUnitOfWork p_UnitOfWork,
             Active =  true,
         };
         
-        await p_CacheService.SetAsync($"{nameof(Party)}:{v_Party.Id}", v_Party, p_CancellationToken: p_CancellationToken);
-        await p_CacheService.SetAsync($"{nameof(Party)}:{v_Party.Code}", v_Party, p_CancellationToken: p_CancellationToken);
-        await p_CacheService.SetAddAsync($"{nameof(Party)}:{v_Party.Id}:{nameof(User)}", p_User.Id, p_CancellationToken: p_CancellationToken);
-        await p_CacheService.SetAsync($"{nameof(User)}:{p_User.Id}:{nameof(Party)}", v_Party.Id, p_CancellationToken: p_CancellationToken);
+        await m_CacheService.SetAsync($"{nameof(Party)}:{v_Party.Id}", v_Party, p_CancellationToken: p_CancellationToken);
+        await m_CacheService.SetAsync($"{nameof(Party)}:{v_Party.Code}", v_Party, p_CancellationToken: p_CancellationToken);
+        await m_CacheService.SetAddAsync($"{nameof(Party)}:{v_Party.Id}:{nameof(User)}", p_User.Id, p_CancellationToken: p_CancellationToken);
+        await m_CacheService.SetAsync($"{nameof(User)}:{p_User.Id}:{nameof(Party)}", v_Party.Id, p_CancellationToken: p_CancellationToken);
         
         v_Party.PartyUsers.Add(new PartyUser(){IdUser =  p_User.Id, User =  p_User});
         

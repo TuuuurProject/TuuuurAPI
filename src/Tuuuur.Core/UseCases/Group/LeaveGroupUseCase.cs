@@ -15,7 +15,6 @@ namespace Tuuuur.Core.UseCases.Group;
 internal class LeaveGroupUseCase(IUnitOfWork p_UnitOfWork, 
     ILogger<LeaveGroupUseCase> p_Logger,
     IUserRoleService p_UserRoleService,
-    IMediator p_Mediator,
     INotificationsService p_NotificationsService,
     ICacheService p_CacheService): 
     ADbUseCase<LeaveGroupPartyRequest, EmptyResponse>(p_Logger, p_UnitOfWork)

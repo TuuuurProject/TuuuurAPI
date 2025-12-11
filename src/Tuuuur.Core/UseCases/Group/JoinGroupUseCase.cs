@@ -24,16 +24,16 @@ internal class JoinGroupUseCase(IUnitOfWork p_UnitOfWork,
         Party v_Party = null;
         if (!string.IsNullOrWhiteSpace(p_Request.Code))
         {
-            v_Party = await p_CacheService.GetAsync<Party>($"{nameof(Party)}:{p_Request.Code}",  p_CancellationToken);
+            v_Party = await m_CacheService.GetAsync<Party>($"{nameof(Party)}:{p_Request.Code}",  p_CancellationToken);
         }
         
         if(v_Party == null)
             return new GenericEntityResponse<Party>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found, Key: {p_Request.Code}")]);
         
-        List<int> v_UserInParty = await p_CacheService.SetMembersAsync<int>($"{nameof(Party)}:{v_Party.Id}:{nameof(User)}", p_CancellationToken: p_CancellationToken);
+        List<int> v_UserInParty = await m_CacheService.SetMembersAsync<int>($"{nameof(Party)}:{v_Party.Id}:{nameof(User)}", p_CancellationToken: p_CancellationToken);
         
-        await p_CacheService.SetAddAsync($"{nameof(Party)}:{v_Party.Id}:{nameof(User)}", p_User.Id, p_CancellationToken: p_CancellationToken);
-        await p_CacheService.SetAsync($"{nameof(User)}:{p_User.Id}:{nameof(Party)}", v_Party.Id, p_CancellationToken: p_CancellationToken);
+        await m_CacheService.SetAddAsync($"{nameof(Party)}:{v_Party.Id}:{nameof(User)}", p_User.Id, p_CancellationToken: p_CancellationToken);
+        await m_CacheService.SetAsync($"{nameof(User)}:{p_User.Id}:{nameof(Party)}", v_Party.Id, p_CancellationToken: p_CancellationToken);
 
         foreach (int v_UserIdToNotif in v_UserInParty)
         {

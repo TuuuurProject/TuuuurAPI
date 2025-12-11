@@ -18,6 +18,7 @@ internal abstract class ACreateJoinGroupUseCase<TRequest>(
     : ADbUseCase<TRequest, GenericEntityResponse<Party>>(m_Logger, m_UnitOfWork)
     where TRequest : IRequest<GenericEntityResponse<Party>>
 {
+    protected readonly ICacheService m_CacheService = p_CacheService;
     protected override async Task<GenericEntityResponse<Party>> HandleLogic(TRequest p_Request, CancellationToken p_CancellationToken)
     {
         string v_UserEmail = p_UserRoleService.GetCurrentUserEmail();
@@ -27,13 +28,13 @@ internal abstract class ACreateJoinGroupUseCase<TRequest>(
         if(v_User == null)
             return new GenericEntityResponse<Party>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
         
-        Guid? v_PartyId = await p_CacheService.GetAsync<Guid?>($"{nameof(User)}:{v_User.Id}:{nameof(Party)}", p_CancellationToken);
+        Guid? v_PartyId = await m_CacheService.GetAsync<Guid?>($"{nameof(User)}:{v_User.Id}:{nameof(Party)}", p_CancellationToken);
 
         // If a party already exist, 
         if (v_PartyId is not null)
         {
-            Party v_ExistingParty = await p_CacheService.GetAsync<Party>($"{nameof(Party)}:{v_PartyId}", p_CancellationToken);
-            List<int> v_UserInExistingParty = await p_CacheService.SetMembersAsync<int>($"{nameof(Party)}:{v_PartyId}:{nameof(User)}", p_CancellationToken: p_CancellationToken);
+            Party v_ExistingParty = await m_CacheService.GetAsync<Party>($"{nameof(Party)}:{v_PartyId}", p_CancellationToken);
+            List<int> v_UserInExistingParty = await m_CacheService.SetMembersAsync<int>($"{nameof(Party)}:{v_PartyId}:{nameof(User)}", p_CancellationToken: p_CancellationToken);
             foreach (int v_UserId in v_UserInExistingParty)
             {
                 v_ExistingParty.PartyUsers.Add(new PartyUser { User = await m_UnitOfWork.UserRepository.GetUserByIdAsync(v_UserId, p_CancellationToken), IdUser =  v_UserId});
