@@ -12,9 +12,11 @@ on:
         type: string
         description: "Comma-separated Docker tags"
     secrets:
-      DOCKER_USERNAME:
+      GCP_PROJECT_ID:
         required: true
-      DOCKER_PASSWORD:
+      GCP_SA_KEY:
+        required: true
+      GCP_REGION:
         required: true
 
 jobs:
@@ -34,26 +36,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        # Épinglé : actions/checkout@v4.1.7
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@f0990588f1e5b5af6827153b93673613abdc6ec7
+
+      - name: Configure Docker to use gcloud as credential helper
+        run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev
 
       - name: Set up Docker Buildx
-        # Épinglé : docker/setup-buildx-action@v3.3.0
-        uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db
+        uses: docker/setup-buildx-action@c47bca50b64d9e2287e5063cc3a39112e14e7135
 
-      - name: Login to Docker Hub
-        # Épinglé : docker/login-action@v3.2.0
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build and push Docker image (${{ inputs.environment_name }})
-        # Épinglé : docker/build-push-action@v5.3.0
-        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56
+      - name: Build and push Docker image to GCP Artifact Registry (${{ inputs.environment_name }})
+        uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355
         with:
           context: .
-          file: ./src/Tuuuur.API/Dockerfile
+          file: ./src/Tuuuur.API/dockerfile
           push: true
           tags: ${{ inputs.docker_tags }}
           cache-from: type=gha
