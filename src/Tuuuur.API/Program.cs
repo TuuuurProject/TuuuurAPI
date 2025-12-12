@@ -189,18 +189,18 @@ internal static class Program
                     });
 
         // CORS
-        v_Builder.Services.AddCors(static p_Options =>
+        v_Builder.Services.AddCors(p_Options =>
         {
             p_Options.AddDefaultPolicy(
-                static p_Policy =>
+                p_CorsPolicyBuilder =>
                 {
-#pragma warning disable S5122 //we accept any origin for this api
-                    p_Policy.AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader();
-#pragma warning disable S5122
-                }
-            );
+                    p_CorsPolicyBuilder.WithExposedHeaders("Content-Disposition");
+                    p_CorsPolicyBuilder.WithOrigins(v_Builder.Configuration["AllowedHosts"]?.Split(';').Select(p_S => $"https://{p_S.Trim('/')}").ToArray() ?? ["*"]);
+                    p_CorsPolicyBuilder.AllowCredentials();
+                    p_CorsPolicyBuilder.SetIsOriginAllowed(_ => true);
+                    p_CorsPolicyBuilder.AllowAnyHeader();
+                    p_CorsPolicyBuilder.AllowAnyMethod();
+                });
         });
         
         // Add SignalR
