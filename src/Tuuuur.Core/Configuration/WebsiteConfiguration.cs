@@ -2,10 +2,10 @@
 
 namespace Tuuuur.Core.Configuration;
 
-public class WebsiteConfiguration : AServiceConfiguration
+public class WebsiteConfiguration : IServiceConfiguration
 {
-    public const string SECTIONNAME = "Website";
+    private const string Sectionname = "Website";
     public string BaseUri { get; set; } = string.Empty;
 
-    public override string GetSectionName() => SECTIONNAME;
+    public string GetSectionName() => Sectionname;
 }

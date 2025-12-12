@@ -7,7 +7,7 @@ namespace Tuuuur.Domain.Configuration
 {
     public static class AutofacBuilderExtensions
     {
-        public static IRegistrationBuilder<T, SimpleActivatorData, SingleRegistrationStyle> RegisterConfiguration<T>(this ContainerBuilder p_Builder) where T : AServiceConfiguration, new()
+        public static IRegistrationBuilder<T, SimpleActivatorData, SingleRegistrationStyle> RegisterConfiguration<T>(this ContainerBuilder p_Builder) where T : IServiceConfiguration, new()
         {
             return p_Builder.Register(p_Context =>
             {

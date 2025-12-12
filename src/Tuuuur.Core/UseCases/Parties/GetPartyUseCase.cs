@@ -29,7 +29,7 @@ internal class GetPartyUseCase(
             // Check if the party type is correct
             // Check if the party contains only 1 player
             // Check that the player is this user
-            if (v_Party is null || v_Party.IdPartyType != (int)PartyTypeType.Solo || v_Party.PartyUsers.Count != 1 && v_Party.PartyUsers.First().IdUser != v_User.Id)
+            if (v_Party is null || v_Party.IdPartyType != (int)PartyTypeType.Solo || v_Party.PartyUsers.Count != 1 && v_Party.PartyUsers[0].IdUser != v_User.Id)
                 return new GenericEntityResponse<Party>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found, Key: {p_Request.PartyId.ToString()}")]);
 
             IEnumerable<UserPartyQuestion> v_UserPartyQuestions = v_Party.PartyQuestions.Select(p_P => p_P.UserPartyQuestion).Where(p_P => p_P is not null);
