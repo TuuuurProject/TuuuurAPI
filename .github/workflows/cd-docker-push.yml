@@ -7,10 +7,10 @@ on:
         required: true
         type: string
         description: "Environment name (e.g., preprod, production)"
-      docker_tags:
+      image_tag:
         required: true
         type: string
-        description: "Comma-separated Docker tags"
+        description: "Docker image tag (e.g., preprod, latest)"
     secrets:
       GCP_PROJECT_ID:
         required: true
@@ -56,10 +56,16 @@ jobs:
 
       - name: Build and push Docker image to GCP Artifact Registry (${{ inputs.environment_name }})
         uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355
+        env:
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
         with:
           context: .
           file: ./src/Tuuuur.API/dockerfile
           push: true
-          tags: ${{ inputs.docker_tags }}
+          tags: |
+            ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/tuuuur/api:${{ inputs.image_tag }}
+            ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/tuuuur/api:${{ inputs.image_tag }}-${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
