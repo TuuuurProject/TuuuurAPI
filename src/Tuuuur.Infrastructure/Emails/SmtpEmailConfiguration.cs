@@ -3,9 +3,9 @@ using Tuuuur.Domain.Configuration;
 namespace Tuuuur.Infrastructure.Emails;
 
 [ExcludeFromCodeCoverage]
-internal class SmtpEmailConfiguration : AServiceConfiguration
+internal class SmtpEmailConfiguration : IServiceConfiguration
 {
-    private const string SECTIONNAME = "SmtpEmailConfiguration";
+    private const string Sectionname = "SmtpEmailConfiguration";
 
     public string SmtpAddress { get; set; } = string.Empty;
     public int SmtpPort { get; set; }
@@ -15,6 +15,6 @@ internal class SmtpEmailConfiguration : AServiceConfiguration
     public string FromAddress { get; set; } = string.Empty;
     public string FromName { get; set; } = string.Empty;
 
-    public override string GetSectionName() => SECTIONNAME;
+    public string GetSectionName() => Sectionname;
 }
 

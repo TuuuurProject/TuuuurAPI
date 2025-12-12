@@ -22,4 +22,6 @@ jobs:
         run: dotnet restore --locked-mode --force-evaluate
 
       - name: Build solution
-        run: dotnet build --configuration ${{ inputs.configuration }} --no-restore
+        env:
+          BUILD_CONFIG: ${{ inputs.configuration }}
+        run: dotnet build --configuration $env:BUILD_CONFIG --no-restore

@@ -19,10 +19,12 @@ namespace Tuuuur.Infrastructure.Data.EntityFramework.Repositories;
 /// <typeparam name="T">Entity of type <see cref="IEntity"/></typeparam>
 internal class GenericRepository<T> : AMappingClass, IGenericRepository<T> where T : class, IEntity
 {
-    protected readonly DbContext m_DbContext;
-    protected readonly DbSet<T> m_DbSet;
+    private const string Entitycannotbenull = "Entity cannot be null";
+    private const string Entitycannotbenullorempty = "Entity cannot be null or empty";
+    private readonly DbContext m_DbContext;
+    private readonly DbSet<T> m_DbSet;
 
-    public GenericRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger p_Logger) : base(p_Mapper)
+    protected GenericRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger p_Logger) : base(p_Mapper)
     {
         m_DbContext = p_DbContext ?? throw new ArgumentNullException(nameof(p_DbContext), "DbContext cannot be null");
         m_DbSet = m_DbContext.Set<T>();
@@ -34,12 +36,12 @@ internal class GenericRepository<T> : AMappingClass, IGenericRepository<T> where
     /// <summary>
     /// Get the current <see cref="DbContext"/>
     /// </summary>
-    public DbContext DbContext => m_DbContext;
+    protected DbContext DbContext => m_DbContext;
 
     public Task AddAsync(T p_Entity, CancellationToken p_CancellationToken = default)
     {
         if (p_Entity == null)
-            throw new ArgumentNullException(nameof(p_Entity), "Entity cannot be null");
+            throw new ArgumentNullException(nameof(p_Entity), Entitycannotbenull);
 
         return AddInternalAsync(p_Entity, p_CancellationToken);
     }
@@ -47,7 +49,7 @@ internal class GenericRepository<T> : AMappingClass, IGenericRepository<T> where
     public Task AddAsync(IEnumerable<T> p_Entities, CancellationToken p_CancellationToken = default)
     {
         if (p_Entities?.Any() != true)
-            throw new ArgumentNullException(nameof(p_Entities), "Entity cannot be null or empty");
+            throw new ArgumentNullException(nameof(p_Entities), Entitycannotbenullorempty);
 
         return AddInternalAsync(p_Entities, p_CancellationToken);
     }
@@ -68,7 +70,7 @@ internal class GenericRepository<T> : AMappingClass, IGenericRepository<T> where
     public Task DeleteAsync(T p_Entity)
     {
         if (p_Entity == null)
-            throw new ArgumentNullException(nameof(p_Entity), "Entity cannot be null");
+            throw new ArgumentNullException(nameof(p_Entity), Entitycannotbenull);
 
         return DeleteInternal(p_Entity);
     }
@@ -76,7 +78,7 @@ internal class GenericRepository<T> : AMappingClass, IGenericRepository<T> where
     public Task DeleteAsync(IEnumerable<T> p_Entities)
     {
         if (p_Entities == null)
-            throw new ArgumentNullException(nameof(p_Entities), "Entity cannot be null");
+            throw new ArgumentNullException(nameof(p_Entities), Entitycannotbenull);
         return DeleteInternal(p_Entities);
     }
 
@@ -139,7 +141,7 @@ internal class GenericRepository<T> : AMappingClass, IGenericRepository<T> where
     public Task UpdateAsync(T p_Entity)
     {
         if (p_Entity == null)
-            throw new ArgumentNullException(nameof(p_Entity), "Entity cannot be null");
+            throw new ArgumentNullException(nameof(p_Entity), Entitycannotbenull);
 
         return UpdateInternal(p_Entity);
     }
@@ -147,7 +149,7 @@ internal class GenericRepository<T> : AMappingClass, IGenericRepository<T> where
     public Task UpdateAsync(IEnumerable<T> p_Entities)
     {
         if (p_Entities?.Any() != true)
-            throw new ArgumentNullException(nameof(p_Entities), "Entity cannot be null or empty");
+            throw new ArgumentNullException(nameof(p_Entities), Entitycannotbenullorempty);
 
         return UpdateInternal(p_Entities);
     }
@@ -162,7 +164,7 @@ internal class GenericRepository<T> : AMappingClass, IGenericRepository<T> where
     {
         Guard.Against.Null(p_BoEntity);
 
-        IEnumerable<string> v_KeyName = m_DbContext.Model.FindEntityType(typeof(T)).FindPrimaryKey().Properties.Select(p_X => p_X.Name); //get primary keys
+        IEnumerable<string> v_KeyName = m_DbContext.Model.FindEntityType(typeof(T))?.FindPrimaryKey()?.Properties.Select(p_X => p_X.Name); //get primary keys
         TypeMap v_TypeMap = Mapper.ConfigurationProvider.Internal().FindTypeMapFor<T, TT>(); //get mapping for primary keys
         Dictionary<string, string> v_PropertiesMap = v_TypeMap?.PropertyMaps?.Where(p_Pm => v_KeyName.Contains(p_Pm.SourceMember.Name)).ToDictionary(p_C => p_C.SourceMember.Name, p_C => p_C.DestinationMember.Name);
 

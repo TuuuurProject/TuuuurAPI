@@ -5,7 +5,7 @@ namespace Tuuuur.API.Configuration;
 /// <summary>
 /// 
 /// </summary>
-public class GoogleConfiguration : AServiceConfiguration
+public class GoogleConfiguration : IServiceConfiguration
 {
     /// <summary>
     /// Client Id
@@ -15,5 +15,5 @@ public class GoogleConfiguration : AServiceConfiguration
     private const string SectionName = "Authentification:Google";
 
     /// <inheritdoc />
-    public override string GetSectionName() => SectionName;
+    public string GetSectionName() => SectionName;
 }

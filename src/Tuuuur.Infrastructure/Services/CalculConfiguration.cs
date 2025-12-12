@@ -2,12 +2,12 @@ using Tuuuur.Domain.Configuration;
 
 namespace Tuuuur.Infrastructure.Services;
 
-public class CalculConfiguration() : AServiceConfiguration
+public class CalculConfiguration() : IServiceConfiguration
 {
-    private const string SECTIONNAME = "CalculConfiguration";
+    private const string Sectionname = "CalculConfiguration";
 
-    public int MaxDurationInSeconds { get; set; }
-    public int MaxScore { get; set; }
+    public int MaxDurationInSeconds { get; init; }
+    public int MaxScore { get; init; }
 
-    public override string GetSectionName() => SECTIONNAME;
+    public string GetSectionName() => Sectionname;
 }
