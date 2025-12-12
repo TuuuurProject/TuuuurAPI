@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.SignalR;
 using Tuuuur.Domain.Notifications;
 
@@ -8,10 +9,15 @@ internal class NotificationsService(
     IHubContext<NotificationsHub, INotificationClient> p_HubContext)
     : INotificationsService
 {
+    private readonly JsonSerializerOptions m_JsonSerializerOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        ReferenceHandler = ReferenceHandler.IgnoreCycles
+    };
 
     public Task PushMessageAsync<T>(ClientType p_ClientType, T p_Message, string p_User = null)
         {
-            string v_Message = JsonSerializer.Serialize(p_Message);
+            string v_Message = JsonSerializer.Serialize(p_Message, m_JsonSerializerOptions);
 
             return PushMessageAsync(p_ClientType, v_Message, p_User);
         }
