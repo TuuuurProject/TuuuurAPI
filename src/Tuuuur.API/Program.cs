@@ -18,6 +18,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
 using System.Text.Json.Serialization;
+using k8s.KubeConfigModels;
 using StackExchange.Redis;
 using Tuuuur.API.Notifications;
 using Tuuuur.API.Transformers;
