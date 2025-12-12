@@ -10,9 +10,7 @@ jobs:
     uses: ./.github/workflows/cd-docker-push.yml
     with:
       environment_name: "Production"
-      docker_tags: |
-        ${{ secrets.DOCKER_USERNAME }}/tuuuur-api:latest
-        ${{ secrets.DOCKER_USERNAME }}/tuuuur-api:prod-${{ github.sha }}
+      docker_tags: "${{ vars.DOCKER_USERNAME }}/tuuuur-api:latest,${{ vars.DOCKER_USERNAME }}/tuuuur-api:prod-${{ github.sha }}"
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
