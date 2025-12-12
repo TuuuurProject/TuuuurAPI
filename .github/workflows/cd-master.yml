@@ -1,18 +1,18 @@
-name: CD - Release (Preprod)
+name: CD - Master (Production)
 
 on:
   push:
     branches:
-      - release
+      - master
 
 jobs:
   docker-push:
     uses: ./.github/workflows/cd-docker-push.yml
     with:
-      environment_name: "Preprod"
+      environment_name: "Production"
       docker_tags: |
-        ${{ secrets.DOCKER_USERNAME }}/tuuuur-api:preprod
-        ${{ secrets.DOCKER_USERNAME }}/tuuuur-api:preprod-${{ github.sha }}
+        ${{ secrets.DOCKER_USERNAME }}/tuuuur-api:latest
+        ${{ secrets.DOCKER_USERNAME }}/tuuuur-api:prod-${{ github.sha }}
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
