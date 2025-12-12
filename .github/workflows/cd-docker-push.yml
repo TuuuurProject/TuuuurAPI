@@ -47,7 +47,9 @@ jobs:
         uses: google-github-actions/setup-gcloud@f0990588f1e5b5af6827153b93673613abdc6ec7
 
       - name: Configure Docker to use gcloud as credential helper
-        run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev
+        env:
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+        run: gcloud auth configure-docker ${GCP_REGION}-docker.pkg.dev
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@c47bca50b64d9e2287e5063cc3a39112e14e7135
