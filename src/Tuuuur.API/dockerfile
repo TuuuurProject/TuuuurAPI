@@ -1,0 +1,24 @@
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+EXPOSE 7260
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY ["src/Tuuuur.API/Tuuuur.API.csproj", "src/Tuuuur.API/"]
+COPY ["src/Tuuuur.Core/Tuuuur.Core.csproj", "src/Tuuuur.Core/"]
+COPY ["src/Tuuuur.Domain/Tuuuur.Domain.csproj", "src/Tuuuur.Domain/"]
+COPY ["/src/Tuuuur.RazorTemplate/Tuuuur.RazorTemplate.csproj", "src/Tuuuur.RazorTemplate/"]
+COPY ["src/Tuuuur.Infrastructure/Tuuuur.Infrastructure.csproj", "src/Tuuuur.Infrastructure/"]
+RUN dotnet restore "src/Tuuuur.API/Tuuuur.API.csproj"
+COPY . .
+RUN dotnet publish "src/Tuuuur.API/Tuuuur.API.csproj" -c Debug -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=build /app/publish .
+
+ENV ASPNETCORE_URLS=http://+:7260
+ENV DOTNET_RUNNING_IN_CONTAINER=true
+ENV ASPNETCORE_ENVIRONMENT=Development
+
+ENTRYPOINT ["dotnet", "Tuuuur.API.dll"]

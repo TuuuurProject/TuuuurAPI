@@ -1,0 +1,19 @@
+name: CI - Pull Request
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - develop
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      configuration: Debug
+
+  test:
+    needs: build
+    uses: ./.github/workflows/test.yml
+    with:
+      configuration: Debug

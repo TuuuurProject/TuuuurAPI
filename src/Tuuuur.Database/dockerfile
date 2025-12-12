@@ -1,0 +1,25 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS migrate
+WORKDIR /src
+
+COPY ["src/Tuuuur.Database/Tuuuur.Database.sqlproj", "Tuuuur.Database/"]
+COPY src/Tuuuur.Database/ Tuuuur.Database/
+
+RUN dotnet restore "Tuuuur.Database/Tuuuur.Database.sqlproj"
+
+RUN dotnet build "Tuuuur.Database/Tuuuur.Database.sqlproj" -c Release
+
+RUN apt-get update && \
+    apt-get install -y wget unzip && \
+    wget https://aka.ms/sqlpackage-linux -O sqlpackage.zip && \
+    unzip sqlpackage.zip -d /opt/sqlpackage && \
+    chmod +x /opt/sqlpackage/sqlpackage && \
+    rm sqlpackage.zip
+
+ENV PATH="$PATH:/opt/sqlpackage"
+
+ENV DB_SERVER=sqlserver
+ENV DB_NAME=tuuuur-dev
+ENV DB_USER=sa
+ENV DB_PASSWORD=YourStrong!Passw0rd
+
+CMD ["sh", "-c", "sqlpackage /Action:Publish /SourceFile:Tuuuur.Database/bin/Release/Tuuuur.Database.dacpac /TargetServerName:$DB_SERVER /TargetDatabaseName:$DB_NAME /TargetUser:$DB_USER /TargetPassword:$DB_PASSWORD /TargetEncryptConnection:False /TargetTrustServerCertificate:True /p:DropObjectsNotInSource=True /p:BlockOnPossibleDataLoss=False"]
