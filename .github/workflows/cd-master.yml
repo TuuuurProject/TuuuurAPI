@@ -10,7 +10,7 @@ jobs:
     uses: ./.github/workflows/cd-docker-push.yml
     with:
       environment_name: "Production"
-      docker_tags: "${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/tuuuur/api:latest,${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/tuuuur/api:prod-${{ github.sha }}"
+      image_tag: "latest"
     secrets:
       GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
       GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
