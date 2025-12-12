@@ -87,7 +87,7 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
         [FromRoute] Guid p_GroupeId,
         CancellationToken p_CancellationToken)
     {
-        await Task.Delay(5, p_CancellationToken);
+        await Task.Delay(10, p_CancellationToken);
         return Ok();
     }
     
