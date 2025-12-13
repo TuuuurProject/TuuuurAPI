@@ -39,9 +39,6 @@ internal static class Program
     {
         WebApplicationBuilder v_Builder = WebApplication.CreateBuilder(p_Args);
 
-        string v_Port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-        v_Builder.WebHost.UseUrls($"http://0.0.0.0:{v_Port}");
-
         string v_ConnectionString =
             v_Builder.Configuration.GetConnectionString(TuuuurContext.ConnectionStringName) ?? string.Empty;
 
@@ -213,7 +210,7 @@ internal static class Program
         v_Builder.Services.AddRazorTemplating();
 
         // Redis
-        v_Builder.Services.AddSingleton<IConnectionMultiplexer>(await ConnectionMultiplexer.ConnectAsync(v_RedisConnectionString));
+        //v_Builder.Services.AddSingleton<IConnectionMultiplexer>(await ConnectionMultiplexer.ConnectAsync(v_RedisConnectionString));
         v_Builder.Services.AddSingleton<ICacheService, CacheService>();
 
         WebApplication v_App = v_Builder.Build();
