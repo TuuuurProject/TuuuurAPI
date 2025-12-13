@@ -210,7 +210,7 @@ internal static class Program
         v_Builder.Services.AddRazorTemplating();
 
         // Redis
-        //v_Builder.Services.AddSingleton<IConnectionMultiplexer>(await ConnectionMultiplexer.ConnectAsync(v_RedisConnectionString));
+        v_Builder.Services.AddSingleton<IConnectionMultiplexer>(await ConnectionMultiplexer.ConnectAsync(v_RedisConnectionString));
         v_Builder.Services.AddSingleton<ICacheService, CacheService>();
 
         WebApplication v_App = v_Builder.Build();
