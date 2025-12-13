@@ -39,9 +39,12 @@ internal static class Program
     {
         WebApplicationBuilder v_Builder = WebApplication.CreateBuilder(p_Args);
 
+        string v_Port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+        v_Builder.WebHost.UseUrls($"http://0.0.0.0:{v_Port}");
+
         string v_ConnectionString =
             v_Builder.Configuration.GetConnectionString(TuuuurContext.ConnectionStringName) ?? string.Empty;
-        
+
         string v_RedisConnectionString = v_Builder.Configuration.GetConnectionString("Redis") ?? string.Empty;
 
         int v_MaxAllocatedMemory = int.Parse(v_Builder.Configuration["AllocatedMemory"] ?? string.Empty);
@@ -75,7 +78,7 @@ internal static class Program
                     p_Options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
                 }
             );
-        
+
         v_Builder.Services.Configure<RouteOptions>(p_Options =>
         {
             p_Options.LowercaseUrls = true;
@@ -202,17 +205,17 @@ internal static class Program
                     p_CorsPolicyBuilder.AllowAnyMethod();
                 });
         });
-        
+
         // Add SignalR
         v_Builder.Services.AddSignalR();
-        
+
         // Razor
         v_Builder.Services.AddRazorTemplating();
-        
+
         // Redis
         v_Builder.Services.AddSingleton<IConnectionMultiplexer>(await ConnectionMultiplexer.ConnectAsync(v_RedisConnectionString));
         v_Builder.Services.AddSingleton<ICacheService, CacheService>();
-        
+
         WebApplication v_App = v_Builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -234,9 +237,9 @@ internal static class Program
         v_App.UseSerilogRequestLogging();
 
         v_App.UseMiddleware<HandleExceptionMiddleware>();
-        
+
         v_App.MapHub<NotificationsHub>("notifications");
-        
+
         v_App.MapControllers();
         v_App.MapHealthChecksUI(p_Setup =>
         {

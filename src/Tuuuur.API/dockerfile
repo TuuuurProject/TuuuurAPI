@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
-EXPOSE 7260
+EXPOSE 8080
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
@@ -11,13 +11,12 @@ COPY ["/src/Tuuuur.RazorTemplate/Tuuuur.RazorTemplate.csproj", "src/Tuuuur.Razor
 COPY ["src/Tuuuur.Infrastructure/Tuuuur.Infrastructure.csproj", "src/Tuuuur.Infrastructure/"]
 RUN dotnet restore "src/Tuuuur.API/Tuuuur.API.csproj"
 COPY . .
-RUN dotnet publish "src/Tuuuur.API/Tuuuur.API.csproj" -c Debug -o /app/publish
+RUN dotnet publish "src/Tuuuur.API/Tuuuur.API.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 
-ENV ASPNETCORE_URLS=http://+:7260
 ENV DOTNET_RUNNING_IN_CONTAINER=true
 ENV ASPNETCORE_ENVIRONMENT=Development
 

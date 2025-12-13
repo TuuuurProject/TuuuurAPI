@@ -73,7 +73,7 @@ services:
       - SmtpEmailConfiguration__SmtpLogin=${SMTP_USER}
       - SmtpEmailConfiguration__SmtpPassword=${SMTP_PASSWORD}
     ports:
-      - "7260:7260"
+      - "8080:8080"
     volumes:
       - ./data-protection:/root/.aspnet/DataProtection-Keys
     networks:
