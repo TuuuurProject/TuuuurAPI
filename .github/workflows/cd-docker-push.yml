@@ -54,7 +54,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push Docker image to GCP Artifact Registry (${{ inputs.environment_name }})
+      - name: Build and push API Docker image to GCP Artifact Registry (${{ inputs.environment_name }})
         uses: docker/build-push-action@v6
         env:
           GCP_REGION: ${{ secrets.GCP_REGION }}
@@ -67,5 +67,21 @@ jobs:
           tags: |
             ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/tuuuur/api:${{ inputs.image_tag }}
             ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/tuuuur/api:${{ inputs.image_tag }}-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push Database Docker image to GCP Artifact Registry (${{ inputs.environment_name }})
+        uses: docker/build-push-action@v6
+        env:
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        with:
+          context: .
+          file: ./src/Tuuuur.Database/dockerfile
+          push: true
+          tags: |
+            ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/tuuuur/database:${{ inputs.image_tag }}
+            ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/tuuuur/database:${{ inputs.image_tag }}-${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
