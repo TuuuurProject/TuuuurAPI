@@ -45,6 +45,11 @@ services:
     depends_on:
       sqlserver:
         condition: service_healthy
+    environment:
+      - DB_SERVER=sqlserver
+      - DB_NAME=Tuuuur-dev
+      - DB_USER=sa
+      - DB_PASSWORD=YourStrong!Passw0rd
     restart: "no"
     networks:
       - tuuur-network

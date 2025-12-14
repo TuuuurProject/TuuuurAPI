@@ -17,9 +17,4 @@ RUN apt-get update && \
 
 ENV PATH="$PATH:/opt/sqlpackage"
 
-ENV DB_SERVER=sqlserver
-ENV DB_NAME=tuuuur-dev
-ENV DB_USER=sa
-ENV DB_PASSWORD=YourStrong!Passw0rd
-
 CMD ["sh", "-c", "sqlpackage /Action:Publish /SourceFile:Tuuuur.Database/bin/Release/Tuuuur.Database.dacpac /TargetServerName:$DB_SERVER /TargetDatabaseName:$DB_NAME /TargetUser:$DB_USER /TargetPassword:$DB_PASSWORD /TargetEncryptConnection:False /TargetTrustServerCertificate:True /p:DropObjectsNotInSource=True /p:BlockOnPossibleDataLoss=False"]
