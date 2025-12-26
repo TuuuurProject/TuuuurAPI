@@ -46,7 +46,7 @@ internal class JwtFactory : IJwtFactory
                 new Claim(JwtRegisteredClaimNames.Email, p_UserInfos.Email),
                 new Claim(ClaimTypes.Role, v_Role)
             ]),
-            Expires = DateTime.UtcNow.AddMinutes(m_JwtConfiguration.Validity), 
+            Expires = DateTime.UtcNow.AddMinutes(m_JwtConfiguration.Validity),
             Issuer = m_JwtConfiguration.Issuer,
             Audience = m_JwtConfiguration.Audience,
             SigningCredentials = new SigningCredentials
@@ -63,14 +63,5 @@ internal class JwtFactory : IJwtFactory
             ValidTo = v_Token.ValidTo,
             ValidFrom = v_Token.ValidFrom
         };
-    }
-    
-    private static Guid ToDeterministicGuid(int p_Id)
-    {
-        string v_Input = $"{p_Id}"; 
-
-        byte[] v_Hash = MD5.HashData(Encoding.UTF8.GetBytes(v_Input));
-    
-        return new Guid(v_Hash);
     }
 }
