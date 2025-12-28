@@ -81,8 +81,8 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> StartPartyAsync(
-        [FromBody] GroupSettingsRequest p_Request,
-        [FromServices] GroupSettingsRequestValidator p_Validator,
+        [FromBody] SettingsRequest p_Request,
+        [FromServices] SettingsRequestValidator p_Validator,
         [FromServices] EmptyPresenter p_Presenter,
         CancellationToken p_CancellationToken)
     {

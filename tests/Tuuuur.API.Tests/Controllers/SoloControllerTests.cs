@@ -28,23 +28,23 @@ namespace Tuuuur.API.Tests.Controllers
             m_MediatorMock = new Mock<IMediator>();
             m_Controller = new SoloController(m_LoggerMock.Object, m_MediatorMock.Object, new ValidationPresenter());
         }
-        
+
         [Fact]
         public async Task CreateSoloPartyAsync_ReturnsOkObjectResult()
         {
             // Arrange
-            CreateSoloPartyApiRequest v_ApiRequest = new()
+            SettingsRequest v_ApiRequest = new()
             {
                 NbQuestions = 30,
-                Themes = [1,2,3],
+                Themes = [1, 2, 3],
                 Difficulties = [1]
             };
             Guid v_Id = Guid.NewGuid();
 
             m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<CreateSoloPartyRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GuidResponse(v_Id));
-            
+
             // Act
-            IActionResult v_Result = await m_Controller.CreateSoloPartyAsync(v_ApiRequest, new CreateSoloPartyRequestValidator(), new GuidPresenter(), CancellationToken.None);
+            IActionResult v_Result = await m_Controller.CreateSoloPartyAsync(v_ApiRequest, new SettingsRequestValidator(), new GuidPresenter(), CancellationToken.None);
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();
@@ -53,7 +53,7 @@ namespace Tuuuur.API.Tests.Controllers
             v_ContentResult.StatusCode.Should().Be(StatusCodes.Status200OK);
             v_ContentResult.Content.Should().Contain(v_Id.ToString());
         }
-        
+
         [Fact]
         public async Task GetPartyStateAsync_ReturnsOkObjectResult()
         {
@@ -63,7 +63,7 @@ namespace Tuuuur.API.Tests.Controllers
             Party v_Party = new();
 
             m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<GetSoloPartyStateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<Party>(v_Party));
-            
+
             // Act
             IActionResult v_Result = await m_Controller.GetPartyStateAsync(v_Id, new GenericEntityPresenter<Party>(), CancellationToken.None);
 
@@ -72,13 +72,13 @@ namespace Tuuuur.API.Tests.Controllers
             ContentResult v_ContentResult = v_Result.As<ContentResult>();
             v_ContentResult.StatusCode.Should().Be(StatusCodes.Status200OK);
         }
-        
+
         [Fact]
         public async Task UpdatePartyStateAsync_ReturnsOkObjectResult()
         {
             // Arrange
             Guid v_Id = Guid.NewGuid();
-            
+
             AnswerApiRequest v_Request = new()
             {
                 AnswerId = 1,
@@ -86,7 +86,7 @@ namespace Tuuuur.API.Tests.Controllers
             Party v_Party = new();
 
             m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<UpdateSoloPartyStateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<Party>(v_Party));
-            
+
             // Act
             IActionResult v_Result = await m_Controller.UpdatePartyStateAsync(v_Id, v_Request, new GenericEntityPresenter<Party>(), CancellationToken.None);
 

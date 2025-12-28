@@ -7,7 +7,7 @@ namespace Tuuuur.API.Requests;
 /// <summary>
 /// Request for group settings
 /// </summary>
-public record GroupSettingsRequest
+public record SettingsRequest
 {
     /// <summary>
     /// Selected themes
@@ -28,12 +28,12 @@ public record GroupSettingsRequest
 /// <summary>
 /// Validator for createsoloparty request
 /// </summary>
-public class GroupSettingsRequestValidator : AbstractValidator<GroupSettingsRequest>
+public class SettingsRequestValidator : AbstractValidator<SettingsRequest>
 {
     /// <summary>
     /// ctor containing validation rules
     /// </summary>
-    public GroupSettingsRequestValidator()
+    public SettingsRequestValidator()
     {
         RuleFor(p_Request => p_Request.Themes).NotEmpty().WithErrorCode(DomainErrors.Authentication.Login.InvalidEmail);
         RuleFor(p_Request => p_Request.Difficulties).NotEmpty().WithErrorCode(DomainErrors.Authentication.Login.InvalidEmail);
