@@ -44,7 +44,7 @@ public class GroupNotificationServiceTests
     public async Task NotifyPlayerJoinedAsync_WithUsers_ShouldSendNotificationToOtherUsers()
     {
         // Arrange
-        string v_PartyId = Guid.NewGuid().ToString();
+        Guid v_PartyId = Guid.NewGuid();
         User v_User = new() { Id = 1, NickName = "TestUser", Email = "test@example.com" };
         List<int> v_UserIds = new() { 1, 2, 3 };
 
@@ -78,7 +78,7 @@ public class GroupNotificationServiceTests
     public async Task NotifyPlayerJoinedAsync_WithNoUsers_ShouldNotSendNotification()
     {
         // Arrange
-        string v_PartyId = Guid.NewGuid().ToString();
+        Guid v_PartyId = Guid.NewGuid();
         User v_User = new() { Id = 1, NickName = "TestUser", Email = "test@example.com" };
         List<int> v_UserIds = new();
 
@@ -99,9 +99,9 @@ public class GroupNotificationServiceTests
     public async Task NotifyPlayerLeftAsync_WithUsers_ShouldSendNotificationToOtherUsers()
     {
         // Arrange
-        string v_PartyId = Guid.NewGuid().ToString();
+        Guid v_PartyId = Guid.NewGuid();
         User v_User = new() { Id = 2, NickName = "LeavingUser", Email = "leaving@example.com" };
-        List<int> v_UserIds = new() { 1, 2, 3 };
+        List<int> v_UserIds = [1, 2, 3];
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SetMembersAsync<int>(
@@ -133,9 +133,9 @@ public class GroupNotificationServiceTests
     public async Task NotifyPartyDeletedAsync_WithUsers_ShouldSendNotificationToOtherUsers()
     {
         // Arrange
-        string v_PartyId = Guid.NewGuid().ToString();
+        Guid v_PartyId = Guid.NewGuid();
         User v_User = new() { Id = 1, NickName = "HostUser", Email = "host@example.com" };
-        List<int> v_UserIds = new() { 1, 2, 3, 4 };
+        List<int> v_UserIds = [1, 2, 3, 4];
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SetMembersAsync<int>(
@@ -167,15 +167,15 @@ public class GroupNotificationServiceTests
     public async Task NotifyPartyUpdatedAsync_WithUsers_ShouldSendNotificationToAllUsers()
     {
         // Arrange
-        string v_PartyId = Guid.NewGuid().ToString();
+        Guid v_PartyId = Guid.NewGuid();
         Party v_Party = new()
         {
-            Id = Guid.Parse(v_PartyId),
+            Id = v_PartyId,
             Code = "ABC123",
             IdUserHost = 1,
             Active = true
         };
-        List<int> v_UserIds = new() { 1, 2, 3 };
+        List<int> v_UserIds = [1, 2, 3];
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SetMembersAsync<int>(
@@ -207,10 +207,10 @@ public class GroupNotificationServiceTests
     public async Task NotifyPartyUpdatedAsync_WithNoUsers_ShouldNotSendNotification()
     {
         // Arrange
-        string v_PartyId = Guid.NewGuid().ToString();
+        Guid v_PartyId = Guid.NewGuid();
         Party v_Party = new()
         {
-            Id = Guid.Parse(v_PartyId),
+            Id = v_PartyId,
             Code = "ABC123"
         };
         List<int> v_UserIds = new();
@@ -232,9 +232,9 @@ public class GroupNotificationServiceTests
     public async Task NotifyPlayerJoinedAsync_WithOnlyJoiningUser_ShouldNotSendNotification()
     {
         // Arrange
-        string v_PartyId = Guid.NewGuid().ToString();
+        Guid v_PartyId = Guid.NewGuid();
         User v_User = new() { Id = 1, NickName = "OnlyUser", Email = "only@example.com" };
-        List<int> v_UserIds = new() { 1 };
+        List<int> v_UserIds = [1];
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SetMembersAsync<int>(

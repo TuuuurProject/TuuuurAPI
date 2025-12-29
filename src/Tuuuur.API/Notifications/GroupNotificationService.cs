@@ -20,7 +20,7 @@ internal class GroupNotificationService(
 {
     private readonly ILogger<GroupNotificationService> m_Logger = p_Logger;
 
-    public async Task NotifyPlayerJoinedAsync(string p_PartyId, User p_User)
+    public async Task NotifyPlayerJoinedAsync(Guid p_PartyId, User p_User)
     {
         List<string> v_UserIds = await GetPartyUserIdsAsync(p_PartyId);
         if (v_UserIds.Count != 0)
@@ -30,7 +30,7 @@ internal class GroupNotificationService(
         }
     }
 
-    public async Task NotifyPlayerLeftAsync(string p_PartyId, User p_User)
+    public async Task NotifyPlayerLeftAsync(Guid p_PartyId, User p_User)
     {
         List<string> v_UserIds = await GetPartyUserIdsAsync(p_PartyId);
         if (v_UserIds.Count != 0)
@@ -40,7 +40,7 @@ internal class GroupNotificationService(
         }
     }
 
-    public async Task NotifyPartyDeletedAsync(string p_PartyId, User p_User)
+    public async Task NotifyPartyDeletedAsync(Guid p_PartyId, User p_User)
     {
         List<string> v_UserIds = await GetPartyUserIdsAsync(p_PartyId);
         if (v_UserIds.Count != 0)
@@ -50,7 +50,7 @@ internal class GroupNotificationService(
         }
     }
 
-    public async Task NotifyPartyUpdatedAsync(string p_PartyId, Party p_Party)
+    public async Task NotifyPartyUpdatedAsync(Guid p_PartyId, Party p_Party)
     {
         List<string> v_UserIds = await GetPartyUserIdsAsync(p_PartyId);
         if (v_UserIds.Count != 0)
@@ -59,7 +59,7 @@ internal class GroupNotificationService(
         }
     }
 
-    private async Task<List<string>> GetPartyUserIdsAsync(string p_PartyId)
+    private async Task<List<string>> GetPartyUserIdsAsync(Guid p_PartyId)
     {
         // Get user IDs from Redis set
         List<int> v_UserIds = await p_CacheService.SetMembersAsync<int>(

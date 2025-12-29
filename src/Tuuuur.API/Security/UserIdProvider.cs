@@ -11,9 +11,11 @@ public class UserIdProvider : IUserIdProvider
     /// <summary>
     /// Gets the user identifier from ClaimTypes.Sid (User ID)
     /// </summary>
-    public string GetUserId(HubConnectionContext p_Connection)
+    [SuppressMessage("Style", "IDE1006:Styles d'affectation de noms", Justification = "Inherited named")]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    public string GetUserId(HubConnectionContext connection)
     {
         // Use ClaimTypes.Sid which contains the user ID (set in JwtFactory.cs)
-        return p_Connection.User?.FindFirst(ClaimTypes.Sid)?.Value;
+        return connection.User?.FindFirst(ClaimTypes.Sid)?.Value;
     }
 }

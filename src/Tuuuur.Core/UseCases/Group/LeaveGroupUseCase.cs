@@ -29,7 +29,7 @@ internal class LeaveGroupUseCase(IUnitOfWork p_UnitOfWork,
         if (v_User == null)
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
 
-        Guid? v_Parties = await p_CacheService.GetAsync<Guid?>(RedisKeys.User.Party(v_User.Id), p_CancellationToken);
+        Guid? v_Parties = await p_CacheService.GetAsync<Guid?>(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken);
 
         if (v_Parties is null)
         {
@@ -39,7 +39,7 @@ internal class LeaveGroupUseCase(IUnitOfWork p_UnitOfWork,
         Party v_Party = await p_CacheService.GetAsync<Party>(RedisKeys.Party.ById(v_Parties.Value), p_CancellationToken);
 
         List<int> v_UserInParty = await p_CacheService.SetMembersAsync<int>(RedisKeys.Party.Users(v_Party.Id), p_CancellationToken: p_CancellationToken);
-        Guid v_CurrentUser = await p_CacheService.GetAsync<Guid>(RedisKeys.User.Party(v_User.Id), p_CancellationToken: p_CancellationToken);
+        Guid v_CurrentUser = await p_CacheService.GetAsync<Guid>(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken: p_CancellationToken);
 
         // If user is not in the party
         if (v_CurrentUser != v_Party.Id)
@@ -50,14 +50,14 @@ internal class LeaveGroupUseCase(IUnitOfWork p_UnitOfWork,
         {
             // Notify all players via WebSocket that host left (party destroyed)
             await p_GroupNotificationService.NotifyPartyDeletedAsync(
-                v_Party.Id.ToString(),
+                v_Party.Id,
                 v_User
             );
 
             // Send notification to other users
             foreach (int v_UserIdToNotif in v_UserInParty.Where(p_P => p_P != v_User.Id))
             {
-                await p_CacheService.RemoveAsync(RedisKeys.User.Party(v_UserIdToNotif), p_CancellationToken: p_CancellationToken);
+                await p_CacheService.RemoveAsync(RedisKeys.User.UserParty(v_UserIdToNotif), p_CancellationToken: p_CancellationToken);
             }
 
             await p_CacheService.RemoveAsync(RedisKeys.Party.ByCode(v_Party.Code), p_CancellationToken: p_CancellationToken);
@@ -68,14 +68,14 @@ internal class LeaveGroupUseCase(IUnitOfWork p_UnitOfWork,
         {
             // Notify all players via WebSocket that a player left
             await p_GroupNotificationService.NotifyPlayerLeftAsync(
-                v_Party.Id.ToString(),
+                v_Party.Id,
                 v_User
             );
 
             await p_CacheService.SetRemoveAsync(RedisKeys.Party.Users(v_Party.Id), v_User.Id, p_CancellationToken: p_CancellationToken);
         }
 
-        await p_CacheService.RemoveAsync(RedisKeys.User.Party(v_User.Id), p_CancellationToken: p_CancellationToken);
+        await p_CacheService.RemoveAsync(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken: p_CancellationToken);
 
         return new EmptyResponse();
     }

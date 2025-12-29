@@ -60,7 +60,7 @@ public class LeaveGroupUseCaseTests
             .ReturnsAsync(true);
 
         m_GroupPartyNotificationServiceMock
-            .Setup(p_Ns => p_Ns.NotifyPlayerLeftAsync(It.IsAny<string>(), It.IsAny<User>()))
+            .Setup(p_Ns => p_Ns.NotifyPlayerLeftAsync(It.IsAny<Guid>(), It.IsAny<User>()))
             .Returns(Task.CompletedTask);
 
 

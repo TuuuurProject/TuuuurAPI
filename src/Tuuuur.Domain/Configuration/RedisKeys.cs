@@ -33,14 +33,6 @@ public static class RedisKeys
         /// Value: Redis SET of user IDs (integers)
         /// </summary>
         public static string Users(Guid p_PartyId) => $"Party:{p_PartyId}:User";
-
-        /// <summary>
-        /// Key pattern for the set of user IDs in a party (using string ID)
-        /// Format: Party:{guid}:User
-        /// Example: Party:123e4567-e89b-12d3-a456-426614174000:User
-        /// Value: Redis SET of user IDs (integers)
-        /// </summary>
-        public static string Users(string p_PartyId) => $"Party:{p_PartyId}:User";
     }
 
     /// <summary>
@@ -54,6 +46,6 @@ public static class RedisKeys
         /// Example: User:42:Party
         /// Value: Party GUID
         /// </summary>
-        public static string Party(int p_UserId) => $"User:{p_UserId}:Party";
+        public static string UserParty(int p_UserId) => $"User:{p_UserId}:Party";
     }
 }

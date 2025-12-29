@@ -53,7 +53,7 @@ public class JoinGroupUseCaseTests
         m_CacheServiceMock.Setup(p_Cs => p_Cs.SetAddAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.SetAsync(It.IsAny<string>(), It.IsAny<Guid>(), TimeSpan.Zero, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        m_GroupPartyNotificationServiceMock.Setup(p_Ns => p_Ns.NotifyPlayerJoinedAsync(It.IsAny<string>(), It.IsAny<User>())).Returns(Task.CompletedTask);
+        m_GroupPartyNotificationServiceMock.Setup(p_Ns => p_Ns.NotifyPlayerJoinedAsync(It.IsAny<Guid>(), It.IsAny<User>())).Returns(Task.CompletedTask);
         JoinGroupPartyRequest v_Request = new(v_Party.Code);
 
         // Act

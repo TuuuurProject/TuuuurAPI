@@ -34,10 +34,10 @@ internal class JoinGroupUseCase(IUnitOfWork p_UnitOfWork,
         List<int> v_UserInParty = await m_CacheService.SetMembersAsync<int>(RedisKeys.Party.Users(v_Party.Id), p_CancellationToken: p_CancellationToken);
 
         await m_CacheService.SetAddAsync(RedisKeys.Party.Users(v_Party.Id), p_User.Id, p_CancellationToken: p_CancellationToken);
-        await m_CacheService.SetAsync(RedisKeys.User.Party(p_User.Id), v_Party.Id, p_CancellationToken: p_CancellationToken);
+        await m_CacheService.SetAsync(RedisKeys.User.UserParty(p_User.Id), v_Party.Id, p_CancellationToken: p_CancellationToken);
 
         await p_GroupNotificationService.NotifyPlayerJoinedAsync(
-            v_Party.Id.ToString(),
+            v_Party.Id,
             p_User
         );
 

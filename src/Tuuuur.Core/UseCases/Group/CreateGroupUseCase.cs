@@ -45,7 +45,7 @@ internal class CreateGroupUseCase(IUnitOfWork p_UnitOfWork,
         await m_CacheService.SetAsync(RedisKeys.Party.ById(v_Party.Id), v_Party, p_CancellationToken: p_CancellationToken);
         await m_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
         await m_CacheService.SetAddAsync(RedisKeys.Party.Users(v_Party.Id), p_User.Id, p_CancellationToken: p_CancellationToken);
-        await m_CacheService.SetAsync(RedisKeys.User.Party(p_User.Id), v_Party.Id, p_CancellationToken: p_CancellationToken);
+        await m_CacheService.SetAsync(RedisKeys.User.UserParty(p_User.Id), v_Party.Id, p_CancellationToken: p_CancellationToken);
 
         v_Party.PartyUsers.Add(new PartyUser() { IdUser = p_User.Id, User = p_User });
 

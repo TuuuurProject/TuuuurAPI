@@ -10,16 +10,16 @@ public interface IGroupNotificationService
     /// <summary>
     /// Notify party members that a player joined
     /// </summary>
-    Task NotifyPlayerJoinedAsync(string p_PartyId, User p_User);
+    Task NotifyPlayerJoinedAsync(Guid p_PartyId, User p_User);
 
     /// <summary>
     /// Notify party members that a player left
     /// </summary>
-    Task NotifyPlayerLeftAsync(string p_PartyId, User p_User);
+    Task NotifyPlayerLeftAsync(Guid p_PartyId, User p_User);
 
     /// <summary>
     /// Notify party members that the party was deleted
     /// </summary>
-    Task NotifyPartyDeletedAsync(string p_PartyId, User p_User);
-    Task NotifyPartyUpdatedAsync(string p_PartyId, Party p_Party);
+    Task NotifyPartyDeletedAsync(Guid p_PartyId, User p_User);
+    Task NotifyPartyUpdatedAsync(Guid p_PartyId, Party p_Party);
 }

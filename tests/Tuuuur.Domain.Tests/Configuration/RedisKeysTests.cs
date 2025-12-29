@@ -47,7 +47,7 @@ public class RedisKeysTests
     public void Party_Users_WithString_ShouldReturnCorrectKey()
     {
         // Arrange
-        string v_PartyId = "123e4567-e89b-12d3-a456-426614174000";
+        Guid v_PartyId = Guid.Parse("123e4567-e89b-12d3-a456-426614174000");
 
         // Act
         string v_Result = RedisKeys.Party.Users(v_PartyId);
@@ -63,7 +63,7 @@ public class RedisKeysTests
         int v_UserId = 42;
 
         // Act
-        string v_Result = RedisKeys.User.Party(v_UserId);
+        string v_Result = RedisKeys.User.UserParty(v_UserId);
 
         // Assert
         v_Result.Should().Be("User:42:Party");
@@ -101,7 +101,7 @@ public class RedisKeysTests
         int v_UserId = 0;
 
         // Act
-        string v_Result = RedisKeys.User.Party(v_UserId);
+        string v_Result = RedisKeys.User.UserParty(v_UserId);
 
         // Assert
         v_Result.Should().Be("User:0:Party");
@@ -114,7 +114,7 @@ public class RedisKeysTests
         int v_UserId = -1;
 
         // Act
-        string v_Result = RedisKeys.User.Party(v_UserId);
+        string v_Result = RedisKeys.User.UserParty(v_UserId);
 
         // Assert
         v_Result.Should().Be("User:-1:Party");
