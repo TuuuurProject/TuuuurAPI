@@ -31,29 +31,4 @@ internal class RefreshTokenRepository(DbContext p_DbContext, IMapper p_Mapper, I
         await UpdateAsync(v_Entity);
         return Mapper.Map<RefreshToken>(v_Entity);
     }
-
-    public async Task<IEnumerable<RefreshToken>> GetActiveRefreshTokensByUserIdAsync(int p_UserId, CancellationToken p_CancellationToken = default)
-    {
-        List<RefreshTokenRtk> v_Entities = await FindBy(p_Rt =>
-            p_Rt.UserId == p_UserId &&
-            !p_Rt.IsRevoked &&
-            p_Rt.ExpiresAt > DateTime.UtcNow)
-            .ToListAsync(p_CancellationToken);
-        return Mapper.Map<IEnumerable<RefreshToken>>(v_Entities);
-    }
-
-    public async Task RevokeAllUserRefreshTokensAsync(int p_UserId, CancellationToken p_CancellationToken = default)
-    {
-        List<RefreshTokenRtk> v_Entities = await FindBy(p_Rt =>
-            p_Rt.UserId == p_UserId &&
-            !p_Rt.IsRevoked)
-            .ToListAsync(p_CancellationToken);
-
-        foreach (RefreshTokenRtk v_Entity in v_Entities)
-        {
-            v_Entity.IsRevoked = true;
-            v_Entity.RevokedAt = DateTime.UtcNow;
-            await UpdateAsync(v_Entity);
-        }
-    }
 }
