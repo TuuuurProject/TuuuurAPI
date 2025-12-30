@@ -184,8 +184,9 @@ internal static class Program
                             (Encoding.UTF8.GetBytes(v_JwtConf.Key)),
                         ValidateIssuer = true,
                         ValidateAudience = true,
-                        ValidateLifetime = false,
-                        ValidateIssuerSigningKey = true
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ClockSkew = TimeSpan.Zero
                     });
 
         // CORS
