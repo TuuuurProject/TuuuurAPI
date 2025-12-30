@@ -33,7 +33,7 @@ namespace Tuuuur.Core.Tests.UseCases.Authentication
             m_EmailServiceMock = new Mock<IEmailService>();
             m_RenderingServiceMock = new Mock<IRenderingService>();
 
-            m_UseCase = new LoginUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_MediatorMock.Object, m_RenderingServiceMock.Object,  m_EmailServiceMock.Object);
+            m_UseCase = new LoginUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_MediatorMock.Object, m_RenderingServiceMock.Object, m_EmailServiceMock.Object);
         }
 
         [Fact]
@@ -51,7 +51,7 @@ namespace Tuuuur.Core.Tests.UseCases.Authentication
             m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<GenerateOptRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<UserAuth>(new UserAuth()));
 
             JwtTokenResponse v_JwtTokenResponse = new JwtTokenResponse();
-            m_JwtFactoryMock.Setup(p_J => p_J.CreateToken(v_User)).Returns(v_JwtTokenResponse);
+            m_JwtFactoryMock.Setup(p_J => p_J.CreateTokenAsync(It.IsAny<User>(), It.IsAny<IUnitOfWork>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_JwtTokenResponse);
 
             LoginRequest v_Request = new(v_Email, v_Password);
 

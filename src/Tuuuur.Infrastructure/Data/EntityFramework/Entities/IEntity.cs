@@ -15,4 +15,5 @@ public partial class ThemeThm : IEntity;
 public partial class UserAuthUat : IEntity;
 public partial class UserUsr : IEntity;
 public partial class UserPartyQuestionUpq : IEntity;
+public partial class RefreshTokenRtk : IEntity;
 
