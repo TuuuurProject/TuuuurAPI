@@ -2,11 +2,11 @@
 
 public record JwtConfiguration
 {
-    public string Issuer { get; set; }
-    public string Audience { get; set; }
-    public string Key { get; set; }
-    public int Validity { get; set; }
-    public int RefreshTokenValidity { get; set; } = 90; // 90 jours par défaut
+    public string Issuer { get; init; }
+    public string Audience { get; init; }
+    public string Key { get; init; }
+    public int Validity { get; init; }
+    public int RefreshTokenValidity { get; init; } = 1;
 
     public const string SectionName = "JwtSettings";
 }
