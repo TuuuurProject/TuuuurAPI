@@ -7,6 +7,7 @@ using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Interfaces.Token;
+using Tuuuur.Domain.Security;
 using Tuuuur.Domain.Token;
 
 namespace Tuuuur.Core.UseCases.Authentication;
@@ -14,7 +15,8 @@ namespace Tuuuur.Core.UseCases.Authentication;
 internal class RefreshTokenUseCase(
     IUnitOfWork p_UnitOfWork,
     ILogger<RefreshTokenUseCase> p_Logger,
-    IJwtFactory p_JwtFactory)
+    IJwtFactory p_JwtFactory,
+    IUserRoleService p_UserRoleService)
     : ADbUseCase<RefreshTokenRequest, JwtAuthenticationResponse>(p_Logger, p_UnitOfWork)
 {
     protected override async Task<JwtAuthenticationResponse> HandleLogic(RefreshTokenRequest p_Request, CancellationToken p_CancellationToken)
@@ -33,8 +35,9 @@ internal class RefreshTokenUseCase(
         }
 
         User v_User = await m_UnitOfWork.UserRepository.GetUserByIdAsync(v_RefreshToken.UserId, p_CancellationToken);
+        string v_UserEmail = p_UserRoleService.GetCurrentUserEmail();
 
-        if (v_User == null)
+        if (v_User == null || v_User.Email != v_UserEmail)
             return new JwtAuthenticationResponse([new ErrorDto(DomainErrors.Data.NotFound, $"User not found")]);
 
         v_RefreshToken.IsRevoked = true;
