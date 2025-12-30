@@ -80,7 +80,7 @@ public static class DomainErrors
     public static class Party
     {
         private const string PartyPrefix = DomainPrefix + "party.";
-
+        
         public static class Id
         {
             private const string IdPrefix = DomainPrefix + "id.";
@@ -100,6 +100,26 @@ public static class DomainErrors
             public const string Empty = CodePrefix + GeneralErrors.Empty;
             public const string Invalid = CodePrefix + GeneralErrors.Invalid;
         }
+
+        public static class NbQuestions
+        {
+            private const string NbQuestionsPrefix = DomainPrefix + "nbquestions.";
+            public const string Invalid = NbQuestionsPrefix + GeneralErrors.Invalid;
+        }
+    }
+
+    public static class Difficulty
+    {
+        private const string PartyDifficultyPrefix = DomainPrefix + "partydifficulty.";
+        public const string Empty = PartyDifficultyPrefix + GeneralErrors.Empty;
+        public const string Invalid = PartyDifficultyPrefix + GeneralErrors.Invalid;
+    }
+
+    public static class Theme
+    {
+        private const string ThemePrefix = DomainPrefix + "theme.";
+        public const string Empty = ThemePrefix + GeneralErrors.Empty;
+        public const string Invalid = ThemePrefix + GeneralErrors.Invalid;
     }
 
     public static class User

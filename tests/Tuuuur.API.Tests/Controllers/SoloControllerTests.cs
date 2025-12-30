@@ -35,7 +35,7 @@ namespace Tuuuur.API.Tests.Controllers
             // Arrange
             SettingsRequest v_ApiRequest = new()
             {
-                NbQuestions = 30,
+                NbQuestions = 20,
                 Themes = [1, 2, 3],
                 Difficulties = [1]
             };
