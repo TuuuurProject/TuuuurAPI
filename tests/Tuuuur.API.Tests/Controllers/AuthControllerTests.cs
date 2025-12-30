@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Json;
@@ -19,6 +20,7 @@ using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Domain.Security;
 using Tuuuur.Domain.Token;
 using Tuuuur.Domain.Bo;
+using Tuuuur.Domain.Errors;
 using Tuuuur.Core.Responses;
 using LoginRequest = Tuuuur.Core.Requests.Authentication.LoginRequest;
 
@@ -130,7 +132,7 @@ namespace Tuuuur.API.Tests.Controllers
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();
         }
-        
+
         [Fact]
         public async Task LoginAsync_WithInvalidRequest_ReturnsBadRequestObjectResultAsync()
         {
@@ -167,7 +169,7 @@ namespace Tuuuur.API.Tests.Controllers
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();
         }
-        
+
         [Fact]
         public async Task ValidAccountAsync_WithValidRequest_ReturnsOkObjectResultAsync()
         {
@@ -183,7 +185,7 @@ namespace Tuuuur.API.Tests.Controllers
                 Token = new JwtTokenResponse()
             };
             m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<VerifyAccountRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new JwtAuthenticationResponse(v_AuthenticationResponse));
-            
+
             // Act
             IActionResult v_Result = await m_Controller.VerifyAccount2FaAsync(v_LoginApiRequest, new ValidateAccountValidator(), new JwtAuthenticationPresenter());
 
@@ -192,7 +194,7 @@ namespace Tuuuur.API.Tests.Controllers
             JsonContentResult v_RequestResult = (JsonContentResult)v_Result;
             v_RequestResult.StatusCode.Should().Be(200);
         }
-        
+
         [Fact]
         public async Task RegisterAsync_WithRequest_ReturnsOkObjectResultAsync()
         {
@@ -212,7 +214,7 @@ namespace Tuuuur.API.Tests.Controllers
             JsonContentResult v_RequestResult = (JsonContentResult)v_Result;
             v_RequestResult.StatusCode.Should().Be(200);
         }
-        
+
         [Fact]
         public async Task ForgotPasswordAsync_WithValidRequest_ReturnsOkObjectResultAsync()
         {
@@ -222,7 +224,7 @@ namespace Tuuuur.API.Tests.Controllers
                 Login = "test@example.com",
             };
             m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<ForgotPasswordRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
-            
+
             // Act
             IActionResult v_Result = await m_Controller.ForgotPasswordAsync(v_LoginApiRequest, new LoginRequestValidator(), new EmptyPresenter());
 
@@ -231,7 +233,7 @@ namespace Tuuuur.API.Tests.Controllers
             JsonContentResult v_RequestResult = (JsonContentResult)v_Result;
             v_RequestResult.StatusCode.Should().Be(200);
         }
-        
+
         [Fact]
         public async Task ResetPasswordAsync_WithValidRequest_ReturnsOkObjectResultAsync()
         {
@@ -243,7 +245,7 @@ namespace Tuuuur.API.Tests.Controllers
                 Code = "657432"
             };
             m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<Tuuuur.Core.Requests.Authentication.ResetPasswordRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
-            
+
             // Act
             IActionResult v_Result = await m_Controller.ResetPasswordAsync(v_ResetPasswordApiRequest, new ResetPasswordRequestValidator(), new EmptyPresenter());
 
@@ -252,7 +254,7 @@ namespace Tuuuur.API.Tests.Controllers
             JsonContentResult v_RequestResult = (JsonContentResult)v_Result;
             v_RequestResult.StatusCode.Should().Be(200);
         }
-        
+
         [Fact]
         public async Task GoogleAuthentificationAsync_WithValidRequest_ReturnsOkObjectResultAsync()
         {
@@ -264,7 +266,7 @@ namespace Tuuuur.API.Tests.Controllers
                 Code = "657432"
             };
             m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<Tuuuur.Core.Requests.Authentication.ResetPasswordRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
-            
+
             // Act
             IActionResult v_Result = await m_Controller.ResetPasswordAsync(v_ResetPasswordApiRequest, new ResetPasswordRequestValidator(), new EmptyPresenter());
 
@@ -272,6 +274,64 @@ namespace Tuuuur.API.Tests.Controllers
             v_Result.Should().BeOfType<JsonContentResult>();
             JsonContentResult v_RequestResult = (JsonContentResult)v_Result;
             v_RequestResult.StatusCode.Should().Be(200);
+        }
+
+        [Fact]
+        public async Task RefreshTokenAsync_WithValidToken_ShouldReturnNewTokens()
+        {
+            // Arrange
+            RefreshTokenApiRequest v_Request = new()
+            {
+                RefreshToken = "valid-refresh-token"
+            };
+
+            UserToken v_UserToken = new()
+            {
+                Token = new JwtTokenResponse
+                {
+                    Token = "new-access-token",
+                    RefreshToken = "new-refresh-token",
+                    ValidFrom = DateTime.UtcNow,
+                    ValidTo = DateTime.UtcNow.AddMinutes(15),
+                    RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(90)
+                },
+                User = new User { Id = 1, Email = "test@test.com", NickName = "test" },
+                IsGoogleUser = false
+            };
+
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<Tuuuur.Core.Requests.Authentication.RefreshTokenRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new JwtAuthenticationResponse(v_UserToken));
+
+            // Act
+            IActionResult v_Result = await m_Controller.RefreshTokenAsync(v_Request, new JwtAuthenticationPresenter());
+
+            // Assert
+            v_Result.Should().BeOfType<JsonContentResult>();
+            JsonContentResult v_JsonResult = (JsonContentResult)v_Result;
+            v_JsonResult.StatusCode.Should().Be(200);
+        }
+
+        [Fact]
+        public async Task RefreshTokenAsync_WithInvalidToken_ShouldReturnUnauthorized()
+        {
+            // Arrange
+            RefreshTokenApiRequest v_Request = new()
+            {
+                RefreshToken = "invalid-token"
+            };
+
+            JwtAuthenticationResponse v_ErrorResponse = new([new ErrorDto(DomainErrors.Authentication.RefreshToken.Invalid, "Invalid refresh token")]);
+
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<Tuuuur.Core.Requests.Authentication.RefreshTokenRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(v_ErrorResponse);
+
+            // Act
+            IActionResult v_Result = await m_Controller.RefreshTokenAsync(v_Request, new JwtAuthenticationPresenter());
+
+            // Assert
+            v_Result.Should().BeOfType<JsonContentResult>();
+            JsonContentResult v_JsonResult = (JsonContentResult)v_Result;
+            v_JsonResult.StatusCode.Should().Be(401);
         }
     }
 }
