@@ -39,8 +39,11 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
                     .Include(p_P => p_P.PartyUserPus)
                     .Include(p_P => p_P.IdPartyTypeNavigation)
                     )
+                    .AsNoTracking() 
+                    .AsSplitQuery()
             .FirstOrDefaultAsync(p_CancellationToken);
-        return Mapper.Map<Party>(v_PartyPty);
+        
+        return v_PartyPty == null ? null : Mapper.Map<Party>(v_PartyPty);
     }
     
     public async Task UpdateAsync(Party p_Party)
@@ -71,6 +74,8 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
                 .Include(p_P => p_P.PartyUserPus)
                 .Include(p_P => p_P.IdPartyTypeNavigation))
             .OrderByDescending(p_P => p_P.Dt)
+            .AsNoTracking() 
+            .AsSplitQuery()
             .Skip(v_Skip)
             .Take(p_Size)
             .ToListAsync(p_CancellationToken);
