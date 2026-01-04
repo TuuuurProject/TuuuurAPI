@@ -58,6 +58,22 @@ internal class JwtFactory : IJwtFactory
         JwtSecurityTokenHandler v_TokenHandler = new();
         SecurityToken v_Token = v_TokenHandler.CreateToken(v_TokenDescriptor);
 
+<<<<<<< Updated upstream
+=======
+        string v_RefreshToken = GenerateRefreshToken();
+        DateTime v_RefreshTokenExpiry = DateTime.UtcNow.AddDays(p_JwtConfiguration.RefreshTokenValidity);
+
+        RefreshToken v_RefreshTokenEntity = new()
+        {
+            UserId = p_UserInfos.Id,
+            Token = v_RefreshToken,
+            ExpiresAt = v_RefreshTokenExpiry,
+            CreatedAt = DateTime.UtcNow,
+        };
+
+        await p_UnitOfWork.RefreshTokenRepository.CreateRefreshTokenAsync(v_RefreshTokenEntity, p_CancellationToken);
+
+>>>>>>> Stashed changes
         return new JwtTokenResponse
         {
             Token = v_TokenHandler.WriteToken(v_Token),
