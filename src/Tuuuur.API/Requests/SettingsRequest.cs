@@ -5,9 +5,9 @@ using Tuuuur.Domain.Errors;
 namespace Tuuuur.API.Requests;
 
 /// <summary>
-/// Request for creating solo party
+/// Request for group settings
 /// </summary>
-public record CreateSoloPartyApiRequest
+public record SettingsRequest
 {
     /// <summary>
     /// Selected themes
@@ -28,15 +28,17 @@ public record CreateSoloPartyApiRequest
 /// <summary>
 /// Validator for createsoloparty request
 /// </summary>
-public class CreateSoloPartyRequestValidator : AbstractValidator<CreateSoloPartyApiRequest>
+public class SettingsRequestValidator : AbstractValidator<SettingsRequest>
 {
     /// <summary>
     /// ctor containing validation rules
     /// </summary>
-    public CreateSoloPartyRequestValidator()
+    public SettingsRequestValidator()
     {
-        RuleFor(p_Request => p_Request.Themes).NotEmpty().WithErrorCode(DomainErrors.Authentication.Login.InvalidEmail);
-        RuleFor(p_Request => p_Request.Difficulties).NotEmpty().WithErrorCode(DomainErrors.Authentication.Login.InvalidEmail);
-        RuleFor(p_Request => p_Request.NbQuestions).GreaterThan(0).WithErrorCode(DomainErrors.Authentication.Login.InvalidEmail);
+        RuleFor(p_Request => p_Request.Themes).NotEmpty().WithErrorCode(DomainErrors.Theme.Invalid);
+        RuleFor(p_Request => p_Request.Difficulties).NotEmpty().WithErrorCode(DomainErrors.Difficulty.Invalid);
+        RuleFor(p_Request => p_Request.NbQuestions)
+            .Must(p_Nb => p_Nb is 5 or 10 or 15 or 20)
+            .WithErrorCode(DomainErrors.Party.NbQuestions.Invalid);
     }
 }

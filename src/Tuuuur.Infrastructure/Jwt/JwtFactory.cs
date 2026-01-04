@@ -7,6 +7,7 @@ using Tuuuur.Domain.Token;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Tuuuur.Infrastructure.Jwt;
@@ -39,15 +40,13 @@ internal class JwtFactory : IJwtFactory
         SecurityTokenDescriptor v_TokenDescriptor = new()
         {
             Subject = new ClaimsIdentity([
-                new Claim(ClaimTypes.Sid, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Sid, p_UserInfos.Id.ToString()),
                 new Claim(ClaimTypes.NameIdentifier, p_UserInfos.NickName),
                 new Claim(ClaimTypes.Email, p_UserInfos.Email),
                 new Claim(JwtRegisteredClaimNames.Email, p_UserInfos.Email),
-                new Claim(JwtRegisteredClaimNames.Jti,
-                    Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.Role, v_Role)
             ]),
-            Expires = DateTime.UtcNow.AddMinutes(m_JwtConfiguration.Validity), 
+            Expires = DateTime.UtcNow.AddMinutes(m_JwtConfiguration.Validity),
             Issuer = m_JwtConfiguration.Issuer,
             Audience = m_JwtConfiguration.Audience,
             SigningCredentials = new SigningCredentials

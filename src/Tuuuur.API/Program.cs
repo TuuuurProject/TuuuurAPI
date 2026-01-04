@@ -11,6 +11,7 @@ using FluentValidation;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
@@ -19,6 +20,7 @@ using Serilog;
 using System.Text;
 using System.Text.Json.Serialization;
 using StackExchange.Redis;
+using Tuuuur.API.Hubs;
 using Tuuuur.API.Notifications;
 using Tuuuur.API.Transformers;
 using Tuuuur.Domain.Interfaces;
@@ -206,6 +208,7 @@ internal static class Program
 
         // Add SignalR
         v_Builder.Services.AddSignalR();
+        v_Builder.Services.AddSingleton<IUserIdProvider, Tuuuur.API.Security.UserIdProvider>();
 
         // Razor
         v_Builder.Services.AddRazorTemplating();
@@ -237,6 +240,7 @@ internal static class Program
         v_App.UseMiddleware<HandleExceptionMiddleware>();
 
         v_App.MapHub<NotificationsHub>("notifications");
+        v_App.MapHub<GroupHub>("group");
 
         v_App.MapControllers();
         v_App.MapHealthChecksUI(p_Setup =>

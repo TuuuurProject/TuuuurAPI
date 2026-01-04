@@ -20,23 +20,23 @@ public class JoinGroupUseCaseTests
     private readonly Mock<IUnitOfWork> m_UnitOfWorkMock;
     private readonly Mock<ILogger<JoinGroupUseCase>> m_LoggerMock;
     private readonly Mock<IUserRoleService> m_UserRoleServiceMock;
-    private readonly Mock<INotificationsService> m_NotificationServiceMock;
+    private readonly Mock<IGroupNotificationService> m_GroupPartyNotificationServiceMock;
     private readonly Mock<ICacheService> m_CacheServiceMock;
 
     private readonly JoinGroupUseCase m_UseCase;
-    
+
     public JoinGroupUseCaseTests()
     {
         m_MockRepository = new MockRepository(MockBehavior.Strict);
         m_UnitOfWorkMock = m_MockRepository.Create<IUnitOfWork>();
         m_LoggerMock = m_MockRepository.Create<ILogger<JoinGroupUseCase>>();
         m_UserRoleServiceMock = m_MockRepository.Create<IUserRoleService>();
-        m_NotificationServiceMock = m_MockRepository.Create<INotificationsService>();
+        m_GroupPartyNotificationServiceMock = m_MockRepository.Create<IGroupNotificationService>();
         m_CacheServiceMock = m_MockRepository.Create<ICacheService>();
 
-        m_UseCase = new JoinGroupUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_UserRoleServiceMock.Object, m_CacheServiceMock.Object, m_NotificationServiceMock.Object);
+        m_UseCase = new JoinGroupUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_UserRoleServiceMock.Object, m_CacheServiceMock.Object, m_GroupPartyNotificationServiceMock.Object);
     }
-    
+
     [Fact]
     public async Task Handle_ExpectedAsync()
     {
@@ -48,12 +48,12 @@ public class JoinGroupUseCaseTests
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<Guid?>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((Guid?)null);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<Party>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party);
-        
+
         m_CacheServiceMock.Setup(p_Cs => p_Cs.SetMembersAsync<int>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([v_User.Id, v_User.Id + 1]);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.SetAddAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.SetAsync(It.IsAny<string>(), It.IsAny<Guid>(), TimeSpan.Zero, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        m_NotificationServiceMock.Setup(p_Ns => p_Ns.PushMessageAsync(It.IsAny<ClientType>(), It.IsAny<Notification>(), It.IsAny<string>())).Returns(Task.CompletedTask);
+        m_GroupPartyNotificationServiceMock.Setup(p_Ns => p_Ns.NotifyPlayerJoinedAsync(It.IsAny<Guid>(), It.IsAny<User>())).Returns(Task.CompletedTask);
         JoinGroupPartyRequest v_Request = new(v_Party.Code);
 
         // Act
