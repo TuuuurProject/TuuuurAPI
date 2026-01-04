@@ -1,12 +1,9 @@
 CREATE TABLE [dbo].[RefreshToken_RTK] (
-    [Id]        INT              IDENTITY (1, 1) NOT NULL,
     [UserId]    INT              NOT NULL,
     [Token]     VARCHAR (500)    NOT NULL,
     [ExpiresAt] DATETIME2 (7)    NOT NULL,
     [CreatedAt] DATETIME2 (7)    CONSTRAINT [DF_RefreshToken_CreatedAt] DEFAULT (GETUTCDATE()) NOT NULL,
-    [RevokedAt] DATETIME2 (7)    NULL,
-    [IsRevoked] BIT              CONSTRAINT [DF_RefreshToken_IsRevoked] DEFAULT ((0)) NOT NULL,
-    CONSTRAINT [PK_RefreshToken_RTK] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [PK_RefreshToken_RTK] PRIMARY KEY CLUSTERED ([UserId] ASC),
     CONSTRAINT [FK_RefreshToken_User] FOREIGN KEY ([UserId]) REFERENCES [dbo].[User_USR] ([Id])
 );
 

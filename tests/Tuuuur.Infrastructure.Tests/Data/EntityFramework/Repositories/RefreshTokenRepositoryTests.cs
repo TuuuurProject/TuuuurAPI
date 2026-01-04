@@ -35,8 +35,7 @@ public class RefreshTokenRepositoryTests : ADatabaseTests
                 UserId = v_User.Id,
                 Token = "test-token-12345",
                 ExpiresAt = DateTime.UtcNow.AddDays(90),
-                CreatedAt = DateTime.UtcNow,
-                IsRevoked = false
+                CreatedAt = DateTime.UtcNow
             };
 
             _ = m_SqlServerFixture.TestContext.UserUsr.Add(v_User);
@@ -53,7 +52,6 @@ public class RefreshTokenRepositoryTests : ADatabaseTests
             Check.That(v_Result).IsNotNull();
             Check.That(v_Result.Token).IsEqualTo("test-token-12345");
             Check.That(v_Result.UserId).IsEqualTo(v_User.Id);
-            Check.That(v_Result.IsRevoked).IsFalse();
             Check.That(v_Result.User).IsNotNull();
             Check.That(v_Result.User.Id).IsEqualTo(v_User.Id);
         }
@@ -100,8 +98,7 @@ public class RefreshTokenRepositoryTests : ADatabaseTests
                 UserId = v_User.Id,
                 Token = "new-token-67890",
                 ExpiresAt = DateTime.UtcNow.AddDays(90),
-                CreatedAt = DateTime.UtcNow,
-                IsRevoked = false
+                CreatedAt = DateTime.UtcNow
             };
 
             // Act
@@ -116,58 +113,6 @@ public class RefreshTokenRepositoryTests : ADatabaseTests
                 .FirstOrDefault(rt => rt.Token == "new-token-67890");
             Check.That(v_DbToken).IsNotNull();
             Check.That(v_DbToken.UserId).IsEqualTo(v_User.Id);
-        }
-        finally
-        {
-            ClearData(m_SqlServerFixture.TestContext);
-        }
-    }
-
-    [Fact]
-    public async Task UpdateRefreshTokenAsync_ShouldUpdateRefreshTokenAsync()
-    {
-        try
-        {
-            // Arrange
-            RefreshTokenRepository v_Repository = CreateRefreshTokenRepository();
-            UserUsr v_User = EfFactory.CreateUser().Generate();
-
-            RefreshTokenRtk v_RefreshToken = new()
-            {
-                UserId = v_User.Id,
-                Token = "update-token-test",
-                ExpiresAt = DateTime.UtcNow.AddDays(90),
-                CreatedAt = DateTime.UtcNow,
-                IsRevoked = false
-            };
-
-            _ = m_SqlServerFixture.TestContext.UserUsr.Add(v_User);
-            _ = await m_SqlServerFixture.TestContext.SaveChangesAsync();
-
-            v_RefreshToken.UserId = v_User.Id;
-            _ = m_SqlServerFixture.TestContext.RefreshTokenRtk.Add(v_RefreshToken);
-            _ = await m_SqlServerFixture.TestContext.SaveChangesAsync();
-
-            m_SqlServerFixture.TestContext.ChangeTracker.Clear();
-
-            RefreshToken v_BoToken = m_Mapper.Map<RefreshToken>(v_RefreshToken);
-            v_BoToken.IsRevoked = true;
-            v_BoToken.RevokedAt = DateTime.UtcNow;
-
-            // Act
-            RefreshToken v_Result = await v_Repository.UpdateRefreshTokenAsync(v_BoToken, CancellationToken.None);
-            _ = await m_SqlServerFixture.TestContext.SaveChangesAsync();
-
-            // Assert
-            Check.That(v_Result).IsNotNull();
-            Check.That(v_Result.IsRevoked).IsTrue();
-            Check.That(v_Result.RevokedAt).IsNotNull();
-
-            RefreshTokenRtk v_DbToken = m_SqlServerFixture.TestContext.RefreshTokenRtk
-                .FirstOrDefault(rt => rt.Token == "update-token-test");
-            Check.That(v_DbToken).IsNotNull();
-            Check.That(v_DbToken.IsRevoked).IsTrue();
-            Check.That(v_DbToken.RevokedAt).IsNotNull();
         }
         finally
         {

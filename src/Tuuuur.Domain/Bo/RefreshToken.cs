@@ -1,27 +1,15 @@
-using System.Text.Json.Serialization;
-
 namespace Tuuuur.Domain.Bo;
 
-public record RefreshToken : IBOEntity
+/// <summary>
+/// Refresh token
+/// </summary>
+public class RefreshToken
 {
-    public int Id { get; set; }
-
-    public int UserId { get; set; }
-
-    public string Token { get; set; }
-
-    public DateTime ExpiresAt { get; set; }
-
-    public DateTime CreatedAt { get; set; }
-
-    public DateTime? RevokedAt { get; set; }
-
-    public bool IsRevoked { get; set; }
-
-    [JsonIgnore]
-    public virtual User User { get; set; }
-
+    public int UserId { get; init; }
+    public string Token { get; init; }
+    public DateTime ExpiresAt { get; init; }
+    public DateTime CreatedAt { get; init; }
+    public User User { get; init; }
     public bool IsExpired => DateTime.UtcNow >= ExpiresAt;
-
-    public bool IsActive => !IsRevoked && !IsExpired;
+    public bool IsActive => !IsExpired;
 }

@@ -28,10 +28,7 @@ internal class RefreshTokenUseCase(
 
         if (!v_RefreshToken.IsActive)
         {
-            string v_ErrorMessage = v_RefreshToken.IsRevoked
-                ? "Refresh token has been revoked"
-                : "Refresh token has expired";
-            return new JwtAuthenticationResponse([new ErrorDto(DomainErrors.Authentication.RefreshToken.Invalid, v_ErrorMessage)]);
+            return new JwtAuthenticationResponse([new ErrorDto(DomainErrors.Authentication.RefreshToken.Invalid, "Refresh token has expired")]);
         }
 
         User v_User = await m_UnitOfWork.UserRepository.GetUserByIdAsync(v_RefreshToken.UserId, p_CancellationToken);
@@ -40,9 +37,7 @@ internal class RefreshTokenUseCase(
         if (v_User == null || v_User.Email != v_UserEmail)
             return new JwtAuthenticationResponse([new ErrorDto(DomainErrors.Data.NotFound, $"User not found")]);
 
-        v_RefreshToken.IsRevoked = true;
-        v_RefreshToken.RevokedAt = DateTime.UtcNow;
-        await m_UnitOfWork.RefreshTokenRepository.UpdateRefreshTokenAsync(v_RefreshToken, p_CancellationToken);
+        await m_UnitOfWork.RefreshTokenRepository.DeleteRefreshTokenForUserIdAsync(v_RefreshToken.UserId, p_CancellationToken);
 
         JwtTokenResponse v_TokenInfos = await p_JwtFactory.CreateTokenAsync(v_User, m_UnitOfWork, p_CancellationToken);
         _ = m_UnitOfWork.Save();

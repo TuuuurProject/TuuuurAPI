@@ -55,7 +55,6 @@ internal class JwtFactory(JwtConfiguration p_JwtConfiguration) : IJwtFactory
             Token = v_RefreshToken,
             ExpiresAt = v_RefreshTokenExpiry,
             CreatedAt = DateTime.UtcNow,
-            IsRevoked = false
         };
 
         await p_UnitOfWork.RefreshTokenRepository.CreateRefreshTokenAsync(v_RefreshTokenEntity, p_CancellationToken);

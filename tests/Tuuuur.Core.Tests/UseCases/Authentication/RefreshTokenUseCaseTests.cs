@@ -46,12 +46,10 @@ public class RefreshTokenUseCaseTests
         User v_User = new() { Id = 1, Email = "test@test.com", NickName = "test", IsGoogleUser = false };
         RefreshToken v_RefreshToken = new()
         {
-            Id = 1,
             UserId = v_User.Id,
             Token = v_RefreshTokenString,
             ExpiresAt = DateTime.UtcNow.AddDays(30),
-            CreatedAt = DateTime.UtcNow.AddDays(-1),
-            IsRevoked = false
+            CreatedAt = DateTime.UtcNow.AddDays(-1)
         };
 
         JwtTokenResponse v_NewTokenResponse = new()
@@ -84,9 +82,9 @@ public class RefreshTokenUseCaseTests
         Assert.Equal(v_NewTokenResponse, v_Result.Value.Token);
         Assert.Equal(v_User.IsGoogleUser, v_Result.Value.IsGoogleUser);
 
-        // Vérifier que l'ancien token a été révoqué
-        m_RefreshTokenRepositoryMock.Verify(p_R => p_R.UpdateRefreshTokenAsync(
-            It.Is<RefreshToken>(rt => rt.IsRevoked && rt.RevokedAt != null),
+        // Vérifier que l'ancien token a été supprimé
+        m_RefreshTokenRepositoryMock.Verify(p_R => p_R.DeleteRefreshTokenForUserIdAsync(
+            v_User.Id,
             It.IsAny<CancellationToken>()), Times.Once);
 
         // Vérifier que Save a été appelé
@@ -117,51 +115,16 @@ public class RefreshTokenUseCaseTests
     }
 
     [Fact]
-    public async Task Handle_WhenRefreshTokenIsRevoked_ShouldReturnErrorAsync()
-    {
-        // Arrange
-        const string v_RefreshTokenString = "revoked-token";
-        RefreshToken v_RefreshToken = new()
-        {
-            Id = 1,
-            UserId = 1,
-            Token = v_RefreshTokenString,
-            ExpiresAt = DateTime.UtcNow.AddDays(30),
-            CreatedAt = DateTime.UtcNow.AddDays(-1),
-            IsRevoked = true,
-            RevokedAt = DateTime.UtcNow.AddMinutes(-5)
-        };
-
-        m_RefreshTokenRepositoryMock.Setup(p_R => p_R.GetRefreshTokenByTokenAsync(v_RefreshTokenString, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(v_RefreshToken);
-
-        RefreshTokenRequest v_Request = new(v_RefreshTokenString);
-
-        // Act
-        JwtAuthenticationResponse v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(v_Result);
-        Assert.False(v_Result.Success);
-        Assert.NotNull(v_Result.Errors);
-        Assert.Single(v_Result.Errors);
-        Assert.Equal(DomainErrors.Authentication.RefreshToken.Invalid, v_Result.Errors.First().Code);
-        Assert.Contains("revoked", v_Result.Errors.First().Description);
-    }
-
-    [Fact]
     public async Task Handle_WhenRefreshTokenIsExpired_ShouldReturnErrorAsync()
     {
         // Arrange
         const string v_RefreshTokenString = "expired-token";
         RefreshToken v_RefreshToken = new()
         {
-            Id = 1,
             UserId = 1,
             Token = v_RefreshTokenString,
             ExpiresAt = DateTime.UtcNow.AddDays(-1), // Expiré hier
-            CreatedAt = DateTime.UtcNow.AddDays(-91),
-            IsRevoked = false
+            CreatedAt = DateTime.UtcNow.AddDays(-91)
         };
 
         m_RefreshTokenRepositoryMock.Setup(p_R => p_R.GetRefreshTokenByTokenAsync(v_RefreshTokenString, It.IsAny<CancellationToken>()))
@@ -188,12 +151,10 @@ public class RefreshTokenUseCaseTests
         const string v_RefreshTokenString = "valid-token";
         RefreshToken v_RefreshToken = new()
         {
-            Id = 1,
             UserId = 999,
             Token = v_RefreshTokenString,
             ExpiresAt = DateTime.UtcNow.AddDays(30),
-            CreatedAt = DateTime.UtcNow.AddDays(-1),
-            IsRevoked = false
+            CreatedAt = DateTime.UtcNow.AddDays(-1)
         };
 
         m_RefreshTokenRepositoryMock.Setup(p_R => p_R.GetRefreshTokenByTokenAsync(v_RefreshTokenString, It.IsAny<CancellationToken>()))

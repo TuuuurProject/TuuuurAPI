@@ -25,10 +25,9 @@ internal class RefreshTokenRepository(DbContext p_DbContext, IMapper p_Mapper, I
         return Mapper.Map<RefreshToken>(v_Entity);
     }
 
-    public async Task<RefreshToken> UpdateRefreshTokenAsync(RefreshToken p_RefreshToken, CancellationToken p_CancellationToken = default)
+    public async Task DeleteRefreshTokenForUserIdAsync(int p_UserId, CancellationToken p_CancellationToken = default)
     {
-        RefreshTokenRtk v_Entity = Mapper.Map<RefreshTokenRtk>(p_RefreshToken);
-        await UpdateAsync(v_Entity);
-        return Mapper.Map<RefreshToken>(v_Entity);
+        IEnumerable<RefreshTokenRtk> v_RefreshTokens = await FindBy(p_P => p_P.UserId == p_UserId).ToListAsync(p_CancellationToken);
+        await DeleteAsync(v_RefreshTokens, p_CancellationToken);
     }
 }

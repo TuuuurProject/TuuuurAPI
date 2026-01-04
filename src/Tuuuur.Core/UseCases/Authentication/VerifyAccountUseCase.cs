@@ -35,6 +35,7 @@ internal class VerifyAccountUseCase(
         await m_UnitOfWork.UserRepository.UpdateUserAsync(v_User, p_CancellationToken);
         await m_UnitOfWork.UserAuthRepository.DeleteUserAuthAsync(v_UserAuth.Id, p_CancellationToken);
 
+        await m_UnitOfWork.RefreshTokenRepository.DeleteRefreshTokenForUserIdAsync(v_User.Id, p_CancellationToken);
         JwtTokenResponse v_TokenInfos = await p_JwtFactory.CreateTokenAsync(v_User, m_UnitOfWork, p_CancellationToken);
         _ = m_UnitOfWork.Save();
 
