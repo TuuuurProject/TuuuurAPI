@@ -159,96 +159,217 @@ public partial class BaseTuuuurContext : DbContext
                 .HasForeignKey(d => d.IdParty)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_PartyQuestion_Party");
-            modelBuilder.Entity<ThemeThm>(entity =>
-            {
-                entity.ToTable("Theme_THM");
 
-                entity.Property(e => e.Icon)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-                entity.Property(e => e.Label)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-            });
+            entity.HasOne(d => d.IdQuestionNavigation).WithMany(p => p.PartyQuestionPqt)
+                .HasForeignKey(d => d.IdQuestion)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PartyQuestion_Question");
+        });
 
-            modelBuilder.Entity<UserAuthUat>(entity =>
-            {
-                entity.HasKey(e => e.Id).HasName("PK_USERAUTH_UAT");
+        modelBuilder.Entity<PartyThemePth>(entity =>
+        {
+            entity.ToTable("PartyTheme_PTH");
 
-                entity.ToTable("UserAuth_UAT");
+            entity.Property(e => e.IdParty).HasColumnName("Id_Party");
+            entity.Property(e => e.IdTheme).HasColumnName("Id_Theme");
 
-                entity.HasIndex(e => new { e.UserId, e.ExpiresAt }, "IX_UserOTP_UserId");
+            entity.HasOne(d => d.IdPartyNavigation).WithMany(p => p.PartyThemePth)
+                .HasForeignKey(d => d.IdParty)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PartyTheme_Party");
 
-                entity.Property(e => e.Code)
-                    .IsRequired()
-                    .HasMaxLength(6)
-                    .IsUnicode(false);
-                entity.Property(e => e.ExpiresAt).HasDefaultValueSql("(dateadd(minute,(15),sysutcdatetime()))");
+            entity.HasOne(d => d.IdThemeNavigation).WithMany(p => p.PartyThemePth)
+                .HasForeignKey(d => d.IdTheme)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PartyTheme_Theme");
+        });
 
-                entity.HasOne(d => d.User).WithMany(p => p.UserAuthUat)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_UserAuth_User");
-            });
+        modelBuilder.Entity<PartyTypePty>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_PartyType_PTT");
 
-            modelBuilder.Entity<UserPartyQuestionUpq>(entity =>
-            {
-                entity.HasKey(e => e.Id).HasName("PK_USERPARTYQUESTION_UPQ");
+            entity.ToTable("PartyType_PTY", "ref");
 
-                entity.ToTable("UserPartyQuestion_UPQ");
+            entity.Property(e => e.Label)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
 
-                entity.HasIndex(e => new { e.IdUser, e.IdPartyQuestion }, "IX_UserPartyQuestion_User");
+        modelBuilder.Entity<PartyUserPus>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_PARTYUSER_PUS");
 
-                entity.Property(e => e.AnswersOrder).HasDefaultValueSql("(newid())");
-                entity.Property(e => e.DtPresentedAt).HasDefaultValueSql("(sysutcdatetime())");
-                entity.Property(e => e.IdAnswer).HasColumnName("Id_Answer");
-                entity.Property(e => e.IdPartyQuestion).HasColumnName("Id_Party_Question");
-                entity.Property(e => e.IdUser).HasColumnName("Id_User");
+            entity.ToTable("PartyUser_PUS");
 
-                entity.HasOne(d => d.IdAnswerNavigation).WithMany(p => p.UserPartyQuestionUpq)
-                    .HasForeignKey(d => d.IdAnswer)
-                    .HasConstraintName("FK_UserPartyQuestion_Answer");
+            entity.HasIndex(e => new { e.IdUser, e.IdParty }, "IX_PartyUserUniq").IsUnique();
 
-                entity.HasOne(d => d.IdPartyQuestionNavigation).WithMany(p => p.UserPartyQuestionUpq)
-                    .HasForeignKey(d => d.IdPartyQuestion)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_UserPartyQuestion_PartyQuestion");
+            entity.Property(e => e.IdParty).HasColumnName("Id_Party");
+            entity.Property(e => e.IdUser).HasColumnName("Id_User");
 
-                entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.UserPartyQuestionUpq)
-                    .HasForeignKey(d => d.IdUser)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_UserPartyQuestion_User");
-            });
+            entity.HasOne(d => d.IdPartyNavigation).WithMany(p => p.PartyUserPus)
+                .HasForeignKey(d => d.IdParty)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PartyUser_Party");
 
-            modelBuilder.Entity<UserUsr>(entity =>
-            {
-                entity.HasKey(e => e.Id).HasName("PK_USER_USR");
+            entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.PartyUserPus)
+                .HasForeignKey(d => d.IdUser)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PartyUser_User");
+        });
 
-                entity.ToTable("User_USR", tb => tb.HasTrigger("TR_User_DeleteCascade"));
+        modelBuilder.Entity<QuestionQst>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_QUESTION_QST");
 
-                entity.HasIndex(e => new { e.Email, e.IsGoogleUser }, "IX_UserEmail").IsUnique();
+            entity.ToTable("Question_QST");
 
-                entity.HasIndex(e => e.NickName, "IX_UserNickName").IsUnique();
+            entity.Property(e => e.IdDifficulty).HasColumnName("Id_Difficulty");
+            entity.Property(e => e.Question)
+                .IsRequired()
+                .IsUnicode(false);
 
-                entity.Property(e => e.Avatar).IsUnicode(false);
-                entity.Property(e => e.Email)
-                    .IsRequired()
-                    .HasMaxLength(250)
-                    .IsUnicode(false);
-                entity.Property(e => e.IsNew).HasDefaultValue(true);
-                entity.Property(e => e.NickName)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-                entity.Property(e => e.Password)
-                    .HasMaxLength(250)
-                    .IsUnicode(false);
-            });
+            entity.HasOne(d => d.IdDifficultyNavigation).WithMany(p => p.QuestionQst)
+                .HasForeignKey(d => d.IdDifficulty)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Question_Difficulty");
+        });
 
-            OnModelCreatingPartial(modelBuilder);
-        }
+        modelBuilder.Entity<QuestionThemeQth>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_QUESTION_THEME_QTH");
+
+            entity.ToTable("QuestionTheme_QTH");
+
+            entity.HasIndex(e => new { e.IdQuestion, e.IdTheme }, "IX_QuestionTheme").IsUnique();
+
+            entity.Property(e => e.IdQuestion).HasColumnName("Id_Question");
+            entity.Property(e => e.IdTheme).HasColumnName("Id_Theme");
+
+            entity.HasOne(d => d.IdQuestionNavigation).WithMany(p => p.QuestionThemeQth)
+                .HasForeignKey(d => d.IdQuestion)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_QuestionTheme_Question");
+
+            entity.HasOne(d => d.IdThemeNavigation).WithMany(p => p.QuestionThemeQth)
+                .HasForeignKey(d => d.IdTheme)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_QuestionTheme_Theme");
+        });
+
+        modelBuilder.Entity<RefreshTokenRtk>(entity =>
+        {
+            entity.HasKey(e => e.UserId);
+
+            entity.ToTable("RefreshToken_RTK");
+
+            entity.HasIndex(e => e.Token, "IX_RefreshToken_Token");
+
+            entity.HasIndex(e => e.UserId, "IX_RefreshToken_UserId");
+
+            entity.Property(e => e.UserId).ValueGeneratedNever();
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.Token)
+                .IsRequired()
+                .HasMaxLength(500)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.User).WithOne(p => p.RefreshTokenRtk)
+                .HasForeignKey<RefreshTokenRtk>(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RefreshToken_User");
+        });
+
+        modelBuilder.Entity<ThemeThm>(entity =>
+        {
+            entity.ToTable("Theme_THM");
+
+            entity.Property(e => e.Icon)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Label)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<UserAuthUat>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_USERAUTH_UAT");
+
+            entity.ToTable("UserAuth_UAT");
+
+            entity.HasIndex(e => new { e.UserId, e.ExpiresAt }, "IX_UserOTP_UserId");
+
+            entity.Property(e => e.Code)
+                .IsRequired()
+                .HasMaxLength(6)
+                .IsUnicode(false);
+            entity.Property(e => e.ExpiresAt).HasDefaultValueSql("(dateadd(minute,(15),sysutcdatetime()))");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserAuthUat)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserAuth_User");
+        });
+
+        modelBuilder.Entity<UserPartyQuestionUpq>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_USERPARTYQUESTION_UPQ");
+
+            entity.ToTable("UserPartyQuestion_UPQ");
+
+            entity.HasIndex(e => new { e.IdUser, e.IdPartyQuestion }, "IX_UserPartyQuestion_User");
+
+            entity.Property(e => e.AnswersOrder).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.DtPresentedAt).HasDefaultValueSql("(sysutcdatetime())");
+            entity.Property(e => e.IdAnswer).HasColumnName("Id_Answer");
+            entity.Property(e => e.IdPartyQuestion).HasColumnName("Id_Party_Question");
+            entity.Property(e => e.IdUser).HasColumnName("Id_User");
+
+            entity.HasOne(d => d.IdAnswerNavigation).WithMany(p => p.UserPartyQuestionUpq)
+                .HasForeignKey(d => d.IdAnswer)
+                .HasConstraintName("FK_UserPartyQuestion_Answer");
+
+            entity.HasOne(d => d.IdPartyQuestionNavigation).WithMany(p => p.UserPartyQuestionUpq)
+                .HasForeignKey(d => d.IdPartyQuestion)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserPartyQuestion_PartyQuestion");
+
+            entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.UserPartyQuestionUpq)
+                .HasForeignKey(d => d.IdUser)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserPartyQuestion_User");
+        });
+
+        modelBuilder.Entity<UserUsr>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_USER_USR");
+
+            entity.ToTable("User_USR", tb => tb.HasTrigger("TR_User_DeleteCascade"));
+
+            entity.HasIndex(e => new { e.Email, e.IsGoogleUser }, "IX_UserEmail").IsUnique();
+
+            entity.HasIndex(e => e.NickName, "IX_UserNickName").IsUnique();
+
+            entity.Property(e => e.Avatar).IsUnicode(false);
+            entity.Property(e => e.Email)
+                .IsRequired()
+                .HasMaxLength(250)
+                .IsUnicode(false);
+            entity.Property(e => e.IsNew).HasDefaultValue(true);
+            entity.Property(e => e.NickName)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Password)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

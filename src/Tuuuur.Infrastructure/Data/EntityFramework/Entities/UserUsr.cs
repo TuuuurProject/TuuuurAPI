@@ -28,7 +28,9 @@ public partial class UserUsr
     public virtual ICollection<PartyPty> PartyPty { get; set; } = new List<PartyPty>();
 
     public virtual ICollection<PartyUserPus> PartyUserPus { get; set; } = new List<PartyUserPus>();
+
     public virtual RefreshTokenRtk RefreshTokenRtk { get; set; }
+
     public virtual ICollection<UserAuthUat> UserAuthUat { get; set; } = new List<UserAuthUat>();
 
     public virtual ICollection<UserPartyQuestionUpq> UserPartyQuestionUpq { get; set; } = new List<UserPartyQuestionUpq>();
