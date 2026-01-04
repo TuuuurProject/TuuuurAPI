@@ -82,12 +82,10 @@ public class RefreshTokenUseCaseTests
         Assert.Equal(v_NewTokenResponse, v_Result.Value.Token);
         Assert.Equal(v_User.IsGoogleUser, v_Result.Value.IsGoogleUser);
 
-        // Vérifier que l'ancien token a été supprimé
         m_RefreshTokenRepositoryMock.Verify(p_R => p_R.DeleteRefreshTokenForUserIdAsync(
             v_User.Id,
             It.IsAny<CancellationToken>()), Times.Once);
 
-        // Vérifier que Save a été appelé
         m_UnitOfWorkMock.Verify(p_U => p_U.Save(), Times.Once);
     }
 
@@ -123,7 +121,7 @@ public class RefreshTokenUseCaseTests
         {
             UserId = 1,
             Token = v_RefreshTokenString,
-            ExpiresAt = DateTime.UtcNow.AddDays(-1), // Expiré hier
+            ExpiresAt = DateTime.UtcNow.AddDays(-1),
             CreatedAt = DateTime.UtcNow.AddDays(-91)
         };
 
