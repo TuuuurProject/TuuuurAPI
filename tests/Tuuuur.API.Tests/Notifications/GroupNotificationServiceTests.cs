@@ -1,0 +1,263 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Tuuuur.API.Hubs;
+using Tuuuur.API.Notifications;
+using Tuuuur.Domain.Bo;
+using Tuuuur.Domain.Configuration;
+using Tuuuur.Domain.Interfaces;
+
+namespace Tuuuur.API.Tests.Notifications;
+
+public class GroupNotificationServiceTests
+{
+    private readonly MockRepository m_MockRepository;
+    private readonly Mock<IHubContext<GroupHub, IGroupClient>> m_HubContextMock;
+    private readonly Mock<ICacheService> m_CacheServiceMock;
+    private readonly Mock<ILogger<GroupNotificationService>> m_LoggerMock;
+    private readonly Mock<IHubClients<IGroupClient>> m_ClientsMock;
+    private readonly Mock<IGroupClient> m_GroupClientMock;
+    private readonly GroupNotificationService m_Service;
+
+    public GroupNotificationServiceTests()
+    {
+        m_MockRepository = new MockRepository(MockBehavior.Strict);
+        m_HubContextMock = m_MockRepository.Create<IHubContext<GroupHub, IGroupClient>>();
+        m_CacheServiceMock = m_MockRepository.Create<ICacheService>();
+        m_LoggerMock = m_MockRepository.Create<ILogger<GroupNotificationService>>();
+        m_ClientsMock = m_MockRepository.Create<IHubClients<IGroupClient>>();
+        m_GroupClientMock = m_MockRepository.Create<IGroupClient>();
+
+        m_Service = new GroupNotificationService(
+            m_HubContextMock.Object,
+            m_CacheServiceMock.Object,
+            m_LoggerMock.Object
+        );
+    }
+
+    [Fact]
+    public async Task NotifyPlayerJoinedAsync_WithUsers_ShouldSendNotificationToOtherUsers()
+    {
+        // Arrange
+        Guid v_PartyId = Guid.NewGuid();
+        User v_User = new() { Id = 1, NickName = "TestUser", Email = "test@example.com" };
+        List<int> v_UserIds = new() { 1, 2, 3 };
+
+        m_CacheServiceMock
+            .Setup(p_C => p_C.SetMembersAsync<int>(
+                RedisKeys.Party.Users(v_PartyId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(v_UserIds);
+
+        m_HubContextMock
+            .Setup(p_H => p_H.Clients)
+            .Returns(m_ClientsMock.Object);
+
+        m_ClientsMock
+            .Setup(p_C => p_C.Users(It.Is<IReadOnlyList<string>>(p_L =>
+                p_L.Count == 2 && p_L.Contains("2") && p_L.Contains("3"))))
+            .Returns(m_GroupClientMock.Object);
+
+        m_GroupClientMock
+            .Setup(p_G => p_G.OnPlayerJoined(v_User))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await m_Service.NotifyPlayerJoinedAsync(v_PartyId, v_User);
+
+        // Assert
+        m_MockRepository.VerifyAll();
+    }
+
+    [Fact]
+    public async Task NotifyPlayerJoinedAsync_WithNoUsers_ShouldNotSendNotification()
+    {
+        // Arrange
+        Guid v_PartyId = Guid.NewGuid();
+        User v_User = new() { Id = 1, NickName = "TestUser", Email = "test@example.com" };
+        List<int> v_UserIds = new();
+
+        m_CacheServiceMock
+            .Setup(p_C => p_C.SetMembersAsync<int>(
+                RedisKeys.Party.Users(v_PartyId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(v_UserIds);
+
+        // Act
+        await m_Service.NotifyPlayerJoinedAsync(v_PartyId, v_User);
+
+        // Assert
+        m_MockRepository.VerifyAll();
+    }
+
+    [Fact]
+    public async Task NotifyPlayerLeftAsync_WithUsers_ShouldSendNotificationToOtherUsers()
+    {
+        // Arrange
+        Guid v_PartyId = Guid.NewGuid();
+        User v_User = new() { Id = 2, NickName = "LeavingUser", Email = "leaving@example.com" };
+        List<int> v_UserIds = [1, 2, 3];
+
+        m_CacheServiceMock
+            .Setup(p_C => p_C.SetMembersAsync<int>(
+                RedisKeys.Party.Users(v_PartyId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(v_UserIds);
+
+        m_HubContextMock
+            .Setup(p_H => p_H.Clients)
+            .Returns(m_ClientsMock.Object);
+
+        m_ClientsMock
+            .Setup(p_C => p_C.Users(It.Is<IReadOnlyList<string>>(p_L =>
+                p_L.Count == 2 && p_L.Contains("1") && p_L.Contains("3"))))
+            .Returns(m_GroupClientMock.Object);
+
+        m_GroupClientMock
+            .Setup(p_G => p_G.OnPlayerLeft(v_User))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await m_Service.NotifyPlayerLeftAsync(v_PartyId, v_User);
+
+        // Assert
+        m_MockRepository.VerifyAll();
+    }
+
+    [Fact]
+    public async Task NotifyPartyDeletedAsync_WithUsers_ShouldSendNotificationToOtherUsers()
+    {
+        // Arrange
+        Guid v_PartyId = Guid.NewGuid();
+        User v_User = new() { Id = 1, NickName = "HostUser", Email = "host@example.com" };
+        List<int> v_UserIds = [1, 2, 3, 4];
+
+        m_CacheServiceMock
+            .Setup(p_C => p_C.SetMembersAsync<int>(
+                RedisKeys.Party.Users(v_PartyId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(v_UserIds);
+
+        m_HubContextMock
+            .Setup(p_H => p_H.Clients)
+            .Returns(m_ClientsMock.Object);
+
+        m_ClientsMock
+            .Setup(p_C => p_C.Users(It.Is<IReadOnlyList<string>>(p_L =>
+                p_L.Count == 3 && p_L.Contains("2") && p_L.Contains("3") && p_L.Contains("4"))))
+            .Returns(m_GroupClientMock.Object);
+
+        m_GroupClientMock
+            .Setup(p_G => p_G.OnPartyDeleted(v_User))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await m_Service.NotifyPartyDeletedAsync(v_PartyId, v_User);
+
+        // Assert
+        m_MockRepository.VerifyAll();
+    }
+
+    [Fact]
+    public async Task NotifyPartyUpdatedAsync_WithUsers_ShouldSendNotificationToAllUsers()
+    {
+        // Arrange
+        Guid v_PartyId = Guid.NewGuid();
+        Party v_Party = new()
+        {
+            Id = v_PartyId,
+            Code = "ABC123",
+            IdUserHost = 1,
+            Active = true
+        };
+        List<int> v_UserIds = [1, 2, 3];
+
+        m_CacheServiceMock
+            .Setup(p_C => p_C.SetMembersAsync<int>(
+                RedisKeys.Party.Users(v_PartyId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(v_UserIds);
+
+        m_HubContextMock
+            .Setup(p_H => p_H.Clients)
+            .Returns(m_ClientsMock.Object);
+
+        m_ClientsMock
+            .Setup(p_C => p_C.Users(It.Is<IReadOnlyList<string>>(p_L =>
+                p_L.Count == 3 && p_L.Contains("1") && p_L.Contains("2") && p_L.Contains("3"))))
+            .Returns(m_GroupClientMock.Object);
+
+        m_GroupClientMock
+            .Setup(p_G => p_G.OnPartyUpdated(v_Party))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await m_Service.NotifyPartyUpdatedAsync(v_PartyId, v_Party);
+
+        // Assert
+        m_MockRepository.VerifyAll();
+    }
+
+    [Fact]
+    public async Task NotifyPartyUpdatedAsync_WithNoUsers_ShouldNotSendNotification()
+    {
+        // Arrange
+        Guid v_PartyId = Guid.NewGuid();
+        Party v_Party = new()
+        {
+            Id = v_PartyId,
+            Code = "ABC123"
+        };
+        List<int> v_UserIds = new();
+
+        m_CacheServiceMock
+            .Setup(p_C => p_C.SetMembersAsync<int>(
+                RedisKeys.Party.Users(v_PartyId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(v_UserIds);
+
+        // Act
+        await m_Service.NotifyPartyUpdatedAsync(v_PartyId, v_Party);
+
+        // Assert
+        m_MockRepository.VerifyAll();
+    }
+
+    [Fact]
+    public async Task NotifyPlayerJoinedAsync_WithOnlyJoiningUser_ShouldNotSendNotification()
+    {
+        // Arrange
+        Guid v_PartyId = Guid.NewGuid();
+        User v_User = new() { Id = 1, NickName = "OnlyUser", Email = "only@example.com" };
+        List<int> v_UserIds = [1];
+
+        m_CacheServiceMock
+            .Setup(p_C => p_C.SetMembersAsync<int>(
+                RedisKeys.Party.Users(v_PartyId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(v_UserIds);
+
+        m_HubContextMock
+            .Setup(p_H => p_H.Clients)
+            .Returns(m_ClientsMock.Object);
+
+        m_ClientsMock
+            .Setup(p_C => p_C.Users(It.Is<IReadOnlyList<string>>(p_L => p_L.Count == 0)))
+            .Returns(m_GroupClientMock.Object);
+
+        m_GroupClientMock
+            .Setup(p_G => p_G.OnPlayerJoined(v_User))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await m_Service.NotifyPlayerJoinedAsync(v_PartyId, v_User);
+
+        // Assert - No notification should be sent (list becomes empty after removing the user)
+        m_MockRepository.VerifyAll();
+    }
+}
