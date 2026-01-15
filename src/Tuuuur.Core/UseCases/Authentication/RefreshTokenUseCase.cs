@@ -37,7 +37,7 @@ internal class RefreshTokenUseCase(
         if (v_User == null || v_User.Email != v_UserEmail)
             return new JwtAuthenticationResponse([new ErrorDto(DomainErrors.Data.NotFound, $"User not found")]);
 
-        await m_UnitOfWork.RefreshTokenRepository.DeleteRefreshTokenForUserIdAsync(v_RefreshToken.UserId, p_CancellationToken);
+        await m_UnitOfWork.RefreshTokenRepository.DeleteRefreshTokenAsync(v_RefreshToken.Token, p_CancellationToken);
 
         JwtTokenResponse v_TokenInfos = await p_JwtFactory.CreateTokenAsync(v_User, m_UnitOfWork, p_CancellationToken);
         _ = m_UnitOfWork.Save();

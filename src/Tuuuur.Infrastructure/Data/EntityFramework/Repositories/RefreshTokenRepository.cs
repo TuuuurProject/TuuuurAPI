@@ -12,6 +12,7 @@ internal class RefreshTokenRepository(DbContext p_DbContext, IMapper p_Mapper, I
 {
     public async Task<RefreshToken> GetRefreshTokenByTokenAsync(string p_Token, CancellationToken p_CancellationToken = default)
     {
+        await DeleteExpitedRefreshTokenAsync(p_CancellationToken);
         RefreshTokenRtk v_Entity = await FindBy(p_Rt => p_Rt.Token == p_Token)
             .Include(p_Rt => p_Rt.User)
             .FirstOrDefaultAsync(p_CancellationToken);
@@ -20,14 +21,29 @@ internal class RefreshTokenRepository(DbContext p_DbContext, IMapper p_Mapper, I
 
     public async Task<RefreshToken> CreateRefreshTokenAsync(RefreshToken p_RefreshToken, CancellationToken p_CancellationToken = default)
     {
+        await DeleteExpitedRefreshTokenAsync(p_CancellationToken);
         RefreshTokenRtk v_Entity = Mapper.Map<RefreshTokenRtk>(p_RefreshToken);
         await AddAsync(v_Entity, p_CancellationToken);
         return Mapper.Map<RefreshToken>(v_Entity);
     }
 
-    public async Task DeleteRefreshTokenForUserIdAsync(int p_UserId, CancellationToken p_CancellationToken = default)
+    public async Task DeleteRefreshTokenAsync(string p_Token, CancellationToken p_CancellationToken = default)
     {
-        IEnumerable<RefreshTokenRtk> v_RefreshTokens = await FindBy(p_P => p_P.UserId == p_UserId).ToListAsync(p_CancellationToken);
-        await DeleteAsync(v_RefreshTokens, p_CancellationToken);
+        await DeleteExpitedRefreshTokenAsync(p_CancellationToken);
+        RefreshTokenRtk v_RefreshTokens = await FindBy(p_P => p_P.Token == p_Token).FirstOrDefaultAsync(p_CancellationToken);
+        if(v_RefreshTokens != null)
+            await DeleteAsync(v_RefreshTokens, p_CancellationToken);
+    }
+
+    private async Task DeleteExpitedRefreshTokenAsync(CancellationToken p_CancellationToken = default)
+    {
+        List<RefreshTokenRtk> v_RefreshTokenRtks = await FindBy(p_P => p_P.ExpiresAt <= DateTime.UtcNow).ToListAsync(p_CancellationToken);
+        
+        if (v_RefreshTokenRtks.Count != 0)
+        {
+            await DeleteAsync(v_RefreshTokenRtks);
+
+            _ = await DbContext.SaveChangesAsync(p_CancellationToken);
+        }
     }
 }

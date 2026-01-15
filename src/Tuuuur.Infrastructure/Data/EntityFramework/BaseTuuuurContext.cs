@@ -259,23 +259,20 @@ public partial class BaseTuuuurContext : DbContext
 
         modelBuilder.Entity<RefreshTokenRtk>(entity =>
         {
-            entity.HasKey(e => e.UserId);
-
             entity.ToTable("RefreshToken_RTK");
 
             entity.HasIndex(e => e.Token, "IX_RefreshToken_Token");
 
             entity.HasIndex(e => e.UserId, "IX_RefreshToken_UserId");
 
-            entity.Property(e => e.UserId).ValueGeneratedNever();
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getutcdate())");
             entity.Property(e => e.Token)
                 .IsRequired()
                 .HasMaxLength(500)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.User).WithOne(p => p.RefreshTokenRtk)
-                .HasForeignKey<RefreshTokenRtk>(d => d.UserId)
+            entity.HasOne(d => d.User).WithMany(p => p.RefreshTokenRtk)
+                .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_RefreshToken_User");
         });
