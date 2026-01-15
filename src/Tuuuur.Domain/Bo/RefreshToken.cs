@@ -3,7 +3,7 @@ namespace Tuuuur.Domain.Bo;
 /// <summary>
 /// Refresh token
 /// </summary>
-public class RefreshToken
+public class RefreshToken : IBOEntity
 {
     public int Id { get; init; }
     public int UserId { get; init; }

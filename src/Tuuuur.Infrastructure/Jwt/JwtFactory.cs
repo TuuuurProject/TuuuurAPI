@@ -56,6 +56,7 @@ internal class JwtFactory(JwtConfiguration p_JwtConfiguration) : IJwtFactory
         };
 
         await p_UnitOfWork.RefreshTokenRepository.CreateRefreshTokenAsync(v_RefreshTokenEntity, p_CancellationToken);
+        p_UnitOfWork.Save();
 
         return new JwtTokenResponse
         {

@@ -2,8 +2,10 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Tuuuur.Domain.Bo;
+using Tuuuur.Domain.Interfaces.Data.Entities;
 using Tuuuur.Domain.Interfaces.Data.Repositories;
 using Tuuuur.Infrastructure.Data.EntityFramework.Entities;
+using Tuuuur.Infrastructure.Data.Mapping;
 
 namespace Tuuuur.Infrastructure.Data.EntityFramework.Repositories;
 
@@ -19,12 +21,15 @@ internal class RefreshTokenRepository(DbContext p_DbContext, IMapper p_Mapper, I
         return Mapper.Map<RefreshToken>(v_Entity);
     }
 
-    public async Task<RefreshToken> CreateRefreshTokenAsync(RefreshToken p_RefreshToken, CancellationToken p_CancellationToken = default)
+    public async Task<IMappingAddEntity<RefreshToken, IEntity>> CreateRefreshTokenAsync(RefreshToken p_RefreshToken, CancellationToken p_CancellationToken = default)
     {
         await DeleteExpitedRefreshTokenAsync(p_CancellationToken);
-        RefreshTokenRtk v_Entity = Mapper.Map<RefreshTokenRtk>(p_RefreshToken);
-        await AddAsync(v_Entity, p_CancellationToken);
-        return Mapper.Map<RefreshToken>(v_Entity);
+        
+        IMappingAddEntity<RefreshToken, RefreshTokenRtk> v_Mapping =
+            new MappingAddEntity<RefreshToken, RefreshTokenRtk>(Mapper, p_RefreshToken);
+
+        await AddAsync(v_Mapping.DtoEntity, p_CancellationToken);
+        return v_Mapping;
     }
 
     public async Task DeleteRefreshTokenAsync(string p_Token, CancellationToken p_CancellationToken = default)

@@ -7,6 +7,7 @@ using Tuuuur.Infrastructure.Jwt;
 using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Tuuuur.Domain.Interfaces.Data.Entities;
 
 namespace Tuuuur.Infrastructure.Tests.Jwt
 {
@@ -45,11 +46,22 @@ namespace Tuuuur.Infrastructure.Tests.Jwt
                 new(JwtRegisteredClaimNames.Email, v_User.Email),
                 new(ClaimTypes.Role, RolesType.Admin)
             };
-
+            
+            RefreshToken v_RefreshToken = new()
+            {
+                UserId = v_User.Id,
+                Token = "new-token-67890",
+                ExpiresAt = DateTime.UtcNow.AddDays(90),
+                CreatedAt = DateTime.UtcNow
+            };
+            
+            Mock<IMappingAddEntity<RefreshToken, IEntity>> v_MappingAddEntityMock = new();
+            v_MappingAddEntityMock.Setup(p_P => p_P.BoEntity).Returns(v_RefreshToken);
+            
             JwtFactory v_JwtFactory = new(m_JwtConfiguration);
             Mock<IUnitOfWork> v_UnitOfWorkMock = new();
             v_UnitOfWorkMock.Setup(p_U => p_U.RefreshTokenRepository.CreateRefreshTokenAsync(It.IsAny<RefreshToken>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((RefreshToken rt, CancellationToken ct) => rt);
+                .ReturnsAsync(v_MappingAddEntityMock.Object);
 
             // Act
             JwtTokenResponse v_Result = await v_JwtFactory.CreateTokenAsync(v_User, v_UnitOfWorkMock.Object, CancellationToken.None);
