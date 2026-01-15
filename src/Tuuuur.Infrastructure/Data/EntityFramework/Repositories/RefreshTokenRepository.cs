@@ -31,17 +31,20 @@ internal class RefreshTokenRepository(DbContext p_DbContext, IMapper p_Mapper, I
     {
         await DeleteExpitedRefreshTokenAsync(p_CancellationToken);
         RefreshTokenRtk v_RefreshTokens = await FindBy(p_P => p_P.Token == p_Token).FirstOrDefaultAsync(p_CancellationToken);
-        if(v_RefreshTokens != null)
-            await DeleteAsync(v_RefreshTokens, p_CancellationToken);
+        if (v_RefreshTokens != null)
+            await DeleteAsync(v_RefreshTokens);
     }
 
     private async Task DeleteExpitedRefreshTokenAsync(CancellationToken p_CancellationToken = default)
     {
         List<RefreshTokenRtk> v_RefreshTokenRtks = await FindBy(p_P => p_P.ExpiresAt <= DateTime.UtcNow).ToListAsync(p_CancellationToken);
-        
+
         if (v_RefreshTokenRtks.Count != 0)
         {
-            await DeleteAsync(v_RefreshTokenRtks);
+            foreach (RefreshTokenRtk v_Token in v_RefreshTokenRtks)
+            {
+                await DeleteAsync(v_Token);
+            }
 
             _ = await DbContext.SaveChangesAsync(p_CancellationToken);
         }

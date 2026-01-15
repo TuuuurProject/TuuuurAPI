@@ -3,4 +3,4 @@ using Tuuuur.Core.Responses.Authentication;
 
 namespace Tuuuur.Core.Requests.Authentication;
 
-public record RefreshTokenRequest(string RefreshToken) : IRequest<JwtAuthenticationResponse>;
+public record RefreshTokenRequest(string Bearer, string RefreshToken) : IRequest<JwtAuthenticationResponse>;

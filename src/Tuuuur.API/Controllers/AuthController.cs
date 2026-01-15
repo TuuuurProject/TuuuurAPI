@@ -248,7 +248,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
         [FromServices] JwtAuthenticationPresenter p_Presenter,
         CancellationToken p_CancellationToken = default)
     {
-        p_Presenter.Handle(await m_Mediator.Send(new RefreshTokenRequest(p_Request.RefreshToken), p_CancellationToken));
+        p_Presenter.Handle(await m_Mediator.Send(new RefreshTokenRequest(p_Request.Bearer, p_Request.RefreshToken), p_CancellationToken));
         return p_Presenter.ContentResult;
     }
 

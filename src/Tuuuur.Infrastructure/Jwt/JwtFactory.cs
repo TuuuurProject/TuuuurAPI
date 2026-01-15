@@ -67,6 +67,58 @@ internal class JwtFactory(JwtConfiguration p_JwtConfiguration) : IJwtFactory
         };
     }
 
+    public int? GetUserIdFromToken(string p_Token)
+    {
+        if (string.IsNullOrWhiteSpace(p_Token))
+            return null;
+
+        try
+        {
+            // Remove "Bearer " prefix if present
+            string v_Token = p_Token.Trim();
+            if (v_Token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            {
+                v_Token = v_Token[7..].Trim();
+            }
+
+            JwtSecurityTokenHandler v_TokenHandler = new();
+            TokenValidationParameters v_ValidationParameters = new()
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(p_JwtConfiguration.Key)),
+                ValidateIssuer = true,
+                ValidIssuer = p_JwtConfiguration.Issuer,
+                ValidateAudience = true,
+                ValidAudience = p_JwtConfiguration.Audience,
+                ValidateLifetime = false,
+                ClockSkew = TimeSpan.Zero
+            };
+
+            ClaimsPrincipal v_Principal = v_TokenHandler.ValidateToken(v_Token, v_ValidationParameters, out SecurityToken v_ValidatedToken);
+
+            // Verify token hasn't expired more than 1 month ago
+            if (v_ValidatedToken.ValidTo != DateTime.MinValue)
+            {
+                DateTime v_OneMonthAgo = DateTime.UtcNow.AddMonths(-1);
+                if (v_ValidatedToken.ValidTo < v_OneMonthAgo)
+                {
+                    return null; // Token expired more than 1 month ago
+                }
+            }
+
+            string v_UserIdClaim = v_Principal.FindFirst(ClaimTypes.Sid)?.Value;
+
+            if (string.IsNullOrWhiteSpace(v_UserIdClaim))
+                return null;
+
+            return int.TryParse(v_UserIdClaim, out int v_UserId) ? v_UserId : null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     private static string GenerateRefreshToken()
     {
         byte[] v_RandomNumber = new byte[64];

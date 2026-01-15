@@ -20,7 +20,6 @@ public class RefreshTokenUseCaseTests
     private readonly Mock<IJwtFactory> m_JwtFactoryMock;
     private readonly Mock<IRefreshTokenRepository> m_RefreshTokenRepositoryMock;
     private readonly Mock<IUserRepository> m_UserRepositoryMock;
-    private readonly Mock<IUserRoleService> m_UserRoleServiceMock;
     private readonly RefreshTokenUseCase m_UseCase;
 
     public RefreshTokenUseCaseTests()
@@ -30,12 +29,11 @@ public class RefreshTokenUseCaseTests
         m_JwtFactoryMock = new Mock<IJwtFactory>();
         m_RefreshTokenRepositoryMock = new Mock<IRefreshTokenRepository>();
         m_UserRepositoryMock = new Mock<IUserRepository>();
-        m_UserRoleServiceMock = new Mock<IUserRoleService>();
 
         m_UnitOfWorkMock.Setup(p_U => p_U.RefreshTokenRepository).Returns(m_RefreshTokenRepositoryMock.Object);
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository).Returns(m_UserRepositoryMock.Object);
 
-        m_UseCase = new RefreshTokenUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_JwtFactoryMock.Object, m_UserRoleServiceMock.Object);
+        m_UseCase = new RefreshTokenUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_JwtFactoryMock.Object);
     }
 
     [Fact]
@@ -43,6 +41,7 @@ public class RefreshTokenUseCaseTests
     {
         // Arrange
         const string v_RefreshTokenString = "valid-refresh-token";
+        const string v_BearerToken = "valid-bearer-token";
         User v_User = new() { Id = 1, Email = "test@test.com", NickName = "test", IsGoogleUser = false };
         RefreshToken v_RefreshToken = new()
         {
@@ -65,11 +64,12 @@ public class RefreshTokenUseCaseTests
             .ReturnsAsync(v_RefreshToken);
         m_UserRepositoryMock.Setup(p_U => p_U.GetUserByIdAsync(v_User.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_User);
-        m_UserRoleServiceMock.Setup(p_S => p_S.GetCurrentUserEmail()).Returns(v_User.Email);
+        m_JwtFactoryMock.Setup(p_J => p_J.GetUserIdFromToken(v_BearerToken))
+            .Returns(v_User.Id);
         m_JwtFactoryMock.Setup(p_J => p_J.CreateTokenAsync(v_User, It.IsAny<IUnitOfWork>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_NewTokenResponse);
 
-        RefreshTokenRequest v_Request = new(v_RefreshTokenString);
+        RefreshTokenRequest v_Request = new(v_BearerToken, v_RefreshTokenString);
 
         // Act
         JwtAuthenticationResponse v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
@@ -94,11 +94,14 @@ public class RefreshTokenUseCaseTests
     {
         // Arrange
         const string v_RefreshTokenString = "invalid-token";
+        const string v_BearerToken = "some-bearer-token";
 
         m_RefreshTokenRepositoryMock.Setup(p_R => p_R.GetRefreshTokenByTokenAsync(v_RefreshTokenString, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RefreshToken)null);
+        m_JwtFactoryMock.Setup(p_J => p_J.GetUserIdFromToken(v_BearerToken))
+            .Returns(1);
 
-        RefreshTokenRequest v_Request = new(v_RefreshTokenString);
+        RefreshTokenRequest v_Request = new(v_BearerToken, v_RefreshTokenString);
 
         // Act
         JwtAuthenticationResponse v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
@@ -117,6 +120,7 @@ public class RefreshTokenUseCaseTests
     {
         // Arrange
         const string v_RefreshTokenString = "expired-token";
+        const string v_BearerToken = "some-bearer-token";
         RefreshToken v_RefreshToken = new()
         {
             UserId = 1,
@@ -127,8 +131,10 @@ public class RefreshTokenUseCaseTests
 
         m_RefreshTokenRepositoryMock.Setup(p_R => p_R.GetRefreshTokenByTokenAsync(v_RefreshTokenString, It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_RefreshToken);
+        m_JwtFactoryMock.Setup(p_J => p_J.GetUserIdFromToken(v_BearerToken))
+            .Returns(1);
 
-        RefreshTokenRequest v_Request = new(v_RefreshTokenString);
+        RefreshTokenRequest v_Request = new(v_BearerToken, v_RefreshTokenString);
 
         // Act
         JwtAuthenticationResponse v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
@@ -147,6 +153,7 @@ public class RefreshTokenUseCaseTests
     {
         // Arrange
         const string v_RefreshTokenString = "valid-token";
+        const string v_BearerToken = "some-bearer-token";
         RefreshToken v_RefreshToken = new()
         {
             UserId = 999,
@@ -159,8 +166,10 @@ public class RefreshTokenUseCaseTests
             .ReturnsAsync(v_RefreshToken);
         m_UserRepositoryMock.Setup(p_U => p_U.GetUserByIdAsync(999, It.IsAny<CancellationToken>()))
             .ReturnsAsync((User)null);
+        m_JwtFactoryMock.Setup(p_J => p_J.GetUserIdFromToken(v_BearerToken))
+            .Returns(999);
 
-        RefreshTokenRequest v_Request = new(v_RefreshTokenString);
+        RefreshTokenRequest v_Request = new(v_BearerToken, v_RefreshTokenString);
 
         // Act
         JwtAuthenticationResponse v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
