@@ -6,7 +6,7 @@ public record JwtConfiguration
     public string Audience { get; init; }
     public string Key { get; init; }
     public int Validity { get; init; }
-    public int RefreshTokenValidity { get; init; } = 1;
+    public int RefreshTokenValidity { get; init; } = 30;
 
     public const string SectionName = "JwtSettings";
 }

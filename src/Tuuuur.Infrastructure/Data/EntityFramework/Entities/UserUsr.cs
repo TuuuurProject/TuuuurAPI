@@ -29,7 +29,7 @@ public partial class UserUsr
 
     public virtual ICollection<PartyUserPus> PartyUserPus { get; set; } = new List<PartyUserPus>();
 
-    public virtual RefreshTokenRtk RefreshTokenRtk { get; set; }
+    public virtual ICollection<RefreshTokenRtk> RefreshTokenRtk { get; set; } = new List<RefreshTokenRtk>();
 
     public virtual ICollection<UserAuthUat> UserAuthUat { get; set; } = new List<UserAuthUat>();
 

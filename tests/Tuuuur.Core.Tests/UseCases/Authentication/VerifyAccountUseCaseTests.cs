@@ -39,7 +39,7 @@ public class VerifyAccountUseCaseTests
         UserAuth v_UserAuth = new() { User = v_User, Code = v_Code };
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailOrNickNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
         m_UnitOfWorkMock.Setup(p_U => p_U.UserAuthRepository.GetUserAuthByUserIdAndCodeAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_UserAuth);
-        m_UnitOfWorkMock.Setup(p_U => p_U.RefreshTokenRepository.DeleteRefreshTokenForUserIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        m_UnitOfWorkMock.Setup(p_U => p_U.RefreshTokenRepository.DeleteRefreshTokenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         JwtTokenResponse v_JwtTokenResponse = new();
         m_JwtFactoryMock.Setup(p_J => p_J.CreateTokenAsync(v_User, It.IsAny<IUnitOfWork>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_JwtTokenResponse);

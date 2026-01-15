@@ -5,6 +5,7 @@ namespace Tuuuur.Domain.Bo;
 /// </summary>
 public class RefreshToken
 {
+    public int Id { get; init; }
     public int UserId { get; init; }
     public string Token { get; init; }
     public DateTime ExpiresAt { get; init; }
