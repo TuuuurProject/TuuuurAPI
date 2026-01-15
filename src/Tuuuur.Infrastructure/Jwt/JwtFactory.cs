@@ -49,7 +49,6 @@ internal class JwtFactory(JwtConfiguration p_JwtConfiguration) : IJwtFactory
 
         RefreshToken v_RefreshTokenEntity = new()
         {
-            Id = 0,
             UserId = p_UserInfos.Id,
             Token = v_RefreshToken,
             ExpiresAt = v_RefreshTokenExpiry,
