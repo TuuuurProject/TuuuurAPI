@@ -36,7 +36,7 @@ internal class LeaveGroupUseCase(IUnitOfWork p_UnitOfWork,
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found")]);
         }
 
-        Party v_Party = await p_CacheService.GetAsync<Party>(RedisKeys.Party.ById(v_Parties.Value), p_CancellationToken);
+        GroupParty v_Party = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ById(v_Parties.Value), p_CancellationToken);
 
         List<int> v_UserInParty = await p_CacheService.SetMembersAsync<int>(RedisKeys.Party.Users(v_Party.Id), p_CancellationToken: p_CancellationToken);
         Guid v_CurrentUser = await p_CacheService.GetAsync<Guid>(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken: p_CancellationToken);

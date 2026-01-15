@@ -14,7 +14,7 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
     {
         if (p_CancellationToken.IsCancellationRequested) return;
         string v_Json = JsonSerializer.Serialize(p_Value);
-        
+
         if (p_Expiration != TimeSpan.Zero)
             await m_Database.StringSetAsync(p_Key, v_Json, p_Expiration);
         else
@@ -32,10 +32,16 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
     {
         return await m_Database.KeyDeleteAsync(p_Key);
     }
-    
+
     public async Task<bool> ExistsAsync(string p_Key, CancellationToken p_CancellationToken = default)
     {
         return await m_Database.KeyExistsAsync(p_Key);
+    }
+
+    public async Task<long> IncrementAsync(string p_Key, long p_Value = 1, CancellationToken p_CancellationToken = default)
+    {
+        if (p_CancellationToken.IsCancellationRequested) return 0;
+        return await m_Database.StringIncrementAsync(p_Key, p_Value);
     }
 
     public async Task HashSetAsync<T>(string p_MasterKey, string p_FieldKey, T p_Value, CancellationToken p_CancellationToken = default)
@@ -89,6 +95,13 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
         return await m_Database.SetAddAsync(p_Key, JsonSerializer.Serialize(p_Value));
     }
 
+    public async Task<long> SetAddRangeAsync<T>(string p_Key, IEnumerable<T> p_Values, CancellationToken p_CancellationToken = default)
+    {
+        if (p_CancellationToken.IsCancellationRequested) return 0;
+        RedisValue[] v_RedisValues = p_Values.Select(p_Value => (RedisValue)JsonSerializer.Serialize(p_Value)).ToArray();
+        return await m_Database.SetAddAsync(p_Key, v_RedisValues);
+    }
+
     public async Task<bool> SetRemoveAsync<T>(string p_Key, T p_Value, CancellationToken p_CancellationToken = default)
     {
         return await m_Database.SetRemoveAsync(p_Key, JsonSerializer.Serialize(p_Value));
@@ -97,7 +110,7 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
     public async Task<List<T>> SetMembersAsync<T>(string p_Key, CancellationToken p_CancellationToken = default)
     {
         RedisValue[] v_Members = await m_Database.SetMembersAsync(p_Key);
-        return v_Members.Select(v => JsonSerializer.Deserialize<T>(v.ToString())!).ToList();
+        return v_Members.Select(p_Value => JsonSerializer.Deserialize<T>(p_Value.ToString())!).ToList();
     }
 
     public async Task<bool> SetContainsAsync<T>(string p_Key, T p_Value, CancellationToken p_CancellationToken = default)
@@ -105,7 +118,7 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
         return await m_Database.SetContainsAsync(p_Key, JsonSerializer.Serialize(p_Value));
     }
 
-    public async Task<bool> SortedSetAddAsync<T>(string p_Key, T p_Value, double p_Score, CancellationToken p_CancellationToken = default)
+    public async Task<bool> SortedSetAddAsync<T>(string p_Key, T p_Value, int p_Score, CancellationToken p_CancellationToken = default)
     {
         return await m_Database.SortedSetAddAsync(p_Key, JsonSerializer.Serialize(p_Value), p_Score);
     }
@@ -117,14 +130,35 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
         return v_Values.Select(p_Value => JsonSerializer.Deserialize<T>(p_Value.ToString())!).ToList();
     }
 
+    public async Task<List<(T Value, int Score)>> SortedSetRangeByRankWithScoresAsync<T>(string p_Key, long p_Start = 0, long p_Stop = -1, bool p_Descending = false, CancellationToken p_CancellationToken = default)
+    {
+        Order v_Order = p_Descending ? Order.Descending : Order.Ascending;
+        SortedSetEntry[] v_Entries = await m_Database.SortedSetRangeByRankWithScoresAsync(p_Key, p_Start, p_Stop, v_Order);
+        return v_Entries.Select(p_Entry =>
+            (JsonSerializer.Deserialize<T>(p_Entry.Element.ToString())!, (int)p_Entry.Score)
+        ).ToList();
+    }
+
+    public async Task<T> SortedSetGetByIndexAsync<T>(string p_Key, long p_Index, CancellationToken p_CancellationToken = default)
+    {
+        if (p_CancellationToken.IsCancellationRequested) return default;
+        RedisValue[] v_Values = await m_Database.SortedSetRangeByRankAsync(p_Key, p_Index, p_Index);
+        return v_Values.Length > 0 ? JsonSerializer.Deserialize<T>(v_Values[0].ToString())! : default;
+    }
+
     public async Task<bool> SortedSetRemoveAsync<T>(string p_Key, T p_Value, CancellationToken p_CancellationToken = default)
     {
         return await m_Database.SortedSetRemoveAsync(p_Key, JsonSerializer.Serialize(p_Value));
     }
 
+    public async Task<List<(T Value, int Score)>> SortedSetGetAllWithScoresAsync<T>(string p_Key, bool p_Descending = false, CancellationToken p_CancellationToken = default)
+    {
+        return await SortedSetRangeByRankWithScoresAsync<T>(p_Key, 0, -1, p_Descending, p_CancellationToken);
+    }
+
     public async Task<string> StreamAddAsync<T>(string p_Key, T p_Value, CancellationToken p_CancellationToken = default)
     {
-        NameValueEntry[] v_Entry = [ new NameValueEntry("payload", JsonSerializer.Serialize(p_Value)) ];
+        NameValueEntry[] v_Entry = [new NameValueEntry("payload", JsonSerializer.Serialize(p_Value))];
         RedisValue v_Id = await m_Database.StreamAddAsync(p_Key, v_Entry);
         return v_Id.ToString();
     }

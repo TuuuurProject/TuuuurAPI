@@ -18,7 +18,7 @@ internal class CreateGroupUseCase(IUnitOfWork p_UnitOfWork,
     ICacheService p_CacheService) :
     ACreateJoinGroupUseCase<CreateGroupPartyRequest>(p_Logger, p_UnitOfWork, p_UserRoleService, p_CacheService)
 {
-    protected override async Task<GenericEntityResponse<Party>> Process(CreateGroupPartyRequest p_Request, User p_User, CancellationToken p_CancellationToken)
+    protected override async Task<GenericEntityResponse<GroupParty>> Process(CreateGroupPartyRequest p_Request, User p_User, CancellationToken p_CancellationToken)
     {
         // Create it
         int v_Number;
@@ -32,7 +32,9 @@ internal class CreateGroupUseCase(IUnitOfWork p_UnitOfWork,
         int v_SixDigit = (v_Number % 900000) + 100000;
         string v_Code = v_SixDigit.ToString();
 
-        Party v_Party = new()
+        // Create party with default config 
+        // TODO: Need to be configurable in appsettings in the future
+        GroupParty v_Party = new()
         {
             Id = Guid.NewGuid(),
             IdPartyType = (int)PartyTypeType.Group,
@@ -40,6 +42,10 @@ internal class CreateGroupUseCase(IUnitOfWork p_UnitOfWork,
             IdUserHost = p_User.Id,
             Dt = DateTime.Now,
             Active = true,
+            InProgress = false,
+            NbQuestions = 10,
+            PartyDifficulty = [new PartyDifficulty { IdDifficulty = 1 }],
+            PartyTheme = [new PartyTheme { IdTheme = 1 }],
         };
 
         await m_CacheService.SetAsync(RedisKeys.Party.ById(v_Party.Id), v_Party, p_CancellationToken: p_CancellationToken);
@@ -49,6 +55,6 @@ internal class CreateGroupUseCase(IUnitOfWork p_UnitOfWork,
 
         v_Party.PartyUsers.Add(new PartyUser() { IdUser = p_User.Id, User = p_User });
 
-        return new GenericEntityResponse<Party>(v_Party);
+        return new GenericEntityResponse<GroupParty>(v_Party);
     }
 }

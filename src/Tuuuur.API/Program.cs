@@ -1,6 +1,8 @@
 using Asp.Versioning;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using Saunter;
+using Saunter.AsyncApiSchema.v2;
 using Tuuuur.API.Middlewares;
 using Tuuuur.API.Swagger;
 using Tuuuur.Core;
@@ -18,6 +20,7 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using StackExchange.Redis;
 using Tuuuur.API.Hubs;
@@ -84,6 +87,29 @@ internal static class Program
             p_Options.LowercaseQueryStrings = true;
         });
 
+        // AsyncAPI
+        v_Builder.Services.AddAsyncApiSchemaGeneration(p_Options =>
+        {
+            p_Options.AsyncApi = new AsyncApiDocument
+            {
+                Info = new Info("Tuuuur WebSocket API", "1.0.0")
+                {
+                    Description = "Real-time WebSocket API for multiplayer quiz game",
+                    Contact = new Contact
+                    {
+                        Name = "Tuuuur API Team",
+                        Email = "support@tuuuur.com"
+                    }
+                },
+                Servers =
+                {
+                    { "development", new Server("ws://localhost:5000", "wss") },
+                    { "production", new Server("wss://api.tuuuur.com", "wss") }
+                }
+            };
+            p_Options.AssemblyMarkerTypes = [typeof(Program)];
+        });
+
         // Swagger
         v_Builder.Services.AddEndpointsApiExplorer();
 
@@ -112,7 +138,7 @@ internal static class Program
                     In = ParameterLocation.Header,
                     Description = "Please enter into field your Jwt",
                     Name = HeaderNames.Authorization,
-                    Type = SecuritySchemeType.Http,
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
                     Scheme = JwtBearerDefaults.AuthenticationScheme
                 });
 
@@ -186,7 +212,8 @@ internal static class Program
                             (Encoding.UTF8.GetBytes(v_JwtConf.Key)),
                         ValidateIssuer = true,
                         ValidateAudience = true,
-                        ValidateLifetime = true,
+                        // Tell me if I forgot to remove to put ValidateLifetime to true in PR :)
+                        ValidateLifetime = false,
                         ValidateIssuerSigningKey = true,
                         ClockSkew = TimeSpan.Zero
                     });
@@ -207,8 +234,14 @@ internal static class Program
         });
 
         // Add SignalR
-        v_Builder.Services.AddSignalR();
-        v_Builder.Services.AddSingleton<IUserIdProvider, Tuuuur.API.Security.UserIdProvider>();
+        v_Builder.Services.AddSignalR()
+            .AddJsonProtocol(p_Options =>
+            {
+                p_Options.PayloadSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                p_Options.PayloadSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                p_Options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
+        v_Builder.Services.AddSingleton<IUserIdProvider, Security.UserIdProvider>();
 
         // Razor
         v_Builder.Services.AddRazorTemplating();
@@ -234,6 +267,10 @@ internal static class Program
 
         v_App.UseAuthentication();
         v_App.UseAuthorization();
+
+        // AsyncAPI - before middleware to see errors
+        v_App.MapAsyncApiDocuments().AllowAnonymous();
+        v_App.MapAsyncApiUi().AllowAnonymous();
 
         v_App.UseSerilogRequestLogging();
 

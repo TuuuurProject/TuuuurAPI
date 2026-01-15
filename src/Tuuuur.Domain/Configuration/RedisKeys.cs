@@ -33,6 +33,39 @@ public static class RedisKeys
         /// Value: Redis SET of user IDs (integers)
         /// </summary>
         public static string Users(Guid p_PartyId) => $"Party:{p_PartyId}:User";
+
+        /// <summary>
+        /// Key pattern for the set of questions in a party
+        /// Format: Party:{guid}:Questions
+        /// Example: Party:123e4567-e89b-12d3-a456-426614174000:Questions
+        /// Value: Redis SET of questions IDs (integers)
+        /// </summary>
+        public static string Questions(Guid p_PartyId) => $"Party:{p_PartyId}:Questions";
+
+        /// <summary>
+        /// Key pattern for the current question index in a party
+        /// Format: Party:{guid}:CurrentQuestionIndex
+        /// Example: Party:123e4567-e89b-12d3-a456-426614174000:CurrentQuestionIndex
+        /// Value: Integer representing the current question index (0-based)
+        /// </summary>
+        public static string CurrentQuestionIndex(Guid p_PartyId) => $"Party:{p_PartyId}:CurrentQuestionIndex";
+
+        /// <summary>
+        /// Key pattern for the answering question in a party
+        /// </summary>
+        /// <param name="p_PartyId"></param>
+        /// <param name="p_QuestionId"></param>
+        /// <param name="p_User"></param>
+        /// <returns></returns>
+        public static string PartyQuestionUserAnswer(Guid p_PartyId, int p_QuestionId, int p_User) => $"Party:{p_PartyId}:Questions:{p_QuestionId}:Users:{p_User}:Answer";
+
+        /// <summary>
+        /// Key pattern for the sorted set of player scores in a party
+        /// Format: Party:{guid}:Scores
+        /// Example: Party:123e4567-e89b-12d3-a456-426614174000:Scores
+        /// Value: Redis SORTED SET of User objects with scores as ranking values
+        /// </summary>
+        public static string Scores(Guid p_PartyId) => $"Party:{p_PartyId}:Scores";
     }
 
     /// <summary>

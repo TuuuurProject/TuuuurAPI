@@ -50,12 +50,58 @@ internal class GroupNotificationService(
         }
     }
 
-    public async Task NotifyPartyUpdatedAsync(Guid p_PartyId, Party p_Party)
+    public async Task NotifyPartyUpdatedAsync(Guid p_PartyId, GroupParty p_Party)
     {
         List<string> v_UserIds = await GetPartyUserIdsAsync(p_PartyId);
         if (v_UserIds.Count != 0)
         {
             await p_HubContext.Clients.Users(v_UserIds).OnPartyUpdated(p_Party);
+        }
+    }
+
+    public async Task NotifyPartyStartedAsync(Guid p_PartyId, GroupParty p_Party)
+    {
+        List<string> v_UserIds = await GetPartyUserIdsAsync(p_PartyId);
+        if (v_UserIds.Count != 0)
+        {
+            await p_HubContext.Clients.Users(v_UserIds).OnPartyStarted(p_Party);
+        }
+    }
+
+    public async Task NotifyPartyQuestionSend(int p_UserId, GroupQuestion p_Question)
+    {
+        await p_HubContext.Clients.User(p_UserId.ToString()).OnQuestionSend(p_Question);
+    }
+    
+    public async Task NotifyPartyQuestionAnswerSend(int p_UserId, GroupQuestion p_Question)
+    {
+        await p_HubContext.Clients.Users(p_UserId.ToString()).OnQuestionAnswerSend(p_Question);
+    }
+
+    public async Task NotifyUserSendAnswerAsync(Guid p_PartyId, User p_User)
+    {
+        List<string> v_UserIds = await GetPartyUserIdsAsync(p_PartyId);
+        if (v_UserIds.Count != 0)
+        {
+            await p_HubContext.Clients.Users(v_UserIds.Where(p_P => p_P != p_User.Id.ToString())).OnUserAnswer(p_User);
+        }
+    }
+
+    public async Task NotifyPartyScoresAsync(Guid p_PartyId, IEnumerable<UserScore> p_UserScores)
+    {
+        List<string> v_UserIds = await GetPartyUserIdsAsync(p_PartyId);
+        if (v_UserIds.Count != 0)
+        {
+            await p_HubContext.Clients.Users(v_UserIds).OnScoreUpdate(p_UserScores);
+        }
+    }
+
+    public async Task NotifyCountdownAsync(Guid p_PartyId, int p_Seconds)
+    {
+        List<string> v_UserIds = await GetPartyUserIdsAsync(p_PartyId);
+        if (v_UserIds.Count != 0)
+        {
+            await p_HubContext.Clients.Users(v_UserIds).OnCountdown(p_Seconds);
         }
     }
 

@@ -1,7 +1,12 @@
 namespace Tuuuur.Domain.Bo;
 
-public record Party : PartyBase
+public record GroupParty : PartyBase
 {
+    /// <summary>
+    /// Party code
+    /// </summary>
+    public string Code { get; set; }
+
     /// <summary>
     /// Number of questions
     /// </summary>
@@ -11,6 +16,11 @@ public record Party : PartyBase
     /// Is the party in progress (for groups and duel)
     /// </summary>
     public bool InProgress { get; set; }
+    
+    /// <summary>
+    /// Is score is send each time the round is finished
+    /// </summary>
+    public bool ScoreEachRound  { get; set; }
     
     /// <summary>
     /// Users list

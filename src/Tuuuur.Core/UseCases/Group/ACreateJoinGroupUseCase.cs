@@ -16,36 +16,36 @@ internal abstract class ACreateJoinGroupUseCase<TRequest>(
     IUnitOfWork m_UnitOfWork,
     IUserRoleService p_UserRoleService,
     ICacheService p_CacheService)
-    : ADbUseCase<TRequest, GenericEntityResponse<Party>>(m_Logger, m_UnitOfWork)
-    where TRequest : IRequest<GenericEntityResponse<Party>>
+    : ADbUseCase<TRequest, GenericEntityResponse<GroupParty>>(m_Logger, m_UnitOfWork)
+    where TRequest : IRequest<GenericEntityResponse<GroupParty>>
 {
     protected readonly ICacheService m_CacheService = p_CacheService;
-    protected override async Task<GenericEntityResponse<Party>> HandleLogic(TRequest p_Request, CancellationToken p_CancellationToken)
+    protected override async Task<GenericEntityResponse<GroupParty>> HandleLogic(TRequest p_Request, CancellationToken p_CancellationToken)
     {
         string v_UserEmail = p_UserRoleService.GetCurrentUserEmail();
 
         User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_UserEmail, p_CancellationToken);
 
         if (v_User == null)
-            return new GenericEntityResponse<Party>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
+            return new GenericEntityResponse<GroupParty>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
 
         Guid? v_PartyId = await m_CacheService.GetAsync<Guid?>(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken);
 
         // If a party already exist, 
         if (v_PartyId is not null)
         {
-            Party v_ExistingParty = await m_CacheService.GetAsync<Party>(RedisKeys.Party.ById(v_PartyId.Value), p_CancellationToken);
+            GroupParty v_ExistingParty = await m_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ById(v_PartyId.Value), p_CancellationToken);
             List<int> v_UserInExistingParty = await m_CacheService.SetMembersAsync<int>(RedisKeys.Party.Users(v_PartyId.Value), p_CancellationToken: p_CancellationToken);
             foreach (int v_UserId in v_UserInExistingParty)
             {
                 v_ExistingParty.PartyUsers.Add(new PartyUser { User = await m_UnitOfWork.UserRepository.GetUserByIdAsync(v_UserId, p_CancellationToken), IdUser = v_UserId });
             }
 
-            return new GenericEntityResponse<Party>(v_ExistingParty);
+            return new GenericEntityResponse<GroupParty>(v_ExistingParty);
         }
 
         return await Process(p_Request, v_User, p_CancellationToken);
     }
 
-    protected abstract Task<GenericEntityResponse<Party>> Process(TRequest p_Request, User p_User, CancellationToken p_CancellationToken);
+    protected abstract Task<GenericEntityResponse<GroupParty>> Process(TRequest p_Request, User p_User, CancellationToken p_CancellationToken);
 }

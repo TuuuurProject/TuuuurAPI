@@ -32,7 +32,6 @@ internal class CreateSoloPartyUseCase(
         Party v_Party = new()
         {
             IdPartyType = (int)PartyTypeType.Solo,
-            Code = null,
             PartyUsers = [new PartyUser(){ IdUser = v_User.Id }],
             IdUserHost = v_User.Id,
             PartyQuestions = v_Questions
