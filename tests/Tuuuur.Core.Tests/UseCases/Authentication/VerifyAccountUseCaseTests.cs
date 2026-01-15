@@ -27,7 +27,7 @@ public class VerifyAccountUseCaseTests
         m_JwtFactoryMock = new Mock<IJwtFactory>();
         m_UseCase = new VerifyAccountUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_JwtFactoryMock.Object);
     }
-    
+
     [Fact]
     public async Task Handle_WhenUserExistsAndCredentialsAreValid_ShouldReturnUserTokenAsync()
     {
@@ -35,13 +35,14 @@ public class VerifyAccountUseCaseTests
         const string v_Login = "test@test.com";
         const string v_Code = "357654";
 
-        User v_User = new(){ Email = v_Login };
-        UserAuth v_UserAuth = new(){ User = v_User, Code = v_Code };
+        User v_User = new() { Email = v_Login };
+        UserAuth v_UserAuth = new() { User = v_User, Code = v_Code };
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailOrNickNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
-        m_UnitOfWorkMock.Setup(p_U => p_U.UserAuthRepository.GetUserAuthByUserIdAndCodeAsync(It.IsAny<int>(), It.IsAny<string>() , It.IsAny<CancellationToken>())).ReturnsAsync(v_UserAuth);
-        
+        m_UnitOfWorkMock.Setup(p_U => p_U.UserAuthRepository.GetUserAuthByUserIdAndCodeAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_UserAuth);
+        m_UnitOfWorkMock.Setup(p_U => p_U.RefreshTokenRepository.DeleteRefreshTokenForUserIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
         JwtTokenResponse v_JwtTokenResponse = new();
-        m_JwtFactoryMock.Setup(p_J => p_J.CreateToken(v_User)).Returns(v_JwtTokenResponse);
+        m_JwtFactoryMock.Setup(p_J => p_J.CreateTokenAsync(v_User, It.IsAny<IUnitOfWork>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_JwtTokenResponse);
 
         VerifyAccountRequest v_Request = new(v_Login, v_Code);
 
@@ -54,7 +55,7 @@ public class VerifyAccountUseCaseTests
         Assert.Equal(v_User, v_Result.Value.User);
         Assert.Equal(v_JwtTokenResponse, v_Result.Value.Token);
     }
-    
+
     [Fact]
     public async Task Handle_WhenUserNotExistsAndCredentialsAreValid_ShouldReturnUserTokenAsync()
     {
@@ -62,8 +63,8 @@ public class VerifyAccountUseCaseTests
         const string v_Login = "test@test.com";
         const string v_Code = "357654";
 
-        User v_User = new(){ Email = v_Login };
-        UserAuth v_UserAuth = new(){ User = v_User, Code = v_Code };
+        User v_User = new() { Email = v_Login };
+        UserAuth v_UserAuth = new() { User = v_User, Code = v_Code };
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailOrNickNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((User)null);
 
         VerifyAccountRequest v_Request = new(v_Login, v_Code);

@@ -1,6 +1,7 @@
 ﻿using Ardalis.GuardClauses;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Configuration;
+using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Interfaces.Token;
 using Tuuuur.Domain.Security;
 using Tuuuur.Domain.Token;
@@ -15,28 +16,14 @@ namespace Tuuuur.Infrastructure.Jwt;
 /// <summary>
 /// Jwt factory implem
 /// </summary>
-internal class JwtFactory : IJwtFactory
+internal class JwtFactory(JwtConfiguration p_JwtConfiguration) : IJwtFactory
 {
-    private readonly JwtConfiguration m_JwtConfiguration;
-
-    public JwtFactory(JwtConfiguration p_JwtConfiguration)
-    {
-        m_JwtConfiguration = p_JwtConfiguration;
-    }
-
-    public JwtTokenResponse CreateToken(User p_UserInfos)
+    public async Task<JwtTokenResponse> CreateTokenAsync(User p_UserInfos, IUnitOfWork p_UnitOfWork, CancellationToken p_CancellationToken = default)
     {
         Guard.Against.Null(p_UserInfos);
+        Guard.Against.Null(p_UnitOfWork);
 
-        string v_Role;
-        if (p_UserInfos.IsAdmin)
-        {
-            v_Role = RolesType.Admin;
-        }
-        else
-        {
-            v_Role = RolesType.User;
-        }
+        string v_Role = p_UserInfos.IsAdmin ? RolesType.Admin : RolesType.User;
         SecurityTokenDescriptor v_TokenDescriptor = new()
         {
             Subject = new ClaimsIdentity([
@@ -46,22 +33,45 @@ internal class JwtFactory : IJwtFactory
                 new Claim(JwtRegisteredClaimNames.Email, p_UserInfos.Email),
                 new Claim(ClaimTypes.Role, v_Role)
             ]),
-            Expires = DateTime.UtcNow.AddMinutes(m_JwtConfiguration.Validity),
-            Issuer = m_JwtConfiguration.Issuer,
-            Audience = m_JwtConfiguration.Audience,
+            Expires = DateTime.UtcNow.AddMinutes(p_JwtConfiguration.Validity),
+            Issuer = p_JwtConfiguration.Issuer,
+            Audience = p_JwtConfiguration.Audience,
             SigningCredentials = new SigningCredentials
             (new SymmetricSecurityKey(Encoding.ASCII.GetBytes
-                    (m_JwtConfiguration.Key)),
+                    (p_JwtConfiguration.Key)),
                 SecurityAlgorithms.HmacSha512Signature)
         };
         JwtSecurityTokenHandler v_TokenHandler = new();
         SecurityToken v_Token = v_TokenHandler.CreateToken(v_TokenDescriptor);
 
+        string v_RefreshToken = GenerateRefreshToken();
+        DateTime v_RefreshTokenExpiry = DateTime.UtcNow.AddDays(p_JwtConfiguration.RefreshTokenValidity);
+
+        RefreshToken v_RefreshTokenEntity = new()
+        {
+            UserId = p_UserInfos.Id,
+            Token = v_RefreshToken,
+            ExpiresAt = v_RefreshTokenExpiry,
+            CreatedAt = DateTime.UtcNow,
+        };
+
+        await p_UnitOfWork.RefreshTokenRepository.CreateRefreshTokenAsync(v_RefreshTokenEntity, p_CancellationToken);
+
         return new JwtTokenResponse
         {
             Token = v_TokenHandler.WriteToken(v_Token),
             ValidTo = v_Token.ValidTo,
-            ValidFrom = v_Token.ValidFrom
+            ValidFrom = v_Token.ValidFrom,
+            RefreshToken = v_RefreshToken,
+            RefreshTokenExpiresAt = v_RefreshTokenExpiry
         };
+    }
+
+    private static string GenerateRefreshToken()
+    {
+        byte[] v_RandomNumber = new byte[64];
+        using RandomNumberGenerator v_Rng = RandomNumberGenerator.Create();
+        v_Rng.GetBytes(v_RandomNumber);
+        return Convert.ToBase64String(v_RandomNumber);
     }
 }

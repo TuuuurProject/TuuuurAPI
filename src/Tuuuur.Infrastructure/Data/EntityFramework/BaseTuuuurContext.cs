@@ -34,6 +34,8 @@ public partial class BaseTuuuurContext : DbContext
 
     public virtual DbSet<QuestionThemeQth> QuestionThemeQth { get; set; }
 
+    public virtual DbSet<RefreshTokenRtk> RefreshTokenRtk { get; set; }
+
     public virtual DbSet<ThemeThm> ThemeThm { get; set; }
 
     public virtual DbSet<UserAuthUat> UserAuthUat { get; set; }
@@ -253,6 +255,29 @@ public partial class BaseTuuuurContext : DbContext
                 .HasForeignKey(d => d.IdTheme)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_QuestionTheme_Theme");
+        });
+
+        modelBuilder.Entity<RefreshTokenRtk>(entity =>
+        {
+            entity.HasKey(e => e.UserId);
+
+            entity.ToTable("RefreshToken_RTK");
+
+            entity.HasIndex(e => e.Token, "IX_RefreshToken_Token");
+
+            entity.HasIndex(e => e.UserId, "IX_RefreshToken_UserId");
+
+            entity.Property(e => e.UserId).ValueGeneratedNever();
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.Token)
+                .IsRequired()
+                .HasMaxLength(500)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.User).WithOne(p => p.RefreshTokenRtk)
+                .HasForeignKey<RefreshTokenRtk>(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RefreshToken_User");
         });
 
         modelBuilder.Entity<ThemeThm>(entity =>

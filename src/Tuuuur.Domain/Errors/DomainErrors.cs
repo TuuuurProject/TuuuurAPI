@@ -75,6 +75,12 @@ public static class DomainErrors
             public const string InvalidLength = CodePrefix + GeneralErrors.InvalidFormat.InvalidLength;
             public const string TooMuchDemand = CodePrefix + "too-much-demand";
         }
+
+        public static class RefreshToken
+        {
+            private const string RefreshTokenPrefix = AuthentPrefix + "refresh-token.";
+            public const string Invalid = RefreshTokenPrefix + GeneralErrors.Invalid;
+        }
     }
 
     public static class Party

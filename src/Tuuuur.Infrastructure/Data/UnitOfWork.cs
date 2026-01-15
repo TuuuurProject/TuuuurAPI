@@ -16,6 +16,7 @@ internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
     private readonly ILoggerFactory m_LoggerFactory;
     private readonly Lazy<IUserRepository> m_UserRepository;
     private readonly Lazy<IUserAuthRepository> m_UserAuthRepository;
+    private readonly Lazy<IRefreshTokenRepository> m_RefreshTokenRepository;
     private readonly Lazy<IThemeRepository> m_ThemeRepository;
     private readonly Lazy<IDifficultyRepository> m_DifficultyRepository;
     private readonly Lazy<IQuestionRepository> m_QuestionRepository;
@@ -30,6 +31,7 @@ internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
         m_LoggerFactory = p_LoggerFactory ?? throw new ArgumentNullException(nameof(p_LoggerFactory));
         m_UserRepository = CreateLazy<IUserRepository, UserRepository>();
         m_UserAuthRepository = CreateLazy<IUserAuthRepository, UserAuthRepository>();
+        m_RefreshTokenRepository = CreateLazy<IRefreshTokenRepository, RefreshTokenRepository>();
         m_ThemeRepository = CreateLazy<IThemeRepository, ThemeRepository>();
         m_DifficultyRepository = CreateLazy<IDifficultyRepository, DifficultyRepository>();
         m_QuestionRepository = CreateLazy<IQuestionRepository, QuestionRepository>();
@@ -49,6 +51,7 @@ internal class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
 
     public IUserRepository UserRepository => m_UserRepository.Value;
     public IUserAuthRepository UserAuthRepository => m_UserAuthRepository.Value;
+    public IRefreshTokenRepository RefreshTokenRepository => m_RefreshTokenRepository.Value;
     public IThemeRepository ThemeRepository => m_ThemeRepository.Value;
     public IDifficultyRepository DifficultyRepository => m_DifficultyRepository.Value;
     public IQuestionRepository QuestionRepository => m_QuestionRepository.Value;
