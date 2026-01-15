@@ -41,13 +41,15 @@ internal partial class GoogleAuthentificationUseCase(
 
             await m_UnitOfWork.UserRepository.CreateUserAsync(v_User, p_CancellationToken);
             _ = m_UnitOfWork.Save();
+
+            // Mandatory to ensure the Id is properly set
+            v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(p_Request.Email, p_CancellationToken);
         }
 
         else if (!v_User.IsGoogleUser)
             return new JwtAuthenticationResponse([new ErrorDto(DomainErrors.Authentication.Google.InvalidGoogle, $"The email {p_Request.Email} is already registered but is not linked to Google. Please sign in using your credentials.")]);
 
         JwtTokenResponse v_TokenInfos = await p_JwtFactory.CreateTokenAsync(v_User, m_UnitOfWork, p_CancellationToken);
-        _ = m_UnitOfWork.Save();
 
         return new JwtAuthenticationResponse(new UserToken
         {

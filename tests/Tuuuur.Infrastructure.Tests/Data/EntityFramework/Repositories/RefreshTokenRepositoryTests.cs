@@ -1,8 +1,11 @@
+using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Tuuuur.Domain.Bo;
+using Tuuuur.Domain.Interfaces.Data.Entities;
 using Tuuuur.Factory.Tests;
 using Tuuuur.Infrastructure.Data.EntityFramework.Entities;
 using Tuuuur.Infrastructure.Data.EntityFramework.Repositories;
+using Tuuuur.Infrastructure.Data.Mapping;
 using Tuuuur.Infrastructure.Tests.Fixtures;
 
 namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories;
@@ -100,14 +103,17 @@ public class RefreshTokenRepositoryTests : ADatabaseTests
                 ExpiresAt = DateTime.UtcNow.AddDays(90),
                 CreatedAt = DateTime.UtcNow
             };
+            
+            Mock<IMappingAddEntity<RefreshToken, IEntity>> v_MappingAddEntityMock = new();
+            v_MappingAddEntityMock.Setup(p_P => p_P.BoEntity).Returns(v_RefreshToken);
 
             // Act
-            RefreshToken v_Result = await v_Repository.CreateRefreshTokenAsync(v_RefreshToken, CancellationToken.None);
+            IMappingAddEntity<RefreshToken, IEntity> v_Result = await v_Repository.CreateRefreshTokenAsync(v_RefreshToken, CancellationToken.None);
             _ = await m_SqlServerFixture.TestContext.SaveChangesAsync();
 
             // Assert
             Check.That(v_Result).IsNotNull();
-            Check.That(v_Result.Token).IsEqualTo("new-token-67890");
+            Check.That(v_Result.MapBoEntity.Token).IsEqualTo("new-token-67890");
 
             RefreshTokenRtk v_DbToken = m_SqlServerFixture.TestContext.RefreshTokenRtk
                 .FirstOrDefault(rt => rt.Token == "new-token-67890");
