@@ -171,6 +171,7 @@ internal static class Program
                         p_SqlServerOptionsBuilder
                             .CommandTimeout((int)TimeSpan.FromMinutes(3).TotalSeconds)
                             .EnableRetryOnFailure();
+                        p_SqlServerOptionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                     }));
 
         // AutoMapper

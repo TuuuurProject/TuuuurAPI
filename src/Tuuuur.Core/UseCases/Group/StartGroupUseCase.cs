@@ -113,7 +113,7 @@ internal class StartGroupUseCase(
                 IMediator v_Mediator = v_Scope.ServiceProvider.GetRequiredService<IMediator>();
 
                 // Launch party logic
-                GetQuestionGroupRequest v_GetQuestionGroupRequest = new();
+                GetQuestionGroupRequest v_GetQuestionGroupRequest = new(v_Party.Id);
                 _ = await v_Mediator.Send(v_GetQuestionGroupRequest, CancellationToken.None);
             }
             catch (Exception v_Exception)
