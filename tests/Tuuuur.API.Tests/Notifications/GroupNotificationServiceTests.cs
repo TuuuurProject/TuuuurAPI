@@ -168,7 +168,7 @@ public class GroupNotificationServiceTests
     {
         // Arrange
         Guid v_PartyId = Guid.NewGuid();
-        Party v_Party = new()
+        GroupParty v_Party = new()
         {
             Id = v_PartyId,
             Code = "ABC123",
@@ -208,7 +208,7 @@ public class GroupNotificationServiceTests
     {
         // Arrange
         Guid v_PartyId = Guid.NewGuid();
-        Party v_Party = new()
+        GroupParty v_Party = new()
         {
             Id = v_PartyId,
             Code = "ABC123"

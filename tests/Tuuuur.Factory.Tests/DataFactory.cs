@@ -62,6 +62,19 @@ public static class BoFactory
         return new Faker<Party>()
             .RuleFor(p_Party => p_Party.Id, _ => Guid.NewGuid())
             .RuleFor(p_Party => p_Party.Dt, p_F => p_F.Date.Recent(30))
+            .RuleFor(p_Party => p_Party.IdPartyType, p_F => p_F.Random.Int(1, 10))
+            .RuleFor(p_Party => p_Party.IdUserHost, p_F => p_F.Random.Int(1, 1000))
+            .RuleFor(p_Party => p_Party.Active, p_F => p_F.Random.Bool())
+            .RuleFor(p_Party => p_Party.PartyQuestions, _ => [])
+            .RuleFor(p_Party => p_Party.PartyUsers, p_Faker => new Faker<PartyUser>().Generate(5));
+    }
+    
+    
+    public static Faker<GroupParty> CreateGroupParty()
+    {
+        return new Faker<GroupParty>()
+            .RuleFor(p_Party => p_Party.Id, _ => Guid.NewGuid())
+            .RuleFor(p_Party => p_Party.Dt, p_F => p_F.Date.Recent(30))
             .RuleFor(p_Party => p_Party.Code, p_F => p_F.Random.AlphaNumeric(6))
             .RuleFor(p_Party => p_Party.IdPartyType, p_F => p_F.Random.Int(1, 10))
             .RuleFor(p_Party => p_Party.IdUserHost, p_F => p_F.Random.Int(1, 1000))

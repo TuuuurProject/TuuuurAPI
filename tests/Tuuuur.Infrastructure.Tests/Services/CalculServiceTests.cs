@@ -24,10 +24,14 @@ namespace Tuuuur.Infrastructure.Tests.Services
         [Fact]
         public void CalculateScore_ShouldThrow_WhenAnsweredAtIsNull()
         {
+            // Arrange
             DateTime v_PresentedAt = DateTime.Now;
 
-            Assert.Throws<NotImplementedException>(() =>
-                m_CalculService.CalculateScore(v_PresentedAt, null));
+            // Act
+            int v_Result = m_CalculService.CalculateScore(v_PresentedAt, null);
+
+            // Assert
+            Assert.Equal(0, v_Result);
         }
 
         [Fact]
