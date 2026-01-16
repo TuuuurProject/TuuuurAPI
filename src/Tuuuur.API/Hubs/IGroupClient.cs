@@ -72,6 +72,13 @@ public interface IGroupClient
     /// <param name="p_UserScores"></param>
     /// <returns></returns>
     Task OnScoreUpdate(IEnumerable<UserScore> p_UserScores);
+    
+    /// <summary>
+    /// Notified when party is finished
+    /// </summary>
+    /// <param name="p_UserScores"></param>
+    /// <returns></returns>
+    Task OnPartyFinished(IEnumerable<UserScore> p_UserScores);
 
     /// <summary>
     /// Notified when the party starts

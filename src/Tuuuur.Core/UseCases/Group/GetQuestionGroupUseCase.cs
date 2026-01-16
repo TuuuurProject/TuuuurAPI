@@ -72,9 +72,10 @@ internal class GetQuestionGroupUseCase(
         );
 
         // Update question state for each user in parallel
+        Question v_QuestionCopied = v_Question;
         IEnumerable<Task> v_UpdateQuestionTasks = v_UserIds.Select(async p_UserId =>
         {
-            Question v_LocalQuestion = v_Question.Copy();
+            Question v_LocalQuestion = v_QuestionCopied.Copy();
             UserPartyQuestion v_UserPartyQuestion = new()
             {
                 IdUser = p_UserId,
@@ -238,12 +239,10 @@ internal class GetQuestionGroupUseCase(
         }
         else
         {
-            await p_GroupNotificationService.NotifyPartyScoresAsync(
+            await p_GroupNotificationService.NotifyPartyFinishedAsync(
                 v_Party.Id,
                 v_ScoresList
             );
-            
-            await Task.Delay(TimeSpan.FromSeconds(5), p_CancellationToken);
             
             // TODO : Enregistrer tout dans la base de données
             // TODO : Reset la partie dans REDIS, supprimer toutes les clés qui ont été crées après
