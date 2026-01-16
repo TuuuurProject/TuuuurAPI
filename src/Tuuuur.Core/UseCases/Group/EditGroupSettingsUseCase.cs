@@ -49,6 +49,7 @@ internal class EditGroupSettingsUseCase(
             .Select(p_Id => new PartyDifficulty { IdDifficulty = p_Id }).ToList();
         v_Party.PartyTheme = p_Request.ThemesIds
             .Select(p_Id => new PartyTheme { IdTheme = p_Id }).ToList();
+        v_Party.ScoreEachRound = p_Request.ScoreEachRound;
 
         await p_CacheService.SetAsync(RedisKeys.Party.ById(v_Party.Id), v_Party, p_CancellationToken: p_CancellationToken);
         await p_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);

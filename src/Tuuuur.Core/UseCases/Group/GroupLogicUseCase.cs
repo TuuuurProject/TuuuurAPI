@@ -4,28 +4,25 @@ using Tuuuur.Core.Requests.Group;
 using Tuuuur.Core.Responses;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Configuration;
-using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Interfaces;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Interfaces.Services;
 using Tuuuur.Domain.Notifications;
-using Tuuuur.Domain.Security;
 
 namespace Tuuuur.Core.UseCases.Group;
 
-internal class GetQuestionGroupUseCase(
+internal class GroupLogicUseCase(
     IUnitOfWork p_UnitOfWork,
-    IUserRoleService p_UserRoleService,
     ICacheService p_CacheService,
     IGroupNotificationService p_GroupNotificationService,
     ICalculService p_CalculService,
     IMediator p_Mediator,
-    ILogger<GetQuestionGroupUseCase> p_Logger)
-    : ADbUseCase<GetQuestionGroupRequest, EmptyResponse>(p_Logger, p_UnitOfWork)
+    ILogger<GroupLogicUseCase> p_Logger)
+    : ADbUseCase<GroupLogicRequest, EmptyResponse>(p_Logger, p_UnitOfWork)
 {
-    protected override async Task<EmptyResponse> HandleLogic(GetQuestionGroupRequest p_PartyRequest, CancellationToken p_CancellationToken)
+    protected override async Task<EmptyResponse> HandleLogic(GroupLogicRequest p_PartyLogicRequest, CancellationToken p_CancellationToken)
     {
-        GroupParty v_Party = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ById(p_PartyRequest.PartyId), p_CancellationToken);
+        GroupParty v_Party = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ById(p_PartyLogicRequest.PartyId), p_CancellationToken);
         
         // Get the index of question to get
         int v_CurrentIndex = await p_CacheService.GetAsync<int>(RedisKeys.Party.CurrentQuestionIndex(v_Party.Id), p_CancellationToken);
@@ -217,7 +214,7 @@ internal class GetQuestionGroupUseCase(
                 v_CurrentIndex + 1, p_CancellationToken: p_CancellationToken);
 
             // Loop to others questions
-            await p_Mediator.Send(p_PartyRequest, p_CancellationToken);
+            await p_Mediator.Send(p_PartyLogicRequest, p_CancellationToken);
         }
         else
         {
@@ -225,6 +222,10 @@ internal class GetQuestionGroupUseCase(
                 v_Party.Id,
                 v_ScoresList
             );
+            
+            v_Party.InProgress = false;
+            await p_CacheService.SetAsync(RedisKeys.Party.ById(v_Party.Id), v_Party, p_CancellationToken: p_CancellationToken);
+            await p_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
             
             // TODO : Enregistrer tout dans la base de données
             // TODO : Reset la partie dans REDIS, supprimer toutes les clés qui ont été crées après

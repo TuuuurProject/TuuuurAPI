@@ -44,6 +44,9 @@ internal class StartGroupUseCase(
         if (v_CurrentParty != v_Party.Id || v_Party.IdUserHost != v_User.Id)
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found")]);
 
+        if (v_Party.InProgress)
+            return new EmptyResponse([new ErrorDto("TODO", $"TODO")]);
+
         if (v_Party.NbQuestions is not (5 or 10 or 15 or 20) || v_Party.PartyDifficulty.Count == 0 ||
             v_Party.PartyTheme.Count == 0)
         {
@@ -113,8 +116,8 @@ internal class StartGroupUseCase(
                 IMediator v_Mediator = v_Scope.ServiceProvider.GetRequiredService<IMediator>();
 
                 // Launch party logic
-                GetQuestionGroupRequest v_GetQuestionGroupRequest = new(v_Party.Id);
-                _ = await v_Mediator.Send(v_GetQuestionGroupRequest, CancellationToken.None);
+                GroupLogicRequest v_GroupLogicRequest = new(v_Party.Id);
+                _ = await v_Mediator.Send(v_GroupLogicRequest, CancellationToken.None);
             }
             catch (Exception v_Exception)
             {

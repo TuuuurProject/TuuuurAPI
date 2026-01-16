@@ -1,8 +1,6 @@
 using Asp.Versioning;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using Saunter;
-using Saunter.AsyncApiSchema.v2;
 using Tuuuur.API.Middlewares;
 using Tuuuur.API.Swagger;
 using Tuuuur.Core;
@@ -85,29 +83,6 @@ internal static class Program
         {
             p_Options.LowercaseUrls = true;
             p_Options.LowercaseQueryStrings = true;
-        });
-
-        // AsyncAPI
-        v_Builder.Services.AddAsyncApiSchemaGeneration(p_Options =>
-        {
-            p_Options.AsyncApi = new AsyncApiDocument
-            {
-                Info = new Info("Tuuuur WebSocket API", "1.0.0")
-                {
-                    Description = "Real-time WebSocket API for multiplayer quiz game",
-                    Contact = new Contact
-                    {
-                        Name = "Tuuuur API Team",
-                        Email = "support@tuuuur.com"
-                    }
-                },
-                Servers =
-                {
-                    { "development", new Server("ws://localhost:5000", "wss") },
-                    { "production", new Server("wss://api.tuuuur.com", "wss") }
-                }
-            };
-            p_Options.AssemblyMarkerTypes = [typeof(Program)];
         });
 
         // Swagger
@@ -268,10 +243,6 @@ internal static class Program
 
         v_App.UseAuthentication();
         v_App.UseAuthorization();
-
-        // AsyncAPI - before middleware to see errors
-        v_App.MapAsyncApiDocuments().AllowAnonymous();
-        v_App.MapAsyncApiUi().AllowAnonymous();
 
         v_App.UseSerilogRequestLogging();
 
