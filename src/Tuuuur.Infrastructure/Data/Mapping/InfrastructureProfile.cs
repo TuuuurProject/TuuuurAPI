@@ -27,12 +27,6 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.PartyQuestion, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt))
             .ForMember(p_Trg => p_Trg.QuestionTheme, p_Opt => p_Opt.MapFrom(p_Src => p_Src.QuestionThemeQth))
             .ReverseMap();
-
-        
-        CreateMap<QuestionQst, GroupQuestion>().IncludeBase<QuestionQst, Question>()
-            .ForMember(p_Trg => p_Trg.Score, p_Opt => p_Opt.Ignore())
-            .ForMember(p_Trg => p_Trg.CurrentIndex, p_Opt => p_Opt.Ignore())
-            .ReverseMap();
         
         
         CreateMap<PartyPty, Party>()

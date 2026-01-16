@@ -27,7 +27,7 @@ internal class QuestionRepository(DbContext p_DbContext, IMapper p_Mapper, ILogg
         return Mapper.Map<IEnumerable<Question>>(v_Query);
     }
 
-    public async Task<GroupQuestion> GetQuestionByIdWithAnswerAsync(int p_Id, CancellationToken p_CancellationToken = default)
+    public async Task<Question> GetQuestionByIdWithAnswerAsync(int p_Id, CancellationToken p_CancellationToken = default)
     {
         QuestionQst v_QuestionQst = await FindBy(
             p_P => p_P.Id == p_Id, 
@@ -38,6 +38,6 @@ internal class QuestionRepository(DbContext p_DbContext, IMapper p_Mapper, ILogg
                 .Include(p_P => p_P.IdDifficultyNavigation)
                 .Include(p_P => p_P.PartyQuestionPqt))
             .FirstOrDefaultAsync(p_CancellationToken);
-        return Mapper.Map<GroupQuestion>(v_QuestionQst);
+        return Mapper.Map<Question>(v_QuestionQst);
     }
 }

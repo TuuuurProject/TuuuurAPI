@@ -49,11 +49,11 @@ internal class GetQuestionGroupUseCase(
         int v_CurrentIndex = await p_CacheService.GetAsync<int>(RedisKeys.Party.CurrentQuestionIndex(v_Party.Id), p_CancellationToken);
 
         // Get the question
-        GroupQuestion v_CurrentQuestion = await p_CacheService.SortedSetGetByIndexAsync<GroupQuestion>(
+        Question v_CurrentQuestion = await p_CacheService.SortedSetGetByIndexAsync<Question>(
             RedisKeys.Party.Questions(v_Party.Id),
             p_Index: v_CurrentIndex, p_CancellationToken: p_CancellationToken);
 
-        GroupQuestion v_Question = await m_UnitOfWork.QuestionRepository.GetQuestionByIdWithAnswerAsync(v_CurrentQuestion.Id, p_CancellationToken);
+        Question v_Question = await m_UnitOfWork.QuestionRepository.GetQuestionByIdWithAnswerAsync(v_CurrentQuestion.Id, p_CancellationToken);
         v_Question.ClearAnswer();
 
         // Send countdown (3, 2, 1)
@@ -74,6 +74,7 @@ internal class GetQuestionGroupUseCase(
         // Update question state for each user in parallel
         IEnumerable<Task> v_UpdateQuestionTasks = v_UserIds.Select(async p_UserId =>
         {
+            Question v_LocalQuestion = v_Question.Copy();
             UserPartyQuestion v_UserPartyQuestion = new()
             {
                 IdUser = p_UserId,
@@ -82,23 +83,27 @@ internal class GetQuestionGroupUseCase(
                 AnswersOrder = Guid.NewGuid()
             };
 
-            // Create a shuffled copy of answers for this user
-            int v_Seed = v_UserPartyQuestion.AnswersOrder.GetHashCode();
-            Random v_Random = new(v_Seed);
-            v_Question.Answer = v_Question.Answer.OrderBy(_ => v_Random.Next()).ToList();
-
             await p_CacheService.SetAsync(
-                RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Id, v_Question.Id, p_UserId),
+                RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Id, v_LocalQuestion.Id, p_UserId),
                 v_UserPartyQuestion,
                 p_CancellationToken: p_CancellationToken
             );
             
-            v_Question.CurrentIndex = v_CurrentIndex + 1;
+            // Create a shuffled copy of answers for this user
+            int v_Seed = v_UserPartyQuestion.AnswersOrder.GetHashCode();
+            Random v_Random = new(v_Seed);
+            v_LocalQuestion.Answer = v_LocalQuestion.Answer.OrderBy(_ => v_Random.Next()).ToList();
 
+            GroupQuestion v_GroupQuestion = new()
+            {
+                Question = v_LocalQuestion,
+                CurrentIndex = v_CurrentIndex + 1,
+            };
+            
             // Send the question to the specific user
             await p_GroupNotificationService.NotifyPartyQuestionSend(
                 p_UserId,
-                v_Question
+                v_GroupQuestion
             );
         });
 
@@ -120,15 +125,16 @@ internal class GetQuestionGroupUseCase(
         // Update scores for all users in parallel
         IEnumerable<Task<UserScore>> v_UpdateScoreTasks = v_UserIds.Select(async p_UserId =>
         {
+            Question v_LocalQuestion = v_Question.Copy();
             UserPartyQuestion v_UserPartyQuestion = await p_CacheService.GetAsync<UserPartyQuestion>(
-                RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Id, v_Question.Id, p_UserId),
+                RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Id, v_LocalQuestion.Id, p_UserId),
                 p_CancellationToken: p_CancellationToken
             );
 
             if (v_UserPartyQuestion != null)
             {
                 // Answer can be null if the request was sent without response
-                Answer v_Answer = v_Question.Answer.FirstOrDefault(p_P => p_P.Id == v_UserPartyQuestion.IdAnswer);
+                Answer v_Answer = v_LocalQuestion.Answer.FirstOrDefault(p_P => p_P.Id == v_UserPartyQuestion.IdAnswer);
                 
                 int v_Score = p_CalculService.CalculateScore(v_UserPartyQuestion.DtPresentedAt, v_UserPartyQuestion.DtAnsweredAt);
 
@@ -173,15 +179,19 @@ internal class GetQuestionGroupUseCase(
                 
                 int v_Seed = v_UserPartyQuestion.AnswersOrder.GetHashCode();
                 Random v_Random = new(v_Seed);
-                v_Question.Answer = v_Question.Answer.OrderBy(_ => v_Random.Next()).ToList();
-                
-                v_Question.CurrentIndex = v_CurrentIndex + 1;
-                v_Question.Score = v_Score;
+                v_LocalQuestion.Answer = v_LocalQuestion.Answer.OrderBy(_ => v_Random.Next()).ToList();
 
+                GroupQuestion v_GroupQuestion = new()
+                {
+                    Question = v_LocalQuestion,
+                    CurrentIndex = v_CurrentIndex + 1,
+                    Score = v_UserPartyQuestion.Score,
+                };
+                
                 // Send the question with correct answer after countdown
                 await p_GroupNotificationService.NotifyPartyQuestionAnswerSend(
                     p_UserId,
-                    v_Question
+                    v_GroupQuestion
                 );
 
                 return new UserScore
