@@ -1,17 +1,14 @@
-using Microsoft.Extensions.Logging;
 using Tuuuur.Infrastructure.Services;
 
 namespace Tuuuur.Infrastructure.Tests.Services
 {
     public class CalculServiceTests
     {
-        private readonly Mock<ILogger<CalculService>> m_LoggerMock;
         private readonly CalculConfiguration m_CalculConfiguration;
         private readonly CalculService m_CalculService;
 
         public CalculServiceTests()
         {
-            m_LoggerMock = new Mock<ILogger<CalculService>>();
             m_CalculConfiguration = new CalculConfiguration
             {
                 MaxDurationInSeconds = 30,
