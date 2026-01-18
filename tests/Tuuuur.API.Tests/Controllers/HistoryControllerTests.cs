@@ -37,10 +37,10 @@ public class HistoryControllerTests
             Size = 10,
         };
 
-        m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<GetHistoryRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<HistoryPage>(new HistoryPage()));
+        m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<GetAllHistoryRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<HistoryPage>(new HistoryPage()));
             
         // Act
-        IActionResult v_Result = await m_Controller.GetHistoryAsync(v_Request, new PaginationRequestValidator(), new GenericEntityPresenter<HistoryPage>(), CancellationToken.None);
+        IActionResult v_Result = await m_Controller.GetHistoryListAsync(v_Request, new PaginationRequestValidator(), new GenericEntityPresenter<HistoryPage>(), CancellationToken.None);
 
         // Assert
         v_Result.Should().BeOfType<JsonContentResult>();
@@ -54,10 +54,10 @@ public class HistoryControllerTests
         // Arrange
         PaginationRequest v_Request = new();
 
-        m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<GetHistoryRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<HistoryPage>(new HistoryPage()));
+        m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<GetAllHistoryRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<HistoryPage>(new HistoryPage()));
             
         // Act
-        IActionResult v_Result = await m_Controller.GetHistoryAsync(v_Request, new PaginationRequestValidator(), new GenericEntityPresenter<HistoryPage>(), CancellationToken.None);
+        IActionResult v_Result = await m_Controller.GetHistoryListAsync(v_Request, new PaginationRequestValidator(), new GenericEntityPresenter<HistoryPage>(), CancellationToken.None);
 
         // Assert
         v_Result.Should().BeOfType<JsonContentResult>();

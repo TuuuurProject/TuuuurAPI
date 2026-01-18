@@ -6,6 +6,7 @@ using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Configuration;
 using Tuuuur.Domain.Interfaces;
 using Tuuuur.Domain.Interfaces.Data;
+using Tuuuur.Domain.Interfaces.Data.Entities;
 using Tuuuur.Domain.Interfaces.Services;
 using Tuuuur.Domain.Notifications;
 
@@ -228,7 +229,39 @@ internal class GroupLogicUseCase(
             await p_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
             
             // TODO : Enregistrer tout dans la base de données
-            // TODO : Reset la partie dans REDIS, supprimer toutes les clés qui ont été crées après
+            
+            // Sauvegarder l'ID avant de le réinitialiser
+            Guid v_OriginalPartyId = v_Party.Id;
+            List<Question> v_Questions = await p_CacheService.SortedSetRangeByRankAsync<Question>(RedisKeys.Party.Questions(v_OriginalPartyId), p_CancellationToken: p_CancellationToken);
+            
+            v_Party.Id = Guid.Empty;
+            v_Party.Code = null;
+            v_Party.Finish = true;
+            
+            v_Party.PartyQuestions.AddRange(v_Questions.Select(p_P => new PartyQuestion{ IdQuestion = p_P.Id}));
+            
+            IMappingAddEntity<PartyBase, IEntity> v_MappingAddEntity = await m_UnitOfWork.PartyRepository.CreatePartyAsync(v_Party, p_CancellationToken);
+            m_UnitOfWork.Save();
+
+            try
+            {
+                foreach (PartyQuestion v_PartyQuestion in v_MappingAddEntity.MapBoEntity.PartyQuestions)
+                {
+                    foreach (int v_UserId in v_UserIds)
+                    {
+                        UserPartyQuestion v_UserPartyQuestion = await p_CacheService.GetAsync<UserPartyQuestion>(
+                            RedisKeys.Party.PartyQuestionUserAnswer(v_OriginalPartyId, v_PartyQuestion.IdQuestion, v_UserId), p_CancellationToken);
+                        v_UserPartyQuestion.IdPartyQuestion = v_PartyQuestion.Id;
+                
+                        IMappingAddEntity<UserPartyQuestion, IEntity> v_AddEntity = await m_UnitOfWork.UserPartyQuestionRepository.CreateUserPartyQuestionAsync(v_UserPartyQuestion, p_CancellationToken);
+                        m_UnitOfWork.Save();
+                    }
+                }
+            }
+            finally
+            {
+                await p_CacheService.RemoveByPatternAsync(RedisKeys.Party.ById(v_OriginalPartyId) + ":*", [RedisKeys.Party.Users(v_OriginalPartyId)], p_CancellationToken);
+            }
         }
 
         return new EmptyResponse();

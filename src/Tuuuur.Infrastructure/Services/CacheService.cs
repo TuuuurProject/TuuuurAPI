@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json;
 using StackExchange.Redis;
 using Tuuuur.Domain.Interfaces;
@@ -176,5 +177,47 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
             }
         }
         return v_Result;
+    }
+    
+    public async Task RemoveByPatternAsync(string p_Pattern, IEnumerable<string> p_KeysToKeep = null, CancellationToken p_CancellationToken = default)
+    {
+        HashSet<string> v_KeysToKeepSet = p_KeysToKeep == null 
+            ? [] 
+            : [..p_KeysToKeep];
+
+        EndPoint[] v_Endpoints = p_Redis.GetEndPoints();
+
+        foreach (EndPoint v_Endpoint in v_Endpoints)
+        {
+            IServer v_Server = p_Redis.GetServer(v_Endpoint);
+            if (v_Server.IsReplica) continue;
+
+            IEnumerable<RedisKey> v_Keys = v_Server.Keys(database: m_Database.Database, pattern: p_Pattern);
+
+            List<RedisKey> v_KeysBatch = [];
+            const int v_BatchSize = 1000;
+
+            foreach (RedisKey v_Key in v_Keys)
+            {
+                if (p_CancellationToken.IsCancellationRequested) return;
+                if (v_KeysToKeepSet.Contains((string)v_Key!)) 
+                    continue;
+
+                v_KeysBatch.Add(v_Key);
+
+                if (v_KeysBatch.Count < v_BatchSize)
+                {
+                    continue;
+                }
+
+                await m_Database.KeyDeleteAsync(v_KeysBatch.ToArray());
+                v_KeysBatch.Clear();
+            }
+
+            if (v_KeysBatch.Count > 0)
+            {
+                await m_Database.KeyDeleteAsync(v_KeysBatch.ToArray());
+            }
+        }
     }
 }

@@ -34,4 +34,6 @@ public interface ICacheService
 
     Task<string> StreamAddAsync<T>(string p_Key, T p_Value, CancellationToken p_CancellationToken = default);
     Task<List<T>> StreamReadAsync<T>(string p_Key, int p_Count = 10, CancellationToken p_CancellationToken = default);
+
+    Task RemoveByPatternAsync(string p_Pattern, IEnumerable<string> p_KeysToKeep = null, CancellationToken p_CancellationToken = default);
 }

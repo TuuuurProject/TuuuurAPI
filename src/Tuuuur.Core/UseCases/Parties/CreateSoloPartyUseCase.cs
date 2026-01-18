@@ -48,7 +48,7 @@ internal class CreateSoloPartyUseCase(
                 .Select(p_Id => new PartyTheme() { IdTheme = p_Id }).ToList()
         };
 
-        IMappingAddEntity<Party, IEntity> v_MappingAddEntity =
+        IMappingAddEntity<PartyBase, IEntity> v_MappingAddEntity =
             await m_UnitOfWork.PartyRepository.CreatePartyAsync(v_Party, p_CancellationToken);
         m_UnitOfWork.Save();
             
