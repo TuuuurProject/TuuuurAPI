@@ -27,26 +27,25 @@ internal class AnswerQuestionGroupUseCase(
         if (v_User == null)
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
 
-        Guid? v_Parties = await p_CacheService.GetAsync<Guid?>(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken);
+        string v_PartieCode = await p_CacheService.GetAsync<string>(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken);
 
-        if (v_Parties is null)
+        if (v_PartieCode is null)
         {
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found")]);
         }
 
-        Party v_Party = await p_CacheService.GetAsync<Party>(RedisKeys.Party.ById(v_Parties.Value), p_CancellationToken);
-        Guid v_CurrentParty = await p_CacheService.GetAsync<Guid>(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken: p_CancellationToken);
+        GroupParty v_Party = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_PartieCode), p_CancellationToken);
 
         // If user is not in the party and party is not in progress
-        if (v_CurrentParty != v_Party.Id || !v_Party.InProgress)
+        if (v_PartieCode != v_Party.Code || !v_Party.InProgress)
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found")]);
 
         // Get the index of question to get
-        int v_CurrentIndex = await p_CacheService.GetAsync<int>(RedisKeys.Party.CurrentQuestionIndex(v_Party.Id), p_CancellationToken);
+        int v_CurrentIndex = await p_CacheService.GetAsync<int>(RedisKeys.Party.CurrentQuestionIndex(v_Party.Code), p_CancellationToken);
 
         // Get the question
         Question v_CurrentQuestion = await p_CacheService.SortedSetGetByIndexAsync<Question>(
-            RedisKeys.Party.Questions(v_Party.Id),
+            RedisKeys.Party.Questions(v_Party.Code),
             p_Index: v_CurrentIndex, p_CancellationToken: p_CancellationToken);
 
         Question v_Question = await m_UnitOfWork.QuestionRepository.GetQuestionByIdWithAnswerAsync(v_CurrentQuestion.Id, p_CancellationToken);
@@ -56,15 +55,15 @@ internal class AnswerQuestionGroupUseCase(
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Answer)} was not found, Key: {p_Request.AnswerId}")]);
         }
         
-        UserPartyQuestion v_UserPartyQuestion = await p_CacheService.GetAsync<UserPartyQuestion>(RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Id, v_Question.Id, v_User.Id), p_CancellationToken: p_CancellationToken);
+        UserPartyQuestion v_UserPartyQuestion = await p_CacheService.GetAsync<UserPartyQuestion>(RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Code, v_Question.Id, v_User.Id), p_CancellationToken: p_CancellationToken);
         v_UserPartyQuestion.IdAnswer = p_Request.AnswerId;
         v_UserPartyQuestion.DtAnsweredAt = DateTime.Now;
         
-        await p_CacheService.SetAsync(RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Id, v_Question.Id, v_User.Id), v_UserPartyQuestion, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAsync(RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Code, v_Question.Id, v_User.Id), v_UserPartyQuestion, p_CancellationToken: p_CancellationToken);
         
         // Send group that user answer the question
         await p_GroupNotificationService.NotifyUserSendAnswerAsync(
-            v_Party.Id,
+            v_Party.Code,
             v_User
         );
         

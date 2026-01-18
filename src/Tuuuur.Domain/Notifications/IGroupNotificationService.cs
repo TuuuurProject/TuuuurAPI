@@ -10,36 +10,36 @@ public interface IGroupNotificationService
     /// <summary>
     /// Notify party members that a player joined
     /// </summary>
-    Task NotifyPlayerJoinedAsync(Guid p_PartyId, User p_User);
+    Task NotifyPlayerJoinedAsync(string p_Code, User p_User);
 
     /// <summary>
     /// Notify party members that a player left
     /// </summary>
-    Task NotifyPlayerLeftAsync(Guid p_PartyId, User p_User);
+    Task NotifyPlayerLeftAsync(string p_Code, User p_User);
 
     /// <summary>
     /// Notify party members that the party was deleted
     /// </summary>
-    /// <param name="p_PartyId"></param>
+    /// <param name="p_Code"></param>
     /// <param name="p_User"></param>
     /// <returns></returns>
-    Task NotifyPartyDeletedAsync(Guid p_PartyId, User p_User);
+    Task NotifyPartyDeletedAsync(string p_Code, User p_User);
     
     /// <summary>
     /// Notify party members that the party was updated
     /// </summary>
-    /// <param name="p_PartyId"></param>
+    /// <param name="p_Code"></param>
     /// <param name="p_Party"></param>
     /// <returns></returns>
-    Task NotifyPartyUpdatedAsync(Guid p_PartyId, GroupParty p_Party);
+    Task NotifyPartyUpdatedAsync(string p_Code, GroupParty p_Party);
     
     /// <summary>
     /// Notify party members that the party was started
     /// </summary>
-    /// <param name="p_PartyId"></param>
+    /// <param name="p_Code"></param>
     /// <param name="p_Party"></param>
     /// <returns></returns>
-    Task NotifyPartyStartedAsync(Guid p_PartyId, GroupParty p_Party);
+    Task NotifyPartyStartedAsync(string p_Code, GroupParty p_Party);
     
     /// <summary>
     /// Notify party members that a question arrived
@@ -60,29 +60,29 @@ public interface IGroupNotificationService
     /// <summary>
     /// Notify user that another user answer the question
     /// </summary>
-    /// <param name="p_PartyId"></param>
+    /// <param name="p_Code"></param>
     /// <param name="p_User"></param>
     /// <returns></returns>
-    Task NotifyUserSendAnswerAsync(Guid p_PartyId, User p_User);
+    Task NotifyUserSendAnswerAsync(string p_Code, User p_User);
     
     /// <summary>
     /// Notify party members the current scores
     /// </summary>
-    /// <param name="p_PartyId"></param>
+    /// <param name="p_Code"></param>
     /// <param name="p_UserScores"></param>
     /// <returns></returns>
-    Task NotifyPartyScoresAsync(Guid p_PartyId, IEnumerable<UserScore> p_UserScores);
+    Task NotifyPartyScoresAsync(string p_Code, IEnumerable<UserScore> p_UserScores);
     
     /// <summary>
     /// Notify party members that the party is finished
     /// </summary>
-    /// <param name="p_PartyId"></param>
+    /// <param name="p_Code"></param>
     /// <param name="p_UserScores"></param>
     /// <returns></returns>
-    Task NotifyPartyFinishedAsync(Guid p_PartyId, IEnumerable<UserScore> p_UserScores);
+    Task NotifyPartyFinishedAsync(string p_Code, IEnumerable<UserScore> p_UserScores);
 
     /// <summary>
     /// Notify party members with countdown value
     /// </summary>
-    Task NotifyCountdownAsync(Guid p_PartyId, int p_Seconds);
+    Task NotifyCountdownAsync(string p_Code, int p_Seconds);
 }

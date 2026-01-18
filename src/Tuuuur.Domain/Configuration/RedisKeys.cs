@@ -11,14 +11,6 @@ public static class RedisKeys
     public static class Party
     {
         /// <summary>
-        /// Key pattern for accessing a party by its unique identifier
-        /// Format: Party:{guid}
-        /// Example: Party:123e4567-e89b-12d3-a456-426614174000
-        /// Value: Party object (JSON serialized)
-        /// </summary>
-        public static string ById(Guid p_PartyId) => $"Party:{p_PartyId}";
-
-        /// <summary>
         /// Key pattern for accessing a party by its join code
         /// Format: Party:{code}
         /// Example: Party:ABC123
@@ -28,44 +20,44 @@ public static class RedisKeys
 
         /// <summary>
         /// Key pattern for the set of user IDs in a party
-        /// Format: Party:{guid}:User
-        /// Example: Party:123e4567-e89b-12d3-a456-426614174000:User
+        /// Format: Party:{string}:User
+        /// Example: Party:123456:User
         /// Value: Redis SET of user IDs (integers)
         /// </summary>
-        public static string Users(Guid p_PartyId) => $"Party:{p_PartyId}:User";
+        public static string Users(string p_Code) => $"Party:{p_Code}:User";
 
         /// <summary>
         /// Key pattern for the set of questions in a party
-        /// Format: Party:{guid}:Questions
-        /// Example: Party:123e4567-e89b-12d3-a456-426614174000:Questions
+        /// Format: Party:{string}:Questions
+        /// Example: Party:123456:Questions
         /// Value: Redis SET of questions IDs (integers)
         /// </summary>
-        public static string Questions(Guid p_PartyId) => $"Party:{p_PartyId}:Questions";
+        public static string Questions(string p_Code) => $"Party:{p_Code}:Questions";
 
         /// <summary>
         /// Key pattern for the current question index in a party
-        /// Format: Party:{guid}:CurrentQuestionIndex
-        /// Example: Party:123e4567-e89b-12d3-a456-426614174000:CurrentQuestionIndex
+        /// Format: Party:{string}:CurrentQuestionIndex
+        /// Example: Party:123456:CurrentQuestionIndex
         /// Value: Integer representing the current question index (0-based)
         /// </summary>
-        public static string CurrentQuestionIndex(Guid p_PartyId) => $"Party:{p_PartyId}:CurrentQuestionIndex";
+        public static string CurrentQuestionIndex(string p_Code) => $"Party:{p_Code}:CurrentQuestionIndex";
 
         /// <summary>
         /// Key pattern for the answering question in a party
         /// </summary>
-        /// <param name="p_PartyId"></param>
+        /// <param name="p_Code"></param>
         /// <param name="p_QuestionId"></param>
         /// <param name="p_User"></param>
         /// <returns></returns>
-        public static string PartyQuestionUserAnswer(Guid p_PartyId, int p_QuestionId, int p_User) => $"Party:{p_PartyId}:Questions:{p_QuestionId}:Users:{p_User}:Answer";
+        public static string PartyQuestionUserAnswer(string p_Code, int p_QuestionId, int p_User) => $"Party:{p_Code}:Questions:{p_QuestionId}:Users:{p_User}:Answer";
 
         /// <summary>
         /// Key pattern for the sorted set of player scores in a party
-        /// Format: Party:{guid}:Scores
-        /// Example: Party:123e4567-e89b-12d3-a456-426614174000:Scores
+        /// Format: Party:{string}:Scores
+        /// Example: Party:123456:Scores
         /// Value: Redis SORTED SET of User objects with scores as ranking values
         /// </summary>
-        public static string Scores(Guid p_PartyId) => $"Party:{p_PartyId}:Scores";
+        public static string Scores(string p_Code) => $"Party:{p_Code}:Scores";
     }
 
     /// <summary>

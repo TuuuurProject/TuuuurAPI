@@ -29,13 +29,13 @@ internal abstract class ACreateJoinGroupUseCase<TRequest>(
         if (v_User == null)
             return new GenericEntityResponse<GroupParty>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
 
-        Guid? v_PartyId = await m_CacheService.GetAsync<Guid?>(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken);
+        string v_PartyCode = await m_CacheService.GetAsync<string>(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken);
 
         // If a party already exist, 
-        if (v_PartyId is not null)
+        if (v_PartyCode != string.Empty)
         {
-            GroupParty v_ExistingParty = await m_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ById(v_PartyId.Value), p_CancellationToken);
-            List<int> v_UserInExistingParty = await m_CacheService.SetMembersAsync<int>(RedisKeys.Party.Users(v_PartyId.Value), p_CancellationToken: p_CancellationToken);
+            GroupParty v_ExistingParty = await m_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_PartyCode), p_CancellationToken);
+            List<int> v_UserInExistingParty = await m_CacheService.SetMembersAsync<int>(RedisKeys.Party.Users(v_PartyCode), p_CancellationToken: p_CancellationToken);
             foreach (int v_UserId in v_UserInExistingParty)
             {
                 v_ExistingParty.PartyUsers.Add(new PartyUser { User = await m_UnitOfWork.UserRepository.GetUserByIdAsync(v_UserId, p_CancellationToken), IdUser = v_UserId });

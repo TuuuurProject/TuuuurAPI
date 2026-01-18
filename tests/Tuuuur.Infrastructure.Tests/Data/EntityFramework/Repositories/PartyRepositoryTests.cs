@@ -55,7 +55,6 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
                         nameof(Party.PartyType),
                         nameof(Party.IdPartyType),
                         nameof(Party.Score),
-                        nameof(PartyPty.Code),
                         nameof(Party.InProgress),
                         nameof(Party.NbQuestions),
                         nameof(Party.PartyTheme),

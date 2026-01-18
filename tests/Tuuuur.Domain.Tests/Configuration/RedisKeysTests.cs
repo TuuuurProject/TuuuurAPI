@@ -5,19 +5,6 @@ namespace Tuuuur.Domain.Tests.Configuration;
 public class RedisKeysTests
 {
     [Fact]
-    public void Party_ById_ShouldReturnCorrectKey()
-    {
-        // Arrange
-        Guid v_PartyId = Guid.Parse("123e4567-e89b-12d3-a456-426614174000");
-
-        // Act
-        string v_Result = RedisKeys.Party.ById(v_PartyId);
-
-        // Assert
-        v_Result.Should().Be("Party:123e4567-e89b-12d3-a456-426614174000");
-    }
-
-    [Fact]
     public void Party_ByCode_ShouldReturnCorrectKey()
     {
         // Arrange
@@ -34,39 +21,39 @@ public class RedisKeysTests
     public void Party_Users_WithGuid_ShouldReturnCorrectKey()
     {
         // Arrange
-        Guid v_PartyId = Guid.Parse("123e4567-e89b-12d3-a456-426614174000");
+        const string v_PartyCode = "123456";
 
         // Act
-        string v_Result = RedisKeys.Party.Users(v_PartyId);
+        string v_Result = RedisKeys.Party.Users(v_PartyCode);
 
         // Assert
-        v_Result.Should().Be("Party:123e4567-e89b-12d3-a456-426614174000:User");
+        v_Result.Should().Be($"Party:{v_PartyCode}:User");
     }
 
     [Fact]
     public void Party_Users_WithString_ShouldReturnCorrectKey()
     {
         // Arrange
-        Guid v_PartyId = Guid.Parse("123e4567-e89b-12d3-a456-426614174000");
+        const string v_PartyCode = "123456";
 
         // Act
-        string v_Result = RedisKeys.Party.Users(v_PartyId);
+        string v_Result = RedisKeys.Party.Users(v_PartyCode);
 
         // Assert
-        v_Result.Should().Be("Party:123e4567-e89b-12d3-a456-426614174000:User");
+        v_Result.Should().Be($"Party:{v_PartyCode}:User");
     }
 
     [Fact]
     public void User_Party_ShouldReturnCorrectKey()
     {
         // Arrange
-        int v_UserId = 42;
+        const int v_UserId = 42;
 
         // Act
         string v_Result = RedisKeys.User.UserParty(v_UserId);
 
         // Assert
-        v_Result.Should().Be("User:42:Party");
+        v_Result.Should().Be($"User:{v_UserId}:Party");
     }
 
     [Theory]
@@ -85,13 +72,12 @@ public class RedisKeysTests
     public void Party_ById_WithEmptyGuid_ShouldReturnKeyWithEmptyGuid()
     {
         // Arrange
-        Guid v_PartyId = Guid.Empty;
-
+        string v_PartyCode = string.Empty;
         // Act
-        string v_Result = RedisKeys.Party.ById(v_PartyId);
+        string v_Result = RedisKeys.Party.ByCode(v_PartyCode);
 
         // Assert
-        v_Result.Should().Be("Party:00000000-0000-0000-0000-000000000000");
+        v_Result.Should().Be($"Party:{v_PartyCode}");
     }
 
     [Fact]

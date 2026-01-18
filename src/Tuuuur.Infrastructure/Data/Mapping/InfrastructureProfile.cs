@@ -51,7 +51,7 @@ internal class InfrastructureProfile : Profile
         CreateMap<PartyPty, GroupParty>()
             .ForMember(p_Trg => p_Trg.Id, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Id))
             .ForMember(p_Trg => p_Trg.Dt, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Dt))
-            .ForMember(p_Trg => p_Trg.Code, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Code))
+            .ForMember(p_Trg => p_Trg.Code, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.IdPartyType, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdPartyType))
             .ForMember(p_Trg => p_Trg.PartyType, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdPartyTypeNavigation))
             .ForMember(p_Trg => p_Trg.IdUserHost, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserHost))
