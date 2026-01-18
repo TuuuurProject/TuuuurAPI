@@ -250,7 +250,7 @@ internal class GroupLogicUseCase(
                             RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Code, v_PartyQuestion.IdQuestion, v_UserId), p_CancellationToken);
                         v_UserPartyQuestion.IdPartyQuestion = v_PartyQuestion.Id;
                 
-                        IMappingAddEntity<UserPartyQuestion, IEntity> v_AddEntity = await m_UnitOfWork.UserPartyQuestionRepository.CreateUserPartyQuestionAsync(v_UserPartyQuestion, p_CancellationToken);
+                        _ = await m_UnitOfWork.UserPartyQuestionRepository.CreateUserPartyQuestionAsync(v_UserPartyQuestion, p_CancellationToken);
                         m_UnitOfWork.Save();
                     }
                 }

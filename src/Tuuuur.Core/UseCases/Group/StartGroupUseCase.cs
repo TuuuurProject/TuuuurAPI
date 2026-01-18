@@ -15,11 +15,11 @@ namespace Tuuuur.Core.UseCases.Group;
 
 internal class StartGroupUseCase(
     IUnitOfWork p_UnitOfWork,
+    ILogger<StartGroupUseCase> p_Logger,
     IUserRoleService p_UserRoleService,
     ICacheService p_CacheService,
     IGroupNotificationService p_GroupNotificationService,
-    IServiceScopeFactory p_ServiceScopeFactory,
-    ILogger<StartGroupUseCase> p_Logger)
+    IServiceScopeFactory p_ServiceScopeFactory)
     : ADbUseCase<StartGroupPartyRequest, EmptyResponse>(p_Logger, p_UnitOfWork)
 {
     protected override async Task<EmptyResponse> HandleLogic(StartGroupPartyRequest p_PartyRequest, CancellationToken p_CancellationToken)
@@ -44,12 +44,12 @@ internal class StartGroupUseCase(
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found")]);
 
         if (v_Party.InProgress)
-            return new EmptyResponse([new ErrorDto("TODO", $"TODO")]);
+            return new EmptyResponse([new ErrorDto(DomainErrors.Party.InProgress, $"You can't start a party already started")]);
 
         if (v_Party.NbQuestions is not (5 or 10 or 15 or 20) || v_Party.PartyDifficulty.Count == 0 ||
             v_Party.PartyTheme.Count == 0)
         {
-            return new EmptyResponse([new ErrorDto("TODO SEETINGS NOT SET", $"TODO")]);
+            return new EmptyResponse([new ErrorDto(DomainErrors.Party.InvalidSettings, $"Party settings are invalid")]);
         }
 
         IEnumerable<Question> v_Questions = await m_UnitOfWork.QuestionRepository
@@ -80,7 +80,7 @@ internal class StartGroupUseCase(
 
         // Get all users in a single database query to avoid DbContext concurrency issues
         List<User> v_Users = await m_UnitOfWork.UserRepository.GetUsersByIdsAsync(v_UserIds, p_CancellationToken);
-
+        
         // Initialize scores for all users in parallel
         IEnumerable<Task> v_InitScoreTasks = v_Users.Select(async p_User =>
         {
