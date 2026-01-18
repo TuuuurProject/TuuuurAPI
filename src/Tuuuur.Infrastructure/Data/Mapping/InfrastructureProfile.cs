@@ -58,6 +58,7 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.NbQuestions, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.InProgress, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.Code, p_Opt => p_Opt.Ignore())
+            .ForMember(p_Trg => p_Trg.ScoreEachRound, p_Opt => p_Opt.Ignore())
             .ReverseMap();
 
         CreateMap<PartyPty, History>()
