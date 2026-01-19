@@ -188,8 +188,7 @@ internal static class Program
                             (Encoding.UTF8.GetBytes(v_JwtConf.Key)),
                         ValidateIssuer = true,
                         ValidateAudience = true,
-                        // Tell me if I forgot to remove to put ValidateLifetime to true in PR :)
-                        ValidateLifetime = false,
+                        ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
                         ClockSkew = TimeSpan.Zero
                     });
