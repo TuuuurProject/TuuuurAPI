@@ -25,7 +25,7 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
     /// </summary>
     /// <returns></returns>
     [HttpPost("create")]
-    [ProducesResponseType(typeof(Guid),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PartyBase),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreatePartyAsync(
@@ -42,7 +42,7 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
     /// </summary>
     /// <returns></returns>
     [HttpPost("join")]
-    [ProducesResponseType(typeof(Guid),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PartyBase),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> JoinPartyAsync(
@@ -60,7 +60,7 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
     /// </summary>
     /// <returns></returns>
     [HttpPost("leave")]
-    [ProducesResponseType(typeof(Guid),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> LeavePartyAsync(
@@ -77,7 +77,7 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
     /// </summary>
     /// <returns></returns>
     [HttpPost("settings")]
-    [ProducesResponseType(typeof(Guid),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PartyBase),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdatePartySettingsAsync(
