@@ -25,7 +25,6 @@ internal abstract class ACreateJoinGroupUseCase<TRequest>(
         string v_UserEmail = p_UserRoleService.GetCurrentUserEmail();
 
         User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_UserEmail, p_CancellationToken);
-
         
         if (v_User == null)
             return new GenericEntityResponse<GroupParty>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
