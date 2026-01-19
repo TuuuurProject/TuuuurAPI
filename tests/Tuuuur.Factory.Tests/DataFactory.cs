@@ -1,9 +1,11 @@
-﻿using Bogus;
+﻿using System.Diagnostics.CodeAnalysis;
+using Bogus;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Infrastructure.Data.EntityFramework.Entities;
 
 namespace Tuuuur.Factory.Tests;
 
+[ExcludeFromCodeCoverage]
 public static class EfFactory
 {
     public static Faker<UserUsr> CreateUser()
@@ -37,6 +39,7 @@ public static class EfFactory
     }
 }
 
+[ExcludeFromCodeCoverage]
 public static class BoFactory
 {
     public static Faker<User> CreateUser()
