@@ -10,7 +10,7 @@ RUN dotnet build "Tuuuur.Database/Tuuuur.Database.sqlproj" -c Release
 
 RUN apt-get update && \
     apt-get install -y wget unzip && \
-    wget https://aka.ms/sqlpackage-linux -O sqlpackage.zip && \
+    wget --no-check-certificate https://aka.ms/sqlpackage-linux -O sqlpackage.zip && \
     unzip sqlpackage.zip -d /opt/sqlpackage && \
     chmod +x /opt/sqlpackage/sqlpackage && \
     rm sqlpackage.zip
