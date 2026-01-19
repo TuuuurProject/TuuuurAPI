@@ -1,8 +1,8 @@
 services:
   # --- SQL SERVER ---
-  sqlserver:
+  tuuuur_sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserver
+    container_name: tuuuur_sqlserver
     restart: always
     environment:
       - ACCEPT_EULA=Y
@@ -20,7 +20,7 @@ services:
       - tuuur-network
 
   # --- REDIS ---
-  redis:
+  tuuuur_redis:
     image: redis:latest
     container_name: tuuuur_redis
     restart: always
@@ -36,17 +36,17 @@ services:
       - tuuur-network
 
   # --- MIGRATIONS ---
-  migrate:
+  tuuuur_migrate:
     platform: linux/amd64
     build:
       context: .
       dockerfile: src/Tuuuur.Database/Dockerfile
-    container_name: tuuur_migrate
+    container_name: tuuuur_migrate
     depends_on:
-      sqlserver:
+      tuuuur_sqlserver:
         condition: service_healthy
     environment:
-      - DB_SERVER=sqlserver
+      - DB_SERVER=tuuuur_sqlserver
       - DB_NAME=Tuuuur-dev
       - DB_USER=sa
       - DB_PASSWORD=YourStrong!Passw0rd
@@ -62,13 +62,13 @@ services:
     container_name: tuuuur_api
     restart: always
     depends_on:
-      sqlserver:
+      tuuuur_sqlserver:
         condition: service_healthy
-      redis:
+      tuuuur_redis:
         condition: service_healthy
     environment:
-      - ConnectionStrings__Tuuuur=Server=sqlserver,1433;Initial Catalog=Tuuuur-dev;Persist Security Info=False;User ID=sa;Password=YourStrong!Passw0rd;MultipleActiveResultSets=False;Encrypt=False;TrustServerCertificate=True;Connection Timeout=30
-      - ConnectionStrings__Redis=redis:6379,password=YourStrong!RedisPass
+      - ConnectionStrings__Tuuuur=Server=tuuuur_sqlserver,1433;Initial Catalog=Tuuuur-dev;Persist Security Info=False;User ID=sa;Password=YourStrong!Passw0rd;MultipleActiveResultSets=False;Encrypt=False;TrustServerCertificate=True;Connection Timeout=30
+      - ConnectionStrings__Redis=tuuuur_redis:6379,password=YourStrong!RedisPass
       - JwtSettings__Key=${JWT_KEY}
       - Authentification__Google__ClientId=${GOOGLE_CLIENT_ID}
       - SmtpEmailConfiguration__FromAddress=${SMTP_FROM_ADDRESS}

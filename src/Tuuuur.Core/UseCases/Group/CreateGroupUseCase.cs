@@ -20,6 +20,7 @@ internal class CreateGroupUseCase(IUnitOfWork p_UnitOfWork,
 {
     protected override async Task<GenericEntityResponse<GroupParty>> Process(CreateGroupPartyRequest p_Request, User p_User, CancellationToken p_CancellationToken)
     {
+        
         string v_Code = string.Empty;
         
         // Necessary to avoid duplicated code
@@ -36,7 +37,7 @@ internal class CreateGroupUseCase(IUnitOfWork p_UnitOfWork,
             int v_SixDigit = (v_Number % 900000) + 100000;
             string v_GeneratedCode = v_SixDigit.ToString();
 
-            GroupParty v_ExistingParty = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_GeneratedCode), p_CancellationToken);
+            GroupParty v_ExistingParty = await m_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_GeneratedCode), p_CancellationToken);
             if (v_ExistingParty == null)
             {
                 v_Code = v_GeneratedCode;
@@ -57,11 +58,12 @@ internal class CreateGroupUseCase(IUnitOfWork p_UnitOfWork,
             PartyDifficulty = [new PartyDifficulty { IdDifficulty = 1 }],
             PartyTheme = [new PartyTheme { IdTheme = 1 }],
         };
-
+        
+        
         await m_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
         await m_CacheService.SetAddAsync(RedisKeys.Party.Users(v_Party.Code), p_User.Id, p_CancellationToken: p_CancellationToken);
         await m_CacheService.SetAsync(RedisKeys.User.UserParty(p_User.Id), v_Party.Code, p_CancellationToken: p_CancellationToken);
-
+        
         v_Party.PartyUsers.Add(new PartyUser() { IdUser = p_User.Id, User = p_User });
 
         return new GenericEntityResponse<GroupParty>(v_Party);
