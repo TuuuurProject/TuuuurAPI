@@ -34,11 +34,11 @@ public class GetAllHistoryUseCaseTests
         
         m_UserRoleService.Setup(p_P => p_P.GetCurrentUserEmail()).Returns(v_User.Email);
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
-        m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.GetUserHistoryAsync(It.IsAny<int>(),It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(new HistoryPage());
+        m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.GetUserHistoryAsync(It.IsAny<int>(),It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(new History());
 
         GetAllHistoryRequest v_Request = new(1,50);
         // Act
-        GenericEntityResponse<HistoryPage> v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
+        GenericEntityResponse<History> v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(v_Result);

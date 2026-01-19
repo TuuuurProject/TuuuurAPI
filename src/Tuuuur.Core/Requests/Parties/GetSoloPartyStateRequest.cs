@@ -4,4 +4,4 @@ using Tuuuur.Domain.Bo;
 
 namespace Tuuuur.Core.Requests.Parties;
 
-public record GetSoloPartyStateRequest(Guid PartyId): IRequest<GenericEntityResponse<Party>>;
+public record GetSoloPartyStateRequest(Guid PartyId): IRequest<GenericEntityResponse<PartyBase>>;

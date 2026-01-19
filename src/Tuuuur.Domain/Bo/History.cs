@@ -1,11 +1,9 @@
-using System.Text.Json.Serialization;
-
 namespace Tuuuur.Domain.Bo;
 
-public record History : PartyBase
+public record History : IBOEntity
 {
-    public int NbQuestions => PartyQuestions.Count;
-
-    [JsonIgnore]
-    public override List<PartyQuestion> PartyQuestions { get; set; } = [];
+    public IEnumerable<PartyBase> Parties { get; set; } = [];
+    public int CurrentPage { get; set; }
+    public int TotalPages { get; set; }
+    public int TotalParties { get; set; }
 }

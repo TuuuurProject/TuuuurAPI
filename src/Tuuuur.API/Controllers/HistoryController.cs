@@ -29,13 +29,13 @@ public class HistoryController(
     /// <returns></returns>
     [HttpGet]
     [MapToApiVersion("1")]
-    [ProducesResponseType(typeof(IEnumerable<HistoryPage>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<History>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetHistoryListAsync(
         [FromQuery] PaginationRequest p_Query,
         [FromServices] PaginationRequestValidator p_Validator,
-        [FromServices] GenericEntityPresenter<HistoryPage> p_Presenter,
+        [FromServices] GenericEntityPresenter<History> p_Presenter,
         CancellationToken p_CancellationToken)
     {
         ValidationResult v_Result = await p_Validator.ValidateAsync(p_Query, p_CancellationToken);

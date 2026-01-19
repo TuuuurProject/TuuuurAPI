@@ -62,18 +62,18 @@ internal class StartGroupUseCase(
             return new EmptyResponse([new ErrorDto(DomainErrors.Party.InProgress, $"You can't start a party already started")]);
         }
 
-        if (v_Party.NbQuestions is not (5 or 10 or 15 or 20) || v_Party.PartyDifficulty.Count == 0 ||
-            v_Party.PartyTheme.Count == 0)
+        if (v_Party.NbQuestions is not (5 or 10 or 15 or 20) || v_Party.Difficulties.Count == 0 ||
+            v_Party.Themes.Count == 0)
         {
             m_Logger.LogWarning("StartGroupUseCase: Party {PartyCode} has invalid settings. Questions: {NbQuestions}, Difficulties: {Difficulties}, Themes: {Themes}", v_PartyCode, v_Party.NbQuestions, v_Party.PartyDifficulty.Count, v_Party.PartyTheme.Count);
             return new EmptyResponse([new ErrorDto(DomainErrors.Party.InvalidSettings, $"Party settings are invalid")]);
         }
         m_Logger.LogInformation("StartGroupUseCase: Party {PartyCode} settings are valid.", v_PartyCode);
-        
+
         m_Logger.LogInformation("StartGroupUseCase: Fetching {NbQuestions} questions for party {PartyCode}.", v_Party.NbQuestions, v_PartyCode);
         IEnumerable<Question> v_Questions = await m_UnitOfWork.QuestionRepository
-            .GetQuestionsByThemesIdsAndDifficultiesIdsAndNumberOfQuestionsAsync(v_Party.PartyTheme.Select(p_P => p_P.IdTheme),
-                v_Party.PartyDifficulty.Select(p_P => p_P.IdDifficulty), v_Party.NbQuestions, p_CancellationToken);
+            .GetQuestionsByThemesIdsAndDifficultiesIdsAndNumberOfQuestionsAsync(v_Party.Themes.Select(p_P => p_P.Id),
+                v_Party.Difficulties.Select(p_P => p_P.Id), v_Party.NbQuestions, p_CancellationToken);
 
         List<Question> v_Enumerable = v_Questions.ToList();
         m_Logger.LogInformation("StartGroupUseCase: Fetched {Count} questions for party {PartyCode}.", v_Enumerable.Count, v_PartyCode);

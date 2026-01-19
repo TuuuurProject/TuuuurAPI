@@ -25,5 +25,5 @@ public record User : IBOEntity
     [JsonIgnore]
     public bool IsGoogleUser { get; set; }
     
-    public virtual ICollection<UserAuth> UserAuth { get; set; } = new List<UserAuth>();
+    public List<UserAuth> UserAuth { get; set; }
 }

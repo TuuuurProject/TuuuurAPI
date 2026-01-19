@@ -6,11 +6,6 @@ public record GroupParty : PartyBase
     /// Party code
     /// </summary>
     public string Code { get; set; }
-
-    /// <summary>
-    /// Number of questions
-    /// </summary>
-    public int NbQuestions { get; set; }
     
     /// <summary>
     /// Is the party in progress (for groups and duel)

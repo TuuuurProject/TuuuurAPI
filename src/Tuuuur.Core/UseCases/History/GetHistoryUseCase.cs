@@ -22,7 +22,7 @@ internal class GetHistoryUseCase(
         if(v_User == null)
             return new GenericEntityResponse<PartyBase>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
         
-        Party v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(p_Request.PartyId, v_User.Id, p_CancellationToken);
+        PartyBase v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(p_Request.PartyId, v_User.Id, p_CancellationToken);
         return new GenericEntityResponse<PartyBase>(v_Party);
     }
 }

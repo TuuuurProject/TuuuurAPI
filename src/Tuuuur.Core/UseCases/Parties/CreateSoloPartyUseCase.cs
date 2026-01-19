@@ -29,23 +29,18 @@ internal class CreateSoloPartyUseCase(
             .GetQuestionsByThemesIdsAndDifficultiesIdsAndNumberOfQuestionsAsync(p_Request.ThemesIds,
                 p_Request.DifficultiesIds, p_Request.NbQuestions, p_CancellationToken);
 
-        Party v_Party = new()
+        PartyBase v_Party = new()
         {
             IdPartyType = (int)PartyTypeType.Solo,
-            PartyUsers = [new PartyUser(){ IdUser = v_User.Id }],
+            Users =  [v_User],
             IdUserHost = v_User.Id,
-            PartyQuestions = v_Questions
-                .Select((p_Question, p_Order) => new PartyQuestion()
-                {
-                    IdQuestion = p_Question.Id,
-                    Order = p_Order + 1,
-                })
-                .ToList(),          
+            Questions = v_Questions.ToList(),
             Active = true,
-            PartyDifficulty = p_Request.DifficultiesIds
-                .Select(p_Id => new PartyDifficulty { IdDifficulty = p_Id }).ToList(),
-            PartyTheme = p_Request.ThemesIds
-                .Select(p_Id => new PartyTheme() { IdTheme = p_Id }).ToList()
+            NbQuestions = v_Questions.Count(),
+            Difficulties = p_Request.DifficultiesIds
+                .Select(p_Id => new Difficulty() { Id = p_Id }).ToList(),
+            Themes = p_Request.ThemesIds
+                .Select(p_Id => new Theme() { Id = p_Id }).ToList()
         };
 
         IMappingAddEntity<PartyBase, IEntity> v_MappingAddEntity =

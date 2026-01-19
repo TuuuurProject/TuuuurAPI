@@ -29,7 +29,7 @@ internal class JoinGroupUseCase(IUnitOfWork p_UnitOfWork,
         }
 
         if (v_Party == null)
-            return new GenericEntityResponse<GroupParty>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found, Key: {p_Request.Code}")]);
+            return new GenericEntityResponse<GroupParty>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(GroupParty)} was not found, Key: {p_Request.Code}")]);
 
         List<int> v_UserInParty = await m_CacheService.SetMembersAsync<int>(RedisKeys.Party.Users(v_Party.Code), p_CancellationToken: p_CancellationToken);
 

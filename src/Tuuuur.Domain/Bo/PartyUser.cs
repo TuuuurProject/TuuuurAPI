@@ -8,7 +8,7 @@ public class PartyUser : IBOEntity
 
     public Guid IdParty { get; set; }
 
-    public virtual Party Party { get; set; }
+    public PartyBase Party { get; set; }
 
-    public virtual User User { get; set; }
+    public User User { get; set; }
 }

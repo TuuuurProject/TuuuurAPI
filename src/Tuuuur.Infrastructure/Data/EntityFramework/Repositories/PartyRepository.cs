@@ -22,7 +22,7 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
         return v_Mapping;
     }
 
-    public async Task<Party> GetByIdAsync(Guid p_PartyId, int p_UserId, CancellationToken p_CancellationToken = default)
+    public async Task<PartyBase> GetByIdAsync(Guid p_PartyId, int p_UserId, CancellationToken p_CancellationToken = default)
     {
         PartyPty v_PartyPty = await FindBy(p_P => p_P.Id == p_PartyId, 
                 p_Include: p_Includes => p_Includes
@@ -43,16 +43,16 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
                     .AsSplitQuery()
             .FirstOrDefaultAsync(p_CancellationToken);
         
-        return v_PartyPty == null ? null : Mapper.Map<Party>(v_PartyPty);
+        return v_PartyPty == null ? null : Mapper.Map<PartyBase>(v_PartyPty);
     }
     
-    public async Task UpdateAsync(Party p_Party)
+    public async Task UpdateAsync(PartyBase p_Party)
     {
         PartyPty v_Entity = Mapper.Map<PartyPty>(p_Party);
         await base.UpdateAsync(v_Entity);
     }
 
-    public async Task<HistoryPage> GetUserHistoryAsync(
+    public async Task<History> GetUserHistoryAsync(
         int p_UserId, 
         int p_Page, 
         int p_Size,
@@ -62,7 +62,7 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
         
         long v_TotalCount = await CountAsync(p_P => p_P.IdUserHost == p_UserId, p_CancellationToken);
         
-        List<PartyPty> v_Parties = await FindBy(
+        List<PartyPty> v_Entities = await FindBy(
             null,
             p_Include: p_Includes => p_Includes
                 .Include(p_P => p_P.PartyThemePth)
@@ -80,14 +80,14 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
             .Take(p_Size)
             .ToListAsync(p_CancellationToken);
         
-        IEnumerable<History> v_History = Mapper.Map<IEnumerable<History>>(v_Parties);
-        HistoryPage v_HistoryPage = new()
+        IEnumerable<PartyBase> v_Parties = Mapper.Map<IEnumerable<PartyBase>>(v_Entities);
+        History v_History = new()
         {
-            History = v_History,
+            Parties = v_Parties,
             CurrentPage = p_Page,
             TotalPages = (int)Math.Ceiling((double)v_TotalCount / p_Size),
             TotalParties = (int)v_TotalCount
         };
-        return v_HistoryPage;
+        return v_History;
     }
 }

@@ -15,9 +15,9 @@ namespace Tuuuur.Core.UseCases.Parties
         ILogger<UpdatePartyUseCase> p_Logger,
         ICalculService p_CalculService,
         IUserRoleService p_UserRoleService)
-        : ADbUseCase<UpdateSoloPartyStateRequest, GenericEntityResponse<Party>>(p_Logger, p_UnitOfWork)
+        : ADbUseCase<UpdateSoloPartyStateRequest, GenericEntityResponse<PartyBase>>(p_Logger, p_UnitOfWork)
     {
-        protected override async Task<GenericEntityResponse<Party>> HandleLogic(UpdateSoloPartyStateRequest p_Request,
+        protected override async Task<GenericEntityResponse<PartyBase>> HandleLogic(UpdateSoloPartyStateRequest p_Request,
             CancellationToken p_CancellationToken)
         {
             DateTime v_CurrentDateTime = DateTime.UtcNow;
@@ -26,96 +26,76 @@ namespace Tuuuur.Core.UseCases.Parties
 
             if (v_User == null)
             {
-                return new GenericEntityResponse<Party>([
+                return new GenericEntityResponse<PartyBase>([
                     new ErrorDto(DomainErrors.Data.NotFound,
                         $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")
                 ]);
             }
 
-            Party v_Party =
-                await m_UnitOfWork.PartyRepository.GetByIdAsync(p_Request.PartyId, v_User.Id, p_CancellationToken);
+            PartyBase v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(p_Request.PartyId, v_User.Id, p_CancellationToken);
             if (v_Party.Finish)
-            {
-                throw new InvalidOperationException();
-            }
-
-            PartyQuestion v_PartyQuestion =
-                v_Party.PartyQuestions.FirstOrDefault(p_P => p_P.UserPartyQuestion?.Correct is null);
-            if (v_PartyQuestion is null)
-            {
-                throw new InvalidOperationException();
-            }
-
-            if (v_PartyQuestion.UserPartyQuestion is null)
-            {
-                return new GenericEntityResponse<Party>([
-                    new ErrorDto(DomainErrors.Data.NotFound,
-                        $"Queried object {nameof(UserPartyQuestion)} was not found, Key: {p_Request.AnswerId.ToString()}")
+                return new GenericEntityResponse<PartyBase>([
+                    new ErrorDto(DomainErrors.Party.Finished, "Party is finished")
                 ]);
-            }
-
-            UserPartyQuestion v_UserPartyQuestion = v_PartyQuestion.UserPartyQuestion;
-            if (v_UserPartyQuestion is null || v_UserPartyQuestion.IdAnswer is not null)
-            {
-                return new GenericEntityResponse<Party>([
-                    new ErrorDto(DomainErrors.Data.NotFound,
-                        $"Queried object {nameof(UserPartyQuestion)} was not found, Key: {v_PartyQuestion.Id.ToString()}")
-                ]);
-            }
+            
+            Question v_Question = v_Party.Questions.OrderBy(p_P => p_P.Index).FirstOrDefault(p_P => p_P.DtPresentedAt.HasValue && !p_P.DtAnsweredAt.HasValue);
 
             // Answer can be null if the request was send without response
-            Answer v_Answer = v_PartyQuestion.Question.Answer.FirstOrDefault(p_P => p_P.Id == p_Request.AnswerId);
+            Answer v_Answer = v_Question.Answer.FirstOrDefault(p_P => p_P.Id == p_Request.AnswerId);
 
-            v_UserPartyQuestion.DtAnsweredAt = v_CurrentDateTime;
-            int v_Score =
-                p_CalculService.CalculateScore(v_UserPartyQuestion.DtPresentedAt, v_UserPartyQuestion.DtAnsweredAt);
+            v_Question.DtAnsweredAt = v_CurrentDateTime;
+            if (v_Question.DtPresentedAt != null)
+            {
+                int v_Score = p_CalculService.CalculateScore(v_Question.DtPresentedAt.Value, v_Question.DtAnsweredAt);
 
-            if (v_Answer is null)
-            {
-                v_UserPartyQuestion.IdAnswer = null;
-                v_UserPartyQuestion.Correct = false;
-                v_UserPartyQuestion.Score = 0;
-            }
-            else
-            {
-                v_UserPartyQuestion.IdAnswer = v_Answer.Id;
-                if (v_Answer.Valid.HasValue && v_Answer.Valid.Value && v_Score > 0)
+                if (v_Answer is null)
                 {
-                    v_UserPartyQuestion.Correct = true;
-                    v_UserPartyQuestion.Score = v_Score;
+                    v_Question.UserAnswer = null;
+                    v_Question.Correct = false;
+                    v_Question.Score = 0;
                 }
                 else
                 {
-                    v_UserPartyQuestion.Score = 0;
-                    v_UserPartyQuestion.Correct = false;
+                    v_Question.UserAnswer = v_Answer.Id;
+                    if (v_Answer.Valid.HasValue && v_Answer.Valid.Value && v_Score > 0)
+                    {
+                        v_Question.Correct = true;
+                        v_Question.Score = v_Score;
+                    }
+                    else
+                    {
+                        v_Question.Score = 0;
+                        v_Question.Correct = false;
+                    }
                 }
             }
 
             // If we are in the last question, mark the party as finish
-            if (v_PartyQuestion.Order == v_Party.PartyQuestions.Count)
+            if (v_Question.Index == v_Party.NbQuestions)
             {
                 v_Party.Finish = true;
                 await m_UnitOfWork.PartyRepository.UpdateAsync(v_Party);
             }
 
+            // TODO
+            /*
             await m_UnitOfWork.UserPartyQuestionRepository.UpdateAsync(v_UserPartyQuestion);
             _ = m_UnitOfWork.Save();
-
+            */
             v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(p_Request.PartyId, v_User.Id,
                 p_CancellationToken);
-            v_Party.NbQuestions = v_Party.PartyQuestions.Count;
-            v_Party.PartyQuestions = v_Party.PartyQuestions.Where(p_P => p_P.UserPartyQuestion is not null).ToList();
+            v_Party.Questions = v_Party.Questions.Where(p_P => p_P.DtAnsweredAt.HasValue).ToList();
             
-            foreach (PartyQuestion v_Question in v_Party.PartyQuestions)
+            foreach (Question v_LocalQuestion in v_Party.Questions)
             {
-                int v_Seed = v_Question.UserPartyQuestion.AnswersOrder.GetHashCode();
+                int v_Seed = v_Question.AnswerSeed.GetHashCode();
 
                 Random v_Random = new(v_Seed);
                 
-                v_Question.Question.Answer = v_Question.Question.Answer.OrderBy(_ => v_Random.Next()).ToList();
+                v_Question.Answer = v_Question.Answer.OrderBy(_ => v_Random.Next()).ToList();
             }
             
-            return new GenericEntityResponse<Party>(v_Party);
+            return new GenericEntityResponse<PartyBase>(v_Party);
         }
     }
 }

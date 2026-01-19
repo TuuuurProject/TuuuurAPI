@@ -1,6 +1,6 @@
 namespace Tuuuur.Domain.Bo;
 
-public abstract record PartyBase : IBOEntity
+public record PartyBase : IBOEntity
 {
     public Guid Id { get; set; }
     public DateTime Dt { get; set; }
@@ -8,22 +8,15 @@ public abstract record PartyBase : IBOEntity
     public int IdUserHost { get; set; }
     public bool Active { get; set; }
     public bool Finish { get; set; }
-    
-    public double Percent => PartyQuestions.Count != 0 
-        ? ((double)PartyQuestions.Count(p_Question => p_Question.UserPartyQuestion?.Correct is true) / PartyQuestions.Count * 100) 
+    public int NbQuestions { get; set; }
+    public double Percent => Questions.Count != 0 
+        ? ((double)Questions.Count(p_Question => p_Question.Correct) / NbQuestions * 100) 
         : 0;
-
-    public int Score => PartyQuestions.Sum(p => p.UserPartyQuestion?.Score ?? 0);
-
-    public int Time => (int)TimeSpan.FromTicks(
-        PartyQuestions
-            .Where(p_Question => p_Question.UserPartyQuestion?.DtAnsweredAt != null)
-            .Sum(p_Question => (p_Question.UserPartyQuestion.DtAnsweredAt.Value - p_Question.UserPartyQuestion.DtPresentedAt).Ticks)
-    ).TotalSeconds;
-
-    public virtual PartyType PartyType { get; set; }
-    public virtual User User { get; set; }
-    public virtual List<PartyDifficulty> PartyDifficulty { get; set; } = [];
-    public virtual List<PartyTheme> PartyTheme { get; set; } = [];
-    public virtual List<PartyQuestion> PartyQuestions { get; set; } = [];
+    public int Score => Questions.Sum(p_Question => p_Question.Score);
+    public int Time => (int)TimeSpan.FromTicks(Questions.Sum(p_P => p_P.Ticks)).TotalSeconds;
+    public PartyType Type { get; set; }
+    public List<User> Users { get; set; }
+    public List<Difficulty> Difficulties { get; set; }
+    public List<Theme>  Themes { get; set; }
+    public List<Question> Questions { get; set; }
 }

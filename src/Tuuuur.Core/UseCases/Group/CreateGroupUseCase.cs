@@ -19,9 +19,9 @@ internal class CreateGroupUseCase(IUnitOfWork p_UnitOfWork,
 {
     protected override async Task<GenericEntityResponse<GroupParty>> Process(CreateGroupPartyRequest p_Request, User p_User, CancellationToken p_CancellationToken)
     {
-        
+
         string v_Code = string.Empty;
-        
+
         // Necessary to avoid duplicated code
         do
         {
@@ -41,7 +41,7 @@ internal class CreateGroupUseCase(IUnitOfWork p_UnitOfWork,
             {
                 v_Code = v_GeneratedCode;
             }
-        }while(v_Code == string.Empty);
+        } while (v_Code == string.Empty);
 
         // Create party with default config 
         // TODO: Defaults settings needs to be configurable in appsettings
@@ -55,11 +55,11 @@ internal class CreateGroupUseCase(IUnitOfWork p_UnitOfWork,
             InProgress = false,
             NbQuestions = 10,
         };
-        
+
         await m_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
         await m_CacheService.SetAddAsync(RedisKeys.Party.Users(v_Party.Code), p_User.Id, p_CancellationToken: p_CancellationToken);
         await m_CacheService.SetAsync(RedisKeys.User.UserParty(p_User.Id), v_Party.Code, p_CancellationToken: p_CancellationToken);
-        
+
         v_Party.PartyUsers.Add(new PartyUser() { IdUser = p_User.Id, User = p_User });
 
         return new GenericEntityResponse<GroupParty>(v_Party);

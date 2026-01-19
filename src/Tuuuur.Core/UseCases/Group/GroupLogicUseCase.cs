@@ -228,7 +228,7 @@ internal class GroupLogicUseCase(
             await p_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
             
             // TODO : Enregistrer tout dans la base de données
-            
+            /*
             // Sauvegarder l'ID avant de le réinitialiser
             List<Question> v_Questions = await p_CacheService.SortedSetRangeByRankAsync<Question>(RedisKeys.Party.Questions(v_Party.Code), p_CancellationToken: p_CancellationToken);
             
@@ -256,9 +256,9 @@ internal class GroupLogicUseCase(
                 }
             }
             finally
-            {
+            {*/
                 await p_CacheService.RemoveByPatternAsync(RedisKeys.Party.ByCode(v_Party.Code) + ":*", [RedisKeys.Party.Users(v_Party.Code)], p_CancellationToken);
-            }
+            /*}*/
         }
 
         return new EmptyResponse();

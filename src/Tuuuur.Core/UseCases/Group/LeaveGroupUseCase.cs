@@ -33,7 +33,7 @@ internal class LeaveGroupUseCase(IUnitOfWork p_UnitOfWork,
 
         if (v_PartyCode is null)
         {
-            return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found")]);
+            return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(GroupParty)} was not found")]);
         }
 
         GroupParty v_Party = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_PartyCode), p_CancellationToken);
@@ -42,7 +42,7 @@ internal class LeaveGroupUseCase(IUnitOfWork p_UnitOfWork,
 
         // If user is not in the party
         if (v_PartyCode != v_Party.Code)
-            return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found")]);
+            return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(GroupParty)} was not found")]);
 
         // If the host user leave the party, destroy the party
         if (v_Party.IdUserHost == v_User.Id)

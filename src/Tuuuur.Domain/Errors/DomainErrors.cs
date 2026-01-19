@@ -33,7 +33,7 @@ public static class DomainErrors
 
         public const string Missmatch = AuthentPrefix + "missmatch";
         public const string Invalid = AuthentPrefix + GeneralErrors.Invalid;
-        
+
         public static class Google
         {
             private const string GooglePrefix = AuthentPrefix + "google.";
@@ -70,7 +70,7 @@ public static class DomainErrors
         public static class Code
         {
             private const string CodePrefix = AuthentPrefix + "code.";
-            
+
             public const string Empty = CodePrefix + GeneralErrors.Empty;
             public const string InvalidLength = CodePrefix + GeneralErrors.InvalidFormat.InvalidLength;
             public const string TooMuchDemand = CodePrefix + "too-much-demand";
@@ -88,6 +88,7 @@ public static class DomainErrors
         private const string PartyPrefix = DomainPrefix + "party.";
         public const string InvalidSettings = "invalid-settings";
         public const string InProgress = "in-progress";
+        public const string Finished = "finished";
 
         public static class Id
         {
@@ -98,7 +99,7 @@ public static class DomainErrors
         public static class Answer
         {
             private const string AnswerPrefix = PartyPrefix + "anwser.";
-            
+
             public const string Empty = AnswerPrefix + GeneralErrors.Empty;
         }
 
@@ -139,9 +140,9 @@ public static class DomainErrors
             private const string AvatarPrefix = UserPrefix + "avatar.";
             public const string Empty = AvatarPrefix + GeneralErrors.Empty;
             public const string InvalidFormat = AvatarPrefix + GeneralErrors.Invalid;
-            
+
         }
-        
+
         public static class Nickname
         {
             private const string NicknamePrefix = UserPrefix + "nickname.";

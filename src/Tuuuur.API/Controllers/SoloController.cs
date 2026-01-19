@@ -55,12 +55,12 @@ public class SoloController(ILogger<SoloController> p_Logger, IMediator p_Mediat
     /// <returns></returns>
     [HttpGet("{p_PartyId:guid}")]
     [MapToApiVersion("1")]
-    [ProducesResponseType(typeof(Party),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PartyBase),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetPartyStateAsync(
         [FromRoute] Guid p_PartyId,
-        [FromServices] GenericEntityPresenter<Party> p_Presenter,
+        [FromServices] GenericEntityPresenter<PartyBase> p_Presenter,
         CancellationToken p_CancellationToken)
     {
         p_Presenter.Handle(await m_Mediator.Send(new GetSoloPartyStateRequest(p_PartyId), p_CancellationToken));
@@ -78,13 +78,13 @@ public class SoloController(ILogger<SoloController> p_Logger, IMediator p_Mediat
     /// <returns></returns>
     [HttpPost("{p_PartyId:guid}")]
     [MapToApiVersion("1")]
-    [ProducesResponseType(typeof(Party),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PartyBase),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdatePartyStateAsync(
         [FromRoute] Guid p_PartyId,
         [FromBody] AnswerApiRequest p_Request,
-        [FromServices] GenericEntityPresenter<Party> p_Presenter,
+        [FromServices] GenericEntityPresenter<PartyBase> p_Presenter,
         CancellationToken p_CancellationToken)
     {
         p_Presenter.Handle(await m_Mediator.Send(new UpdateSoloPartyStateRequest(p_PartyId, p_Request.AnswerId), p_CancellationToken));
