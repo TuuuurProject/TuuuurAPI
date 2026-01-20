@@ -55,8 +55,6 @@ internal class CreateGroupUseCase(IUnitOfWork p_UnitOfWork,
             Active = true,
             InProgress = false,
             NbQuestions = 10,
-            PartyDifficulty = [new PartyDifficulty { IdDifficulty = 1 }],
-            PartyTheme = [new PartyTheme { IdTheme = 1 }],
         };
         
         await m_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
