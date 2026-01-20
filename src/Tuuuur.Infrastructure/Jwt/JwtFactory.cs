@@ -27,7 +27,6 @@ internal class JwtFactory(JwtConfiguration p_JwtConfiguration) : IJwtFactory
         SecurityTokenDescriptor v_TokenDescriptor = new()
         {
             Subject = new ClaimsIdentity([
-                new Claim(JwtRegisteredClaimNames.Sid, p_UserInfos.Id.ToString()),
                 new Claim(ClaimNames.Id, p_UserInfos.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.UniqueName, p_UserInfos.NickName),
                 new Claim(JwtRegisteredClaimNames.Email, p_UserInfos.Email),
