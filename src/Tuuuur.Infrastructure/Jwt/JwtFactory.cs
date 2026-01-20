@@ -28,12 +28,12 @@ internal class JwtFactory(JwtConfiguration p_JwtConfiguration) : IJwtFactory
         {
             Subject = new ClaimsIdentity([
                 new Claim(JwtRegisteredClaimNames.Sid, p_UserInfos.Id.ToString()),
-                new Claim("id", p_UserInfos.Id.ToString()),
+                new Claim(ClaimNames.Id, p_UserInfos.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.UniqueName, p_UserInfos.NickName),
                 new Claim(JwtRegisteredClaimNames.Email, p_UserInfos.Email),
-                new Claim("role", v_Role) 
+                new Claim(ClaimNames.Role, v_Role)
             ]),
-            
+
             Expires = DateTime.UtcNow.AddMinutes(p_JwtConfiguration.Validity),
             Issuer = p_JwtConfiguration.Issuer,
             Audience = p_JwtConfiguration.Audience,

@@ -10,13 +10,11 @@ namespace Tuuuur.API.Security;
 public class UserIdProvider : IUserIdProvider
 {
     /// <summary>
-    /// Gets the user identifier from ClaimTypes.Sid (User ID)
+    /// Gets the user identifier from ClaimNames.Id (User ID)
     /// </summary>
-    [SuppressMessage("Style", "IDE1006:Styles d'affectation de noms", Justification = "Inherited named")]
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public string GetUserId(HubConnectionContext connection)
     {
-        // Use ClaimTypes.Sid which contains the user ID (set in JwtFactory.cs)
-        return connection.User?.FindFirst(JwtRegisteredClaimNames.Sid)?.Value;
+        // Utilise la constante centralisée ClaimNames.Id
+        return connection.User?.FindFirst(Domain.Security.ClaimNames.Id)?.Value;
     }
 }

@@ -82,18 +82,9 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdatePartySettingsAsync(
         [FromBody] GroupSettingsRequest p_Request,
-        [FromServices] GroupSettingsRequestValidator p_Validator,
         [FromServices] EmptyPresenter p_Presenter,
         CancellationToken p_CancellationToken)
     {
-        ValidationResult v_Result = await p_Validator.ValidateAsync(p_Request, p_CancellationToken);
-
-        if (!v_Result.IsValid)
-        {
-            m_ValidationPresenter.Handle(v_Result);
-            return m_ValidationPresenter.ContentResult;
-        }
-        
         p_Presenter.Handle(await m_Mediator.Send(new EditGroupSettingsRequest(p_Request.Themes, p_Request.Difficulties, p_Request.NbQuestions, p_Request.ScoreEachRound), p_CancellationToken));
 
         return p_Presenter.ContentResult;

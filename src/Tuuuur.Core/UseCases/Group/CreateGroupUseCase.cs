@@ -7,7 +7,6 @@ using Tuuuur.Domain.Bo.Enum;
 using Tuuuur.Domain.Configuration;
 using Tuuuur.Domain.Interfaces;
 using Tuuuur.Domain.Interfaces.Data;
-using Tuuuur.Domain.Notifications;
 using Tuuuur.Domain.Security;
 
 namespace Tuuuur.Core.UseCases.Group;
