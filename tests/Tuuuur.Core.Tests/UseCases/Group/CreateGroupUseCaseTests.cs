@@ -47,8 +47,6 @@ public class CreateGroupUseCaseTests
             .ReturnsAsync(v_User);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<string>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(string.Empty);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<string>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(string.Empty);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<GroupParty>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((GroupParty)null);
         

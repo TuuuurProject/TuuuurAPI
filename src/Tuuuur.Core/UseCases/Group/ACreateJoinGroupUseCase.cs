@@ -29,10 +29,10 @@ internal abstract class ACreateJoinGroupUseCase<TRequest>(
         if (v_User == null)
             return new GenericEntityResponse<GroupParty>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
 
-        string v_PartyCode = await m_CacheService.GetAsync<string>(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken);
+        string v_PartyCode = await m_CacheService.GetAsync<string>(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken) ?? string.Empty;
         
         // If a party already exist, 
-        if (v_PartyCode != null)
+        if (v_PartyCode != string.Empty)
         {
             GroupParty v_ExistingParty = await m_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_PartyCode), p_CancellationToken);
             List<int> v_UserInExistingParty = await m_CacheService.SetMembersAsync<int>(RedisKeys.Party.Users(v_PartyCode), p_CancellationToken: p_CancellationToken);

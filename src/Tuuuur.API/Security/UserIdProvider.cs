@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 
@@ -16,6 +17,6 @@ public class UserIdProvider : IUserIdProvider
     public string GetUserId(HubConnectionContext connection)
     {
         // Use ClaimTypes.Sid which contains the user ID (set in JwtFactory.cs)
-        return connection.User?.FindFirst(ClaimTypes.Sid)?.Value;
+        return connection.User?.FindFirst(JwtRegisteredClaimNames.Sid)?.Value;
     }
 }
