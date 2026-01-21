@@ -37,4 +37,8 @@
         <ProjectReference Include="..\Tuuuur.RazorTemplate\Tuuuur.RazorTemplate.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Data\Mapping\Converter\" />
+    </ItemGroup>
+
 </Project>

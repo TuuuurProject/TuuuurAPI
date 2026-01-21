@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using System.Linq;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Infrastructure.Data.EntityFramework.Entities;
 
@@ -25,18 +26,45 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.Answer, p_Opt => p_Opt.MapFrom(p_Src => p_Src.AnswerAns))
             .ForMember(p_Trg => p_Trg.Difficulty, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdDifficultyNavigation))
             .ForMember(p_Trg => p_Trg.Themes, p_Opt => p_Opt.MapFrom(p_Src => p_Src.QuestionThemeQth.Select(p_P => p_P.IdThemeNavigation)))
-            
-            .ForMember(p_Trg => p_Trg.Index, p_Opt => p_Opt.Ignore())
-            .ForMember(p_Trg => p_Trg.Score, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.Select(p_Pqt => p_Pqt.UserPartyQuestionUpq.Select(p_Upq => p_Upq.Score))))
-            .ForMember(p_Trg => p_Trg.UserAnswer, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.Select(p_Pqt => p_Pqt.UserPartyQuestionUpq.Select(p_Upq => p_Upq.IdAnswer))))
-            .ForMember(p_Trg => p_Trg.Correct, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.Select(p_Pqt => p_Pqt.UserPartyQuestionUpq.Select(p_Upq => p_Upq.Correct))))
-            .ForMember(p_Trg => p_Trg.DtPresentedAt, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.Select(p_Pqt => p_Pqt.UserPartyQuestionUpq.Select(p_Upq => p_Upq.DtPresentedAt))))
-            .ForMember(p_Trg => p_Trg.DtAnsweredAt, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.Select(p_Pqt => p_Pqt.UserPartyQuestionUpq.Select(p_Upq => p_Upq.DtAnsweredAt))))
-            .ForMember(p_Trg => p_Trg.AnswerSeed, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.Select(p_Pqt => p_Pqt.UserPartyQuestionUpq.Select(p_Upq => p_Upq.AnswersOrder))))
-            
-            .ForMember(p_Trg => p_Trg.AnswerSeed, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.Select(p_Pqt => p_Pqt.UserPartyQuestionUpq.Select(p_Upq => p_Upq.AnswersOrder))))
 
-            //.ForMember(p_Trg => p_Trg.Ticks, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.Select(p_Pqt => p_Pqt.UserPartyQuestionUpq.Select(p_Upq => p_Upq.))))
+            .ForMember(p_Trg => p_Trg.Index, p_Opt => p_Opt.Ignore())
+            .ForMember(p_Trg => p_Trg.Ticks, p_Opt => p_Opt.Ignore())
+
+            .ForMember(p_Trg => p_Trg.Index, p_Opt =>
+            {
+                p_Opt.PreCondition(p_Src => p_Src.PartyQuestionPqt != null);
+                p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.Select(p_Pqt => p_Pqt.Order).FirstOrDefault());
+            })
+            .ForMember(p_Trg => p_Trg.Score, p_Opt =>
+            {
+                p_Opt.PreCondition(p_Src => p_Src.PartyQuestionPqt != null && p_Src.PartyQuestionPqt.SelectMany(p_Pqt => p_Pqt.UserPartyQuestionUpq ?? Enumerable.Empty<UserPartyQuestionUpq>()).Any());
+                p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.SelectMany(p_Pqt => p_Pqt.UserPartyQuestionUpq ?? Enumerable.Empty<UserPartyQuestionUpq>()).Select(p_Upq => p_Upq.Score).FirstOrDefault());
+            })
+            .ForMember(p_Trg => p_Trg.UserAnswer, p_Opt =>
+            {
+                p_Opt.PreCondition(p_Src => p_Src.PartyQuestionPqt != null && p_Src.PartyQuestionPqt.SelectMany(p_Pqt => p_Pqt.UserPartyQuestionUpq ?? Enumerable.Empty<UserPartyQuestionUpq>()).Any());
+                p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.SelectMany(p_Pqt => p_Pqt.UserPartyQuestionUpq ?? Enumerable.Empty<UserPartyQuestionUpq>()).Select(p_Upq => p_Upq.IdAnswer).FirstOrDefault());
+            })
+            .ForMember(p_Trg => p_Trg.Correct, p_Opt =>
+            {
+                p_Opt.PreCondition(p_Src => p_Src.PartyQuestionPqt != null && p_Src.PartyQuestionPqt.SelectMany(p_Pqt => p_Pqt.UserPartyQuestionUpq ?? Enumerable.Empty<UserPartyQuestionUpq>()).Any());
+                p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.SelectMany(p_Pqt => p_Pqt.UserPartyQuestionUpq ?? Enumerable.Empty<UserPartyQuestionUpq>()).Select(p_Upq => p_Upq.Correct).FirstOrDefault());
+            })
+            .ForMember(p_Trg => p_Trg.DtPresentedAt, p_Opt =>
+            {
+                p_Opt.PreCondition(p_Src => p_Src.PartyQuestionPqt != null && p_Src.PartyQuestionPqt.SelectMany(p_Pqt => p_Pqt.UserPartyQuestionUpq ?? Enumerable.Empty<UserPartyQuestionUpq>()).Any());
+                p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.SelectMany(p_Pqt => p_Pqt.UserPartyQuestionUpq ?? Enumerable.Empty<UserPartyQuestionUpq>()).Select(p_Upq => p_Upq.DtPresentedAt).FirstOrDefault());
+            })
+            .ForMember(p_Trg => p_Trg.DtAnsweredAt, p_Opt =>
+            {
+                p_Opt.PreCondition(p_Src => p_Src.PartyQuestionPqt != null && p_Src.PartyQuestionPqt.SelectMany(p_Pqt => p_Pqt.UserPartyQuestionUpq ?? Enumerable.Empty<UserPartyQuestionUpq>()).Any());
+                p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.SelectMany(p_Pqt => p_Pqt.UserPartyQuestionUpq ?? Enumerable.Empty<UserPartyQuestionUpq>()).Select(p_Upq => p_Upq.DtAnsweredAt).FirstOrDefault());
+            })
+            .ForMember(p_Trg => p_Trg.AnswerSeed, p_Opt =>
+            {
+                p_Opt.PreCondition(p_Src => p_Src.PartyQuestionPqt != null && p_Src.PartyQuestionPqt.SelectMany(p_Pqt => p_Pqt.UserPartyQuestionUpq ?? Enumerable.Empty<UserPartyQuestionUpq>()).Any());
+                p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.SelectMany(p_Pqt => p_Pqt.UserPartyQuestionUpq ?? Enumerable.Empty<UserPartyQuestionUpq>()).Select(p_Upq => p_Upq.AnswersOrder).FirstOrDefault());
+            })
             .ReverseMap();
 
         CreateMap<PartyPty, PartyBase>()
@@ -51,11 +79,41 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.Users, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyUserPus.Select(p_P => p_P.IdUserNavigation)))
             .ForMember(p_Trg => p_Trg.Difficulties, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyDifficultyPdf.Select(p_P => p_P.IdDifficultyNavigation)))
             .ForMember(p_Trg => p_Trg.Themes, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyThemePth.Select(p_P => p_P.IdThemeNavigation)))
+            .ForMember(p_Trg => p_Trg.NbQuestions, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.Score, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.Percent, p_Opt => p_Opt.Ignore())
-            .ForMember(p_Trg => p_Trg.Time, p_Opt => p_Opt.Ignore())
-            .ReverseMap();
-        
+            .ForMember(p_Trg => p_Trg.Time, p_Opt => p_Opt.Ignore());
+
+        CreateMap<Question, PartyQuestionPqt>()
+            .ForMember(d => d.IdQuestion, o => o.MapFrom(s => s.Id))
+            .ForMember(d => d.Order, o => o.MapFrom(s => s.Index))
+            .ForMember(d => d.IdParty, o => o.Ignore())
+            .ForMember(d => d.Id, o => o.Ignore())
+            .ForMember(d => d.IdPartyNavigation, o => o.Ignore())
+            .ForMember(d => d.IdQuestionNavigation, o => o.Ignore())
+            .ForMember(d => d.UserPartyQuestionUpq, o => o.Ignore());
+
+        CreateMap<Difficulty, PartyDifficultyPdf>()
+            .ForMember(d => d.IdDifficulty, o => o.MapFrom(s => s.Id))
+            .ForMember(d => d.IdParty, o => o.Ignore())
+            .ForMember(d => d.Id, o => o.Ignore())
+            .ForMember(d => d.IdDifficultyNavigation, o => o.Ignore())
+            .ForMember(d => d.IdPartyNavigation, o => o.Ignore());
+
+        CreateMap<Theme, PartyThemePth>()
+            .ForMember(d => d.IdTheme, o => o.MapFrom(s => s.Id))
+            .ForMember(d => d.IdParty, o => o.Ignore())
+            .ForMember(d => d.Id, o => o.Ignore())
+            .ForMember(d => d.IdPartyNavigation, o => o.Ignore())
+            .ForMember(d => d.IdThemeNavigation, o => o.Ignore());
+
+        CreateMap<User, PartyUserPus>()
+            .ForMember(d => d.IdUser, o => o.MapFrom(s => s.Id))
+            .ForMember(d => d.IdParty, o => o.Ignore())
+            .ForMember(d => d.Id, o => o.Ignore())
+            .ForMember(d => d.IdPartyNavigation, o => o.Ignore())
+            .ForMember(d => d.IdUserNavigation, o => o.Ignore());
+
         CreateMap<PartyPty, GroupParty>()
             .IncludeBase<PartyPty, PartyBase>()
             .ForMember(p_Trg => p_Trg.PartyUsers, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyUserPus))
@@ -82,7 +140,7 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserNavigation))
             .ForMember(p_Trg => p_Trg.Party, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdPartyNavigation))
             .ReverseMap();
-        
+
         CreateMap<AnswerAns, Answer>()
             .ForMember(p_Trg => p_Trg.IdQuestion, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdQuestion))
             .ReverseMap();

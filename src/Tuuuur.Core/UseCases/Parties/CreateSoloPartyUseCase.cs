@@ -28,15 +28,21 @@ internal class CreateSoloPartyUseCase(
         IEnumerable<Question> v_Questions =  await m_UnitOfWork.QuestionRepository
             .GetQuestionsByThemesIdsAndDifficultiesIdsAndNumberOfQuestionsAsync(p_Request.ThemesIds,
                 p_Request.DifficultiesIds, p_Request.NbQuestions, p_CancellationToken);
+        
+        List<Question> v_List = v_Questions.Select((p_Question, p_Index) =>
+        {
+            p_Question.Index = p_Index + 1;
+            return p_Question;
+        }).ToList();
 
         PartyBase v_Party = new()
         {
             IdPartyType = (int)PartyTypeType.Solo,
             Users =  [v_User],
             IdUserHost = v_User.Id,
-            Questions = v_Questions.ToList(),
+            Questions = v_List,
             Active = true,
-            NbQuestions = v_Questions.Count(),
+            NbQuestions = v_List.Count,
             Difficulties = p_Request.DifficultiesIds
                 .Select(p_Id => new Difficulty() { Id = p_Id }).ToList(),
             Themes = p_Request.ThemesIds
