@@ -7,13 +7,11 @@ using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Interfaces;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Notifications;
-using Tuuuur.Domain.Security;
 
 namespace Tuuuur.Core.UseCases.Group;
 
 internal class AnswerQuestionGroupUseCase(
     IUnitOfWork p_UnitOfWork,
-    IUserRoleService p_UserRoleService,
     ICacheService p_CacheService,
     IGroupNotificationService p_GroupNotificationService,
     ILogger<AnswerQuestionGroupUseCase> p_Logger)
@@ -21,7 +19,7 @@ internal class AnswerQuestionGroupUseCase(
 {
     protected override async Task<EmptyResponse> HandleLogic(AnswerQuestionGroupPartyRequest p_Request, CancellationToken p_CancellationToken)
     {
-        string v_UserEmail = p_UserRoleService.GetCurrentUserEmail();
+        string v_UserEmail = p_Request.UserEmail;
         User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_UserEmail, p_CancellationToken);
 
         if (v_User == null)

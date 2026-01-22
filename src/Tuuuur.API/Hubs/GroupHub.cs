@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
 using Tuuuur.Core.Requests.Group;
@@ -18,9 +19,14 @@ public class GroupHub(IMediator p_Mediator) : Hub<IGroupClient>
     {
         try
         {
-            // Create party
-            StartGroupPartyRequest v_StartGroupPartyRequest = new();
-            _ = await p_Mediator.Send(v_StartGroupPartyRequest);
+            if (Context.User != null)
+            {
+                string v_UserEmail = Context.User.Claims.FirstOrDefault(p_C => p_C.Type == ClaimTypes.Email)?.Value;
+
+                // Create party
+                StartGroupPartyRequest v_StartGroupPartyRequest = new(v_UserEmail);
+                _ = await p_Mediator.Send(v_StartGroupPartyRequest);
+            }
         }
         catch (Exception v_Exception)
         {
@@ -37,9 +43,14 @@ public class GroupHub(IMediator p_Mediator) : Hub<IGroupClient>
     {
         try
         {
-            // Create party
-            AnswerQuestionGroupPartyRequest v_AnswerQuestionGroupPartyRequest = new(p_AnswerId);
-            _ = await p_Mediator.Send(v_AnswerQuestionGroupPartyRequest);
+            if (Context.User != null)
+            {
+                string v_UserEmail = Context.User.Claims.FirstOrDefault(p_C => p_C.Type == ClaimTypes.Email)?.Value;
+
+                // Create party
+                AnswerQuestionGroupPartyRequest v_AnswerQuestionGroupPartyRequest = new(p_AnswerId, v_UserEmail);
+                _ = await p_Mediator.Send(v_AnswerQuestionGroupPartyRequest);
+            }
         }
         catch (Exception v_Exception)
         {

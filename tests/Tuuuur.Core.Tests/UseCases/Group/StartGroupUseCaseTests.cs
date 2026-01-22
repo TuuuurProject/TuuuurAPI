@@ -17,7 +17,6 @@ public class StartGroupUseCaseTests
 {
     private readonly MockRepository m_MockRepository;
     private readonly Mock<IUnitOfWork> m_UnitOfWorkMock;
-    private readonly Mock<IUserRoleService> m_UserRoleServiceMock;
     private readonly Mock<IGroupNotificationService> m_GroupPartyNotificationServiceMock;
     private readonly Mock<ICacheService> m_CacheServiceMock;
     private readonly Mock<IServiceScopeFactory> m_ServiceScopeFactoryMock;
@@ -29,12 +28,11 @@ public class StartGroupUseCaseTests
         m_MockRepository = new MockRepository(MockBehavior.Strict);
         m_UnitOfWorkMock = m_MockRepository.Create<IUnitOfWork>();
         Mock<ILogger<StartGroupUseCase>> v_LoggerMock = m_MockRepository.Create<ILogger<StartGroupUseCase>>();
-        m_UserRoleServiceMock = m_MockRepository.Create<IUserRoleService>();
         m_GroupPartyNotificationServiceMock = m_MockRepository.Create<IGroupNotificationService>();
         m_CacheServiceMock = m_MockRepository.Create<ICacheService>();
         m_ServiceScopeFactoryMock = m_MockRepository.Create<IServiceScopeFactory>();
 
-        m_UseCase = new StartGroupUseCase(m_UnitOfWorkMock.Object, v_LoggerMock.Object, m_UserRoleServiceMock.Object, m_CacheServiceMock.Object, m_GroupPartyNotificationServiceMock.Object, m_ServiceScopeFactoryMock.Object);
+        m_UseCase = new StartGroupUseCase(m_UnitOfWorkMock.Object, v_LoggerMock.Object, m_CacheServiceMock.Object, m_GroupPartyNotificationServiceMock.Object, m_ServiceScopeFactoryMock.Object);
     }
 
     [Fact]
@@ -51,7 +49,6 @@ public class StartGroupUseCaseTests
 
         List<Question> v_Questions = BoFactory.CreateQuestion().Generate(v_Party.NbQuestions);
 
-        m_UserRoleServiceMock.Setup(p_U => p_U.GetCurrentUserEmail()).Returns(v_User.Email);
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<string>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party.Code);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<GroupParty>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party);
@@ -73,7 +70,7 @@ public class StartGroupUseCaseTests
         v_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<GroupLogicRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
         m_ServiceScopeFactoryMock.Setup(p_Ssf => p_Ssf.CreateScope()).Returns(v_ServiceScopeMock.Object);
 
-        StartGroupPartyRequest v_Request = new();
+        StartGroupPartyRequest v_Request = new(v_User.Email);
 
         // Act
         EmptyResponse v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);

@@ -4,4 +4,4 @@ using Tuuuur.Domain.Bo;
 
 namespace Tuuuur.Core.Requests.Group;
 
-public record AnswerQuestionGroupPartyRequest(int AnswerId) : IRequest<EmptyResponse>;
+public record AnswerQuestionGroupPartyRequest(int AnswerId, string UserEmail) : IRequest<EmptyResponse>;

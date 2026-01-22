@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Tuuuur.Domain.Errors;
 
@@ -88,7 +88,7 @@ public static class DomainErrors
         private const string PartyPrefix = DomainPrefix + "party.";
         public const string InvalidSettings = "invalid-settings";
         public const string InProgress = "in-progress";
-        
+
         public static class Id
         {
             private const string IdPrefix = DomainPrefix + "id.";

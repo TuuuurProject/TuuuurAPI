@@ -3,4 +3,4 @@ using Tuuuur.Core.Responses;
 
 namespace Tuuuur.Core.Requests.Group;
 
-public record StartGroupPartyRequest() : IRequest<EmptyResponse>;
+public record StartGroupPartyRequest(string UserEmail) : IRequest<EmptyResponse>;
