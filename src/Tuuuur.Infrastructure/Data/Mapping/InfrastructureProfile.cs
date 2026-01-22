@@ -27,7 +27,7 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.PartyQuestion, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt))
             .ForMember(p_Trg => p_Trg.QuestionTheme, p_Opt => p_Opt.MapFrom(p_Src => p_Src.QuestionThemeQth))
             .ReverseMap();
-        
+
         CreateMap<PartyPty, PartyBase>()
             .ForMember(p_Trg => p_Trg.Id, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Id))
             .ForMember(p_Trg => p_Trg.Dt, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Dt))
@@ -119,10 +119,12 @@ internal class InfrastructureProfile : Profile
 
         CreateMap<PartyThemePth, PartyTheme>()
             .ForMember(p_Trg => p_Trg.Theme, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdThemeNavigation))
-            .ReverseMap();
+            .ReverseMap()
+            .ForMember(p_Trg => p_Trg.IdThemeNavigation, p_Opt => p_Opt.Ignore());
 
         CreateMap<PartyDifficultyPdf, PartyDifficulty>()
             .ForMember(p_Trg => p_Trg.Difficulty, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdDifficultyNavigation))
-            .ReverseMap();
+            .ReverseMap()
+            .ForMember(p_Trg => p_Trg.IdDifficultyNavigation, p_Opt => p_Opt.Ignore());
     }
 }

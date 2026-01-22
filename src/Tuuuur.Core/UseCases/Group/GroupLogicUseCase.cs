@@ -78,7 +78,7 @@ internal class GroupLogicUseCase(
             GroupQuestion v_GroupQuestion = new()
             {
                 Question = v_LocalQuestion,
-                CurrentIndex = v_CurrentIndex + 1,
+                CurrentIndex = v_CurrentIndex,
             };
             
             // Send the question to the specific user
@@ -165,7 +165,7 @@ internal class GroupLogicUseCase(
                 GroupQuestion v_GroupQuestion = new()
                 {
                     Question = v_LocalQuestion,
-                    CurrentIndex = v_CurrentIndex + 1,
+                    CurrentIndex = v_CurrentIndex,
                     Score = v_UserPartyQuestion.Score,
                 };
                 
