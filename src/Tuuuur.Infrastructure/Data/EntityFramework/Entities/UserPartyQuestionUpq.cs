@@ -11,7 +11,7 @@ public partial class UserPartyQuestionUpq
 
     public int IdUser { get; set; }
 
-    public DateTime DtPresentedAt { get; set; }
+    public DateTime? DtPresentedAt { get; set; }
 
     public DateTime? DtAnsweredAt { get; set; }
 

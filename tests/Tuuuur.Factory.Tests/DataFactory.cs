@@ -91,7 +91,7 @@ public static class BoFactory
             .RuleFor(p_Question => p_Question.Id, p_F => p_F.Random.Int(1, 1000))
             .RuleFor(p_Question => p_Question.Label, p_F => p_F.Lorem.Sentence())
             .RuleFor(p_Question => p_Question.IdDifficulty, p_F => p_F.Random.Int(1, 3))
-            .RuleFor(p_Question => p_Question.Answer, _ => [])
+            .RuleFor(p_Question => p_Question.Answers, _ => [])
             .RuleFor(p_Question => p_Question.Difficulty, _ => null)
             .RuleFor(p_Question => p_Question.PartyQuestion, _ => [])
             .RuleFor(p_Question => p_Question.QuestionTheme, _ => []);

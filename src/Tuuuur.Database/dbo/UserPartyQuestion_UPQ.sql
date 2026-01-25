@@ -3,7 +3,7 @@ CREATE TABLE [dbo].[UserPartyQuestion_UPQ]
     [Id]                INT                 IDENTITY (1,1) NOT NULL,
     [Id_Party_Question] INT                 NOT NULL,
     [Id_User]           INT                 NOT NULL,
-    [DtPresentedAt]     DATETIME2           NOT NULL CONSTRAINT [DF_UserPartyQuestion_Dt] DEFAULT (SYSUTCDATETIME()),
+    [DtPresentedAt]     DATETIME2           NULL,
     [DtAnsweredAt]      DATETIME2           NULL,
     [Score]             INT                 NULL,
     [Id_Answer]         INT                 NULL,

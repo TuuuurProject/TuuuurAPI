@@ -86,9 +86,10 @@ public static class DomainErrors
     public static class Party
     {
         private const string PartyPrefix = DomainPrefix + "party.";
-        public const string InvalidSettings = "invalid-settings";
-        public const string InProgress = "in-progress";
-        public const string Finished = "finished";
+        public const string InvalidSettings = PartyPrefix + "invalid-settings";
+        public const string InProgress = PartyPrefix + "in-progress";
+        public const string Finished = PartyPrefix + "finished";
+        public const string NoQuestionSent = PartyPrefix + "no-question-sent";
 
         public static class Id
         {

@@ -28,49 +28,41 @@ internal class GetPartyUseCase(
         // Check if the party type is correct
         // Check if the party contains only 1 player
         // Check that the player is this user
-        if (v_Party is null || v_Party.IdPartyType != (int)PartyTypeType.Solo || v_Party.Users.Count != 1 && v_Party.Users[0].Id != v_User.Id)
+        if (v_Party is null || v_Party.IdPartyType != (int)PartyTypeType.Solo || v_Party.Users.Count != 1 && v_Party.Users.First().Id != v_User.Id)
             return new GenericEntityResponse<PartyBase>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(PartyBase)} was not found, Key: {p_Request.PartyId.ToString()}")]);
 
-        Question v_Question = v_Party.Questions.OrderBy(p_P => p_P.Index).FirstOrDefault(p_P => p_P.DtAnsweredAt == null);
+        // Check if question in progress
+        Question v_Question = v_Party.Questions.OrderBy(p_P => p_P.Index)
+            .FirstOrDefault(p_P => !p_P.DtAnsweredAt.HasValue 
+                                   && p_P.DtPresentedAt.HasValue);
         
-        // If question are answered, send the next one
-        if(v_Question == null)
+        // If the question is not answered, create it
+        if(v_Question is null)
         {
-            v_Question = v_Party.Questions.OrderBy(p_P => p_P).FirstOrDefault(p_P => !p_P.DtAnsweredAt.HasValue);
+            // Get next question who hasn't presented to user
+            v_Question = v_Party.Questions.OrderBy(p_P => p_P.Index)
+                .FirstOrDefault(p_P => !p_P.DtPresentedAt.HasValue);
 
-            if (v_Question != null)
+            if (v_Question is not null)
             {
-                UserPartyQuestion v_UserPartyQuestionToAdd = new()
-                {
-                    IdUser = v_User.Id,
-                    IdPartyQuestion = v_Question.Id,
-                    Correct = null,
-                    DtPresentedAt = DateTime.UtcNow
-                };
-                _ = await m_UnitOfWork.UserPartyQuestionRepository.CreateUserPartyQuestionAsync(v_UserPartyQuestionToAdd, p_CancellationToken);
+                // Associate user to this question of this party
+                await m_UnitOfWork.UserPartyQuestionRepository.CreateUserQuestionAsync(v_Party.Id, v_User.Id, v_Question.Id, p_CancellationToken);
+                _ = m_UnitOfWork.Save();
             }
-
-            _ = m_UnitOfWork.Save();
         }
         
         v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(p_Request.PartyId, v_User.Id, p_CancellationToken);
-        v_Party.Questions = v_Party.Questions.Where(p_P => p_P.DtAnsweredAt.HasValue).ToList();
-        
-        v_Party.Questions
-            .Where(p_Question => p_Question.UserAnswer == null)
-            .ToList()
-            .ForEach(p_Question => 
-            {
-                p_Question.ClearAnswer();
-            });
+        v_Party.Questions = v_Party.Questions.Where(p_P => p_P.DtPresentedAt.HasValue).ToList();
 
         foreach (Question v_Question1 in v_Party.Questions)
         {
+            if (!v_Question1.DtPresentedAt.HasValue || !v_Question1.DtAnsweredAt.HasValue)
+            {
+                v_Question1.ClearAnswer();
+            }
             int v_Seed = v_Question1.AnswerSeed.GetHashCode();
-
             Random v_Random = new(v_Seed);
-            
-            v_Question1.Answer = v_Question1.Answer.OrderBy(_ => v_Random.Next()).ToList();
+            v_Question1.Answers = v_Question1.Answers.OrderBy(_ => v_Random.Next()).ToList();
         }
         
         return new GenericEntityResponse<PartyBase>(v_Party);

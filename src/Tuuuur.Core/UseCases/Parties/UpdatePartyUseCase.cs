@@ -20,7 +20,6 @@ namespace Tuuuur.Core.UseCases.Parties
         protected override async Task<GenericEntityResponse<PartyBase>> HandleLogic(UpdateSoloPartyStateRequest p_Request,
             CancellationToken p_CancellationToken)
         {
-            DateTime v_CurrentDateTime = DateTime.UtcNow;
             string v_UserEmail = p_UserRoleService.GetCurrentUserEmail();
             User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_UserEmail, p_CancellationToken);
 
@@ -40,23 +39,27 @@ namespace Tuuuur.Core.UseCases.Parties
             
             Question v_Question = v_Party.Questions.OrderBy(p_P => p_P.Index).FirstOrDefault(p_P => p_P.DtPresentedAt.HasValue && !p_P.DtAnsweredAt.HasValue);
 
-            // Answer can be null if the request was send without response
-            Answer v_Answer = v_Question.Answer.FirstOrDefault(p_P => p_P.Id == p_Request.AnswerId);
-
-            v_Question.DtAnsweredAt = v_CurrentDateTime;
-            if (v_Question.DtPresentedAt != null)
+            if (v_Question is null)
+                return new GenericEntityResponse<PartyBase>([
+                    new ErrorDto(DomainErrors.Party.NoQuestionSent, "No questions have been sent")
+                ]);
+            
+            // Get the user answer
+            Answer v_Answer = v_Question.Answers.FirstOrDefault(p_P => p_P.Id == p_Request.AnswerId);
+            
+            if (v_Question.DtPresentedAt.HasValue)
             {
-                int v_Score = p_CalculService.CalculateScore(v_Question.DtPresentedAt.Value, v_Question.DtAnsweredAt);
+                int v_Score = p_CalculService.CalculateScore(v_Question.DtPresentedAt.Value, DateTime.UtcNow);
 
                 if (v_Answer is null)
                 {
-                    v_Question.UserAnswer = null;
+                    v_Question.IdUserAnswer = null;
                     v_Question.Correct = false;
                     v_Question.Score = 0;
                 }
                 else
                 {
-                    v_Question.UserAnswer = v_Answer.Id;
+                    v_Question.IdUserAnswer = v_Answer.Id;
                     if (v_Answer.Valid.HasValue && v_Answer.Valid.Value && v_Score > 0)
                     {
                         v_Question.Correct = true;
@@ -69,30 +72,28 @@ namespace Tuuuur.Core.UseCases.Parties
                     }
                 }
             }
-
+            
+            await m_UnitOfWork.UserPartyQuestionRepository.UpdateUserQuestionAsync(v_Party.Id, v_User.Id, v_Question.Id, v_Question.Correct, v_Answer?.Id, v_Question.Score, p_CancellationToken);
+            
             // If we are in the last question, mark the party as finish
             if (v_Question.Index == v_Party.NbQuestions)
             {
-                v_Party.Finish = true;
-                await m_UnitOfWork.PartyRepository.UpdateAsync(v_Party);
+                await m_UnitOfWork.PartyRepository.FinishPartyAsync(v_Party, p_CancellationToken);
             }
-
-            // TODO
-            /*
-            await m_UnitOfWork.UserPartyQuestionRepository.UpdateAsync(v_UserPartyQuestion);
+            
             _ = m_UnitOfWork.Save();
-            */
+            
             v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(p_Request.PartyId, v_User.Id,
                 p_CancellationToken);
             v_Party.Questions = v_Party.Questions.Where(p_P => p_P.DtAnsweredAt.HasValue).ToList();
             
-            foreach (Question v_LocalQuestion in v_Party.Questions)
+            foreach (Question v_Question1 in v_Party.Questions)
             {
-                int v_Seed = v_Question.AnswerSeed.GetHashCode();
+                int v_Seed = v_Question1.AnswerSeed.GetHashCode();
 
                 Random v_Random = new(v_Seed);
-                
-                v_Question.Answer = v_Question.Answer.OrderBy(_ => v_Random.Next()).ToList();
+            
+                v_Question1.Answers = v_Question1.Answers.OrderBy(_ => v_Random.Next()).ToList();
             }
             
             return new GenericEntityResponse<PartyBase>(v_Party);

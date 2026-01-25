@@ -41,7 +41,6 @@ internal class CreateSoloPartyUseCase(
             Users =  [v_User],
             IdUserHost = v_User.Id,
             Questions = v_List,
-            Active = true,
             NbQuestions = v_List.Count,
             Difficulties = p_Request.DifficultiesIds
                 .Select(p_Id => new Difficulty() { Id = p_Id }).ToList(),
@@ -51,7 +50,7 @@ internal class CreateSoloPartyUseCase(
 
         IMappingAddEntity<PartyBase, IEntity> v_MappingAddEntity =
             await m_UnitOfWork.PartyRepository.CreatePartyAsync(v_Party, p_CancellationToken);
-        m_UnitOfWork.Save();
+        _ = m_UnitOfWork.Save();
             
         return new GuidResponse(v_MappingAddEntity.MapBoEntity.Id);
     }

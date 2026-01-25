@@ -6,25 +6,24 @@ public class Question : IBOEntity
 {
     public int Id { get; set; }
     public string Label { get; set; }
-    public int IdDifficulty { get; set; }
-    public List<Answer> Answer { get; set; } = [];
+    public List<Answer> Answers { get; set; } = [];
     public Difficulty Difficulty { get; set; }
     public List<Theme> Themes { get; set; } = [];
     public int Index { get; set; }
     public int Score { get; set; }
-    public int? UserAnswer { get; set; }
+    public int? IdUserAnswer { get; set; }
     public bool Correct { get; set; }
     public DateTime? DtPresentedAt  { get; set; }
-    [JsonIgnore]
     public DateTime? DtAnsweredAt  { get; set; }
     [JsonIgnore]
-    public int Ticks { get; set; }
+    public int Ticks { get; init; }
+    public int Time => (int)TimeSpan.FromTicks(Ticks).TotalMilliseconds;
     [JsonIgnore]
     public Guid AnswerSeed { get; set; }
     
     public void ClearAnswer()
     {
-        foreach (Answer v_Answer in Answer)
+        foreach (Answer v_Answer in Answers)
         {
             v_Answer.Valid = null;
         }
@@ -36,8 +35,7 @@ public class Question : IBOEntity
         {
             Id = Id,
             Label = Label,
-            IdDifficulty = IdDifficulty,
-            Answer = [.. Answer],
+            Answers = [.. Answers],
             Difficulty = Difficulty,
             Themes = Themes
         };

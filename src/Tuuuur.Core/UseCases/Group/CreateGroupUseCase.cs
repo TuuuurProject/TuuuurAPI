@@ -51,7 +51,6 @@ internal class CreateGroupUseCase(IUnitOfWork p_UnitOfWork,
             Code = v_Code,
             IdUserHost = p_User.Id,
             Dt = DateTime.Now,
-            Active = true,
             InProgress = false,
             NbQuestions = 10,
         };

@@ -312,7 +312,6 @@ public partial class BaseTuuuurContext : DbContext
             entity.HasIndex(e => new { e.IdUser, e.IdPartyQuestion }, "IX_UserPartyQuestion_User");
 
             entity.Property(e => e.AnswersOrder).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.DtPresentedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.IdAnswer).HasColumnName("Id_Answer");
             entity.Property(e => e.IdPartyQuestion).HasColumnName("Id_Party_Question");
             entity.Property(e => e.IdUser).HasColumnName("Id_User");

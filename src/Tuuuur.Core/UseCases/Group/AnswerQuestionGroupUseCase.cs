@@ -48,7 +48,7 @@ internal class AnswerQuestionGroupUseCase(
 
         Question v_Question = await m_UnitOfWork.QuestionRepository.GetQuestionByIdWithAnswerAsync(v_CurrentQuestion.Id, p_CancellationToken);
 
-        if (v_Question.Answer.All(p_P => p_P.Id != p_Request.AnswerId))
+        if (v_Question.Answers.All(p_P => p_P.Id != p_Request.AnswerId))
         {
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Answer)} was not found, Key: {p_Request.AnswerId}")]);
         }

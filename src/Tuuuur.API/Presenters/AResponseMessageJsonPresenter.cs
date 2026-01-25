@@ -31,7 +31,8 @@ namespace Tuuuur.API.Presenters
             JsonSerializerOptions v_JsonSerializerOptions = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                ReferenceHandler = ReferenceHandler.IgnoreCycles
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
             };
 
             ContentResult.Content = p_Response.Success ? JsonSerializer.Serialize(GetSuccessMember(p_Response), v_JsonSerializerOptions) : JsonSerializer.Serialize(p_Response.Errors, v_JsonSerializerOptions);

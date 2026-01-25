@@ -16,10 +16,20 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
     public async Task<IMappingAddEntity<PartyBase, IEntity>> CreatePartyAsync(PartyBase p_Party, CancellationToken p_CancellationToken = default)
     {
         IMappingAddEntity<PartyBase, PartyPty> v_Mapping = new MappingAddEntity<PartyBase, PartyPty>(Mapper, p_Party);
+        foreach (PartyQuestionPqt v_PartyQuestionPqt in v_Mapping.DtoEntity.PartyQuestionPqt)
+        {
+            foreach (PartyUserPus v_PartyUserPus in v_Mapping.DtoEntity.PartyUserPus)
+            {
+                v_PartyQuestionPqt.UserPartyQuestionUpq.Add(new UserPartyQuestionUpq()
+                {
+                    IdUser =  v_PartyUserPus.IdUser,
+                });
+            }
+        }
         await AddAsync(v_Mapping.DtoEntity, p_CancellationToken);
         return v_Mapping;
     }
-
+    
     public async Task<PartyBase> GetByIdAsync(Guid p_PartyId, int p_UserId, CancellationToken p_CancellationToken = default)
     {
         PartyPty v_PartyPty = await FindBy(p_P => p_P.Id == p_PartyId,
@@ -30,13 +40,22 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
                         .ThenInclude(p_P => p_P.IdDifficultyNavigation)
                     .Include(p_P => p_P.PartyQuestionPqt)
                         .ThenInclude(p_P => p_P.IdQuestionNavigation)
-                        .ThenInclude(p_P => p_P.AnswerAns)
+                            .ThenInclude(p_P => p_P.AnswerAns)
                     .Include(p_P => p_P.PartyQuestionPqt)
-                        .ThenInclude(p_P => p_P.UserPartyQuestionUpq.Where(p_UserPartyQuestionUpq => p_UserPartyQuestionUpq.IdUser == p_UserId))
+                        .ThenInclude(p_P => p_P.IdQuestionNavigation)
+                            .ThenInclude(p_P => p_P.IdDifficultyNavigation)
+                    .Include(p_P => p_P.PartyQuestionPqt)
+                        .ThenInclude(p_P => p_P.IdQuestionNavigation)
+                    .ThenInclude(p_P => p_P.QuestionThemeQth)
+                            .ThenInclude(p_P => p_P.IdThemeNavigation)
+                    .Include(p_P => p_P.PartyQuestionPqt)
+                        .ThenInclude(p_P => p_P.UserPartyQuestionUpq
+                            .Where(p_UserPartyQuestionUpq => p_UserPartyQuestionUpq.IdUser == p_UserId))
                             .ThenInclude(p_P => p_P.IdAnswerNavigation)
                     .Include(p_P => p_P.PartyUserPus)
+                        .ThenInclude(p_P => p_P.IdUserNavigation)
                     .Include(p_P => p_P.IdPartyTypeNavigation)
-                    )
+                    .Include(p_P => p_P.IdUserHostNavigation))
                     .AsNoTracking()
                     .AsSplitQuery()
             .FirstOrDefaultAsync(p_CancellationToken);
@@ -44,10 +63,11 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
         return v_PartyPty == null ? null : Mapper.Map<PartyBase>(v_PartyPty);
     }
 
-    public async Task UpdateAsync(PartyBase p_Party)
+    public async Task FinishPartyAsync(PartyBase p_Party, CancellationToken p_CancellationToken = default)
     {
-        PartyPty v_Entity = Mapper.Map<PartyPty>(p_Party);
-        await base.UpdateAsync(v_Entity);
+        PartyPty v_PartyPty = await FindBy(p_P => p_P.Id == p_Party.Id).FirstOrDefaultAsync(p_CancellationToken);
+        v_PartyPty.Finish = true;
+        await UpdateAsync(v_PartyPty);
     }
 
     public async Task<History> GetUserHistoryAsync(
@@ -60,17 +80,30 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
 
         long v_TotalCount = await CountAsync(p_P => p_P.IdUserHost == p_UserId, p_CancellationToken);
 
-        List<PartyPty> v_Entities = await FindBy(
-            null,
-            p_Include: p_Includes => p_Includes
-                .Include(p_P => p_P.PartyThemePth)
+        List<PartyPty> v_Entities = await FindBy(null,
+                p_Include: p_Includes => p_Includes
+                    .Include(p_P => p_P.PartyThemePth)
                     .ThenInclude(p_P => p_P.IdThemeNavigation)
-                .Include(p_P => p_P.PartyDifficultyPdf)
+                    .Include(p_P => p_P.PartyDifficultyPdf)
                     .ThenInclude(p_P => p_P.IdDifficultyNavigation)
-                .Include(p_P => p_P.PartyQuestionPqt)
-                    .ThenInclude(p_P => p_P.UserPartyQuestionUpq.Where(p_UserPartyQuestionUpq => p_UserPartyQuestionUpq.IdUser == p_UserId))
-                .Include(p_P => p_P.PartyUserPus)
-                .Include(p_P => p_P.IdPartyTypeNavigation))
+                    .Include(p_P => p_P.PartyQuestionPqt)
+                    .ThenInclude(p_P => p_P.IdQuestionNavigation)
+                    .ThenInclude(p_P => p_P.AnswerAns)
+                    .Include(p_P => p_P.PartyQuestionPqt)
+                    .ThenInclude(p_P => p_P.IdQuestionNavigation)
+                    .ThenInclude(p_P => p_P.IdDifficultyNavigation)
+                    .Include(p_P => p_P.PartyQuestionPqt)
+                    .ThenInclude(p_P => p_P.IdQuestionNavigation)
+                    .ThenInclude(p_P => p_P.QuestionThemeQth)
+                    .ThenInclude(p_P => p_P.IdThemeNavigation)
+                    .Include(p_P => p_P.PartyQuestionPqt)
+                    .ThenInclude(p_P => p_P.UserPartyQuestionUpq
+                        .Where(p_UserPartyQuestionUpq => p_UserPartyQuestionUpq.IdUser == p_UserId))
+                    .ThenInclude(p_P => p_P.IdAnswerNavigation)
+                    .Include(p_P => p_P.PartyUserPus)
+                    .ThenInclude(p_P => p_P.IdUserNavigation)
+                    .Include(p_P => p_P.IdPartyTypeNavigation)
+                    .Include(p_P => p_P.IdUserHostNavigation))
             .OrderByDescending(p_P => p_P.Dt)
             .AsNoTracking()
             .AsSplitQuery()

@@ -9,7 +9,7 @@ public interface IPartyRepository : IGenericRepository
         CancellationToken p_CancellationToken = default);
 
     Task<PartyBase> GetByIdAsync(Guid p_PartyId, int p_UserId, CancellationToken p_CancellationToken = default);
-    Task UpdateAsync(PartyBase p_Party);
+    Task FinishPartyAsync(PartyBase p_Party, CancellationToken p_CancellationToken = default);
 
     Task<History> GetUserHistoryAsync(int p_UserId, int p_Page, int p_Size, CancellationToken p_CancellationToken = default);
 }

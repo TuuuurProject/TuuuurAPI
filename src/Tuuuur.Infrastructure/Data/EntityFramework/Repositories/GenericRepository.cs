@@ -1,4 +1,4 @@
-﻿using Ardalis.GuardClauses;
+using Ardalis.GuardClauses;
 using AutoMapper;
 using AutoMapper.Internal;
 using Tuuuur.Domain.Interfaces.Data.Entities;

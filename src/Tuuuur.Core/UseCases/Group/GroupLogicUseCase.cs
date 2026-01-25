@@ -73,7 +73,7 @@ internal class GroupLogicUseCase(
             // Create a shuffled copy of answers for this user
             int v_Seed = v_UserPartyQuestion.AnswersOrder.GetHashCode();
             Random v_Random = new(v_Seed);
-            v_LocalQuestion.Answer = v_LocalQuestion.Answer.OrderBy(_ => v_Random.Next()).ToList();
+            v_LocalQuestion.Answers = v_LocalQuestion.Answers.OrderBy(_ => v_Random.Next()).ToList();
 
             GroupQuestion v_GroupQuestion = new()
             {
@@ -115,7 +115,7 @@ internal class GroupLogicUseCase(
             if (v_UserPartyQuestion != null)
             {
                 // Answer can be null if the request was sent without response
-                Answer v_Answer = v_LocalQuestion.Answer.FirstOrDefault(p_P => p_P.Id == v_UserPartyQuestion.IdAnswer);
+                Answer v_Answer = v_LocalQuestion.Answers.FirstOrDefault(p_P => p_P.Id == v_UserPartyQuestion.IdAnswer);
                 
                 int v_Score = p_CalculService.CalculateScore(v_UserPartyQuestion.DtPresentedAt, v_UserPartyQuestion.DtAnsweredAt);
 
@@ -160,7 +160,7 @@ internal class GroupLogicUseCase(
                 
                 int v_Seed = v_UserPartyQuestion.AnswersOrder.GetHashCode();
                 Random v_Random = new(v_Seed);
-                v_LocalQuestion.Answer = v_LocalQuestion.Answer.OrderBy(_ => v_Random.Next()).ToList();
+                v_LocalQuestion.Answers = v_LocalQuestion.Answers.OrderBy(_ => v_Random.Next()).ToList();
 
                 GroupQuestion v_GroupQuestion = new()
                 {

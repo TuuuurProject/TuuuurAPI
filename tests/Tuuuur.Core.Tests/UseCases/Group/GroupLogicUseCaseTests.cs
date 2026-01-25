@@ -55,7 +55,7 @@ public class GroupLogicUseCaseTests
 
         List<Question> v_Questions = BoFactory.CreateQuestion().Generate(5);
         List<Answer> v_Answers = BoFactory.CreateAnswer(v_Questions[0].Id).Generate(4);
-        v_Questions[0].Answer = v_Answers;
+        v_Questions[0].Answers = v_Answers;
 
         const int v_CurrentIndex = 0;
 
