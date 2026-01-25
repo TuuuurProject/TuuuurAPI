@@ -45,21 +45,26 @@ internal class CreateGroupUseCase(IUnitOfWork p_UnitOfWork,
 
         // Create party with default config 
         // TODO: Defaults settings needs to be configurable in appsettings
+
         GroupParty v_Party = new()
         {
             IdPartyType = (int)PartyTypeType.Group,
             Code = v_Code,
-            IdUserHost = p_User.Id,
             Dt = DateTime.Now,
             InProgress = false,
             NbQuestions = 10,
+            UserHost = p_User,
+            Difficulties = [],
+            Themes = [],
+            Questions = [],
+            Users = []
         };
 
         await m_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
         await m_CacheService.SetAddAsync(RedisKeys.Party.Users(v_Party.Code), p_User.Id, p_CancellationToken: p_CancellationToken);
         await m_CacheService.SetAsync(RedisKeys.User.UserParty(p_User.Id), v_Party.Code, p_CancellationToken: p_CancellationToken);
 
-        v_Party.PartyUsers.Add(new PartyUser() { IdUser = p_User.Id, User = p_User });
+        v_Party.Users.Add(p_User);
 
         return new GenericEntityResponse<GroupParty>(v_Party);
     }

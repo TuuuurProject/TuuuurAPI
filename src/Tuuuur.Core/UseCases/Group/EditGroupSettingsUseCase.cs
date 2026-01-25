@@ -37,7 +37,7 @@ internal class EditGroupSettingsUseCase(
         GroupParty v_Party = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_PartyCode), p_CancellationToken);
 
         // If user is not in the party
-        if (v_PartyCode != v_Party.Code || v_Party.IdUserHost != v_User.Id)
+        if (v_PartyCode != v_Party.Code || v_Party.UserHost.Id != v_User.Id)
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(GroupParty)} was not found")]);
 
         // Update party

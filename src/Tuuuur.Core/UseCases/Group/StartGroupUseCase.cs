@@ -49,12 +49,8 @@ internal class StartGroupUseCase(
         m_Logger.LogInformation("StartGroupUseCase: Party object retrieved from cache for code {PartyCode}", v_PartyCode);
 
         // If user is not in the party and user is not user host
-        if (v_PartyCode != v_Party.Code || v_Party.IdUserHost != v_User.Id)
-        {
-            m_Logger.LogWarning("StartGroupUseCase: User {UserId} is not the host of party {PartyCode}. Host is {HostId}", v_User.Id, v_PartyCode, v_Party.IdUserHost);
-            return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found")]);
-        }
-        m_Logger.LogInformation("StartGroupUseCase: User {UserId} is confirmed as host of party {PartyCode}", v_User.Id, v_PartyCode);
+        if (v_PartyCode != v_Party.Code || v_Party.UserHost.Id != v_User.Id)
+            return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(GroupParty)} was not found")]);
 
         if (v_Party.InProgress)
         {

@@ -16,9 +16,4 @@ public record GroupParty : PartyBase
     /// Is score is send each time the round is finished
     /// </summary>
     public bool ScoreEachRound  { get; set; }
-    
-    /// <summary>
-    /// Users list
-    /// </summary>
-    public virtual List<PartyUser> PartyUsers { get; set; } = [];
 }

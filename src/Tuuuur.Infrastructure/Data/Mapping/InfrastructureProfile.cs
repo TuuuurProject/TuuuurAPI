@@ -135,7 +135,6 @@ internal class InfrastructureProfile : Profile
 
         CreateMap<PartyPty, GroupParty>()
             .IncludeBase<PartyPty, PartyBase>()
-            .ForMember(p_Trg => p_Trg.PartyUsers, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyUserPus))
             .ForMember(p_Trg => p_Trg.NbQuestions, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.InProgress, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.Code, p_Opt => p_Opt.Ignore())

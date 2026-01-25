@@ -44,9 +44,9 @@ internal class JoinGroupUseCase(IUnitOfWork p_UnitOfWork,
         foreach (int v_UserIdToNotif in v_UserInParty)
         {
             User v_UserToNotify = await m_UnitOfWork.UserRepository.GetUserByIdAsync(v_UserIdToNotif, p_CancellationToken);
-            v_Party.PartyUsers.Add(new PartyUser { User = v_UserToNotify, IdUser = v_UserIdToNotif });
+            v_Party.Users.Add(v_UserToNotify);
         }
-        v_Party.PartyUsers.Add(new PartyUser { User = p_User, IdUser = p_User.Id });
+        v_Party.Users.Add(p_User);
         return new GenericEntityResponse<GroupParty>(v_Party);
     }
 }
