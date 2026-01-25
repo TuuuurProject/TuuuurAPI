@@ -17,12 +17,15 @@ internal class QuestionRepository(DbContext p_DbContext, IMapper p_Mapper, ILogg
     public async Task<IEnumerable<Question>> GetQuestionsByThemesIdsAndDifficultiesIdsAndNumberOfQuestionsAsync(
         IEnumerable<int> p_ThemesIds, IEnumerable<int> p_DifficultiesIds, int p_NbQuestions, CancellationToken p_CancellationToken = default)
     {
-        List<QuestionQst> v_Query = await FindBy(p_P => 
-            p_P.QuestionThemeQth.Any(p_Theme => p_ThemesIds.Contains(p_Theme.IdTheme)) && 
-            p_DifficultiesIds.Contains(p_P.IdDifficulty))
+        IQueryable<int> v_RandomIds = FindBy(p_P => 
+                p_P.QuestionThemeQth.Any(p_Theme => p_ThemesIds.Contains(p_Theme.IdTheme)) && 
+                p_DifficultiesIds.Contains(p_P.IdDifficulty))
+            .Select(p_P => p_P.Id)
             .OrderBy(p_P => Guid.NewGuid())
-            .Take(p_NbQuestions)
-            .ToListAsync(cancellationToken: p_CancellationToken);
+            .Take(p_NbQuestions);
+        
+        List<QuestionQst> v_Query = await FindBy(p_P => v_RandomIds.Contains(p_P.Id))
+            .ToListAsync(p_CancellationToken);
 
         return Mapper.Map<IEnumerable<Question>>(v_Query);
     }
