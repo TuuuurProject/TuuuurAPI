@@ -188,7 +188,7 @@ internal static class Program
                             (Encoding.UTF8.GetBytes(v_JwtConf.Key)),
                         ValidateIssuer = true,
                         ValidateAudience = true,
-                        ValidateLifetime = true,
+                        ValidateLifetime = false,
                         ValidateIssuerSigningKey = true,
                         ClockSkew = TimeSpan.Zero
                     });

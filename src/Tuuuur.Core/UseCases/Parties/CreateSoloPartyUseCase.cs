@@ -42,10 +42,8 @@ internal class CreateSoloPartyUseCase(
             IdUserHost = v_User.Id,
             Questions = v_List,
             NbQuestions = v_List.Count,
-            Difficulties = p_Request.DifficultiesIds
-                .Select(p_Id => new Difficulty() { Id = p_Id }).ToList(),
-            Themes = p_Request.ThemesIds
-                .Select(p_Id => new Theme() { Id = p_Id }).ToList()
+            Difficulties = [],
+            Themes = []
         };
 
         IMappingAddEntity<PartyBase, IEntity> v_MappingAddEntity =

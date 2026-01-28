@@ -48,6 +48,12 @@ BEGIN
     FROM [dbo].[RefreshToken_RTK] RefreshToken
              INNER JOIN deleted d ON RefreshToken.UserId = d.Id;
 
+    DELETE UPQ
+    FROM [dbo].[UserPartyQuestion_UPQ] UPQ
+             INNER JOIN [dbo].[PartyQuestion_PQT] PQT ON UPQ.Id_Party_Question = PQT.Id
+             INNER JOIN [dbo].[Party_PTY] PTY ON PQT.Id_Party = PTY.Id
+             INNER JOIN deleted d ON PTY.Id_User_Host = d.Id;
+
     DELETE PQT
     FROM [dbo].[PartyQuestion_PQT] PQT
              INNER JOIN [dbo].[Party_PTY] PTY ON PQT.Id_Party = PTY.Id

@@ -228,37 +228,39 @@ internal class GroupLogicUseCase(
             await p_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
             
             // TODO : Enregistrer tout dans la base de données
-            /*
+            
+             
+             
             // Sauvegarder l'ID avant de le réinitialiser
             List<Question> v_Questions = await p_CacheService.SortedSetRangeByRankAsync<Question>(RedisKeys.Party.Questions(v_Party.Code), p_CancellationToken: p_CancellationToken);
             
             v_Party.Id = Guid.Empty;
             v_Party.Finish = true;
             
-            v_Party.PartyQuestions.AddRange(v_Questions.Select(p_P => new PartyQuestion{ IdQuestion = p_P.Id}));
-            
             IMappingAddEntity<PartyBase, IEntity> v_MappingAddEntity = await m_UnitOfWork.PartyRepository.CreatePartyAsync(v_Party, p_CancellationToken);
             m_UnitOfWork.Save();
 
             try
             {
-                foreach (PartyQuestion v_PartyQuestion in v_MappingAddEntity.MapBoEntity.PartyQuestions)
+                foreach (Question v_LocalQuestion in v_Questions)
                 {
                     foreach (int v_UserId in v_UserIds)
                     {
-                        UserPartyQuestion v_UserPartyQuestion = await p_CacheService.GetAsync<UserPartyQuestion>(
-                            RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Code, v_PartyQuestion.IdQuestion, v_UserId), p_CancellationToken);
-                        v_UserPartyQuestion.IdPartyQuestion = v_PartyQuestion.Id;
-                
-                        _ = await m_UnitOfWork.UserPartyQuestionRepository.CreateUserPartyQuestionAsync(v_UserPartyQuestion, p_CancellationToken);
+                        if (v_LocalQuestion.DtPresentedAt != null)
+                        {
+                            await m_UnitOfWork.UserPartyQuestionRepository.UpdateGroupAsync(v_Party.Id, v_UserId,
+                                v_LocalQuestion.Id, v_LocalQuestion.DtAnsweredAt, v_LocalQuestion.DtPresentedAt.Value,
+                                v_Question.Correct, v_Question.IdUserAnswer, v_Question.Score, p_CancellationToken);
+                        }
+
                         m_UnitOfWork.Save();
                     }
                 }
             }
             finally
-            {*/
+            {
                 await p_CacheService.RemoveByPatternAsync(RedisKeys.Party.ByCode(v_Party.Code) + ":*", [RedisKeys.Party.Users(v_Party.Code)], p_CancellationToken);
-            /*}*/
+            }
         }
 
         return new EmptyResponse();

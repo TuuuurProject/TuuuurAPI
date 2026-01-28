@@ -44,14 +44,19 @@ internal class EditGroupSettingsUseCase(
         IEnumerable<Difficulty> v_Difficulties = await m_UnitOfWork.DifficultyRepository.GetAllDifficultiesAsync(p_CancellationToken);
         IEnumerable<Theme> v_Themes = await m_UnitOfWork.ThemeRepository.GetAllThemesAsync(p_CancellationToken);
         v_Party.NbQuestions = p_Request.NbQuestions;
-        v_Party.PartyDifficulty = p_Request.DifficultiesIds
-            .Select(p_Id => new PartyDifficulty { IdDifficulty = p_Id, Difficulty = v_Difficulties.FirstOrDefault(p_P => p_P.Id == p_Id) }).ToList();
-        v_Party.PartyTheme = p_Request.ThemesIds
-            .Select(p_Id => new PartyTheme { IdTheme = p_Id, Theme = v_Themes.FirstOrDefault(p_P => p_P.Id == p_Id) }).ToList();
+        v_Party.Difficulties = p_Request.DifficultiesIds
+            .Select(p_Id => v_Difficulties.FirstOrDefault(p_P => p_P.Id == p_Id)).ToList();
+        v_Party.Themes = p_Request.ThemesIds
+            .Select(p_Id => v_Themes.FirstOrDefault(p_P => p_P.Id == p_Id)).ToList();
         v_Party.ScoreEachRound = p_Request.ScoreEachRound;
 
         await p_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
 
+        List<int> v_UserInExistingParty = await p_CacheService.SetMembersAsync<int>(RedisKeys.Party.Users(v_PartyCode), p_CancellationToken: p_CancellationToken);
+        foreach (int v_UserId in v_UserInExistingParty)
+        {
+            v_Party.Users.Add(await m_UnitOfWork.UserRepository.GetUserByIdAsync(v_UserId, p_CancellationToken));
+        }
         // Notify all players via WebSocket that party is updated
         await p_GroupNotificationService.NotifyPartyUpdatedAsync(
             v_Party.Code,
