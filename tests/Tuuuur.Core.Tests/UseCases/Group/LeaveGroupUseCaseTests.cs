@@ -27,18 +27,18 @@ public class LeaveGroupUseCaseTests
     {
         m_MockRepository = new MockRepository(MockBehavior.Strict);
         m_UnitOfWorkMock = m_MockRepository.Create<IUnitOfWork>();
-        
-        Mock<ILogger<LeaveGroupUseCase>> v_LoggerMock = new(); 
-        
+
+        Mock<ILogger<LeaveGroupUseCase>> v_LoggerMock = new();
+
         m_UserRoleServiceMock = m_MockRepository.Create<IUserRoleService>();
         m_GroupPartyNotificationServiceMock = m_MockRepository.Create<IGroupNotificationService>();
         m_CacheServiceMock = m_MockRepository.Create<ICacheService>();
 
         m_UseCase = new LeaveGroupUseCase(
-            m_UnitOfWorkMock.Object, 
-            v_LoggerMock.Object, 
+            m_UnitOfWorkMock.Object,
+            v_LoggerMock.Object,
             m_UserRoleServiceMock.Object,
-            m_GroupPartyNotificationServiceMock.Object, 
+            m_GroupPartyNotificationServiceMock.Object,
             m_CacheServiceMock.Object
         );
     }
@@ -48,13 +48,13 @@ public class LeaveGroupUseCaseTests
     {
         // Arrange
         User v_User = BoFactory.CreateUser().Generate();
-        
+
         GroupParty v_Party = new()
         {
             Id = Guid.NewGuid(),
             Code = "123456",
             IdUserHost = v_User.Id + 1,
-            PartyUsers = []
+            Users = []
         };
 
         m_UserRoleServiceMock.Setup(p_U => p_U.GetCurrentUserEmail())

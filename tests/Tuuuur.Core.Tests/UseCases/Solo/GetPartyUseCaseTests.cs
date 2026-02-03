@@ -19,7 +19,7 @@ public class GetPartyUseCaseTests
     private readonly Mock<IUserRoleService> m_UserRoleService;
 
     private readonly GetPartyUseCase m_UseCase;
-    
+
     public GetPartyUseCaseTests()
     {
         m_UnitOfWorkMock = new Mock<IUnitOfWork>();
@@ -28,24 +28,24 @@ public class GetPartyUseCaseTests
 
         m_UseCase = new GetPartyUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_UserRoleService.Object);
     }
-    
+
     [Fact]
     public async Task Handle_ExpectedAsync()
     {
         // Arrange
         User v_User = BoFactory.CreateUser().Generate();
-        Party v_Party = BoFactory.CreateParty().Generate();
+        PartyBase v_Party = BoFactory.CreateParty().Generate();
         v_Party.IdPartyType = (int)PartyTypeType.Solo;
-        v_Party.PartyUsers = [new () { User = v_User }];
-        
+        v_Party.Users = [v_User];
+
         m_UserRoleService.Setup(p_P => p_P.GetCurrentUserEmail()).Returns(v_User.Email);
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
         m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party);
-        
+
         GetSoloPartyStateRequest v_Request = new(Guid.Empty);
 
         // Act
-        GenericEntityResponse<Party> v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
+        GenericEntityResponse<PartyBase> v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(v_Result);

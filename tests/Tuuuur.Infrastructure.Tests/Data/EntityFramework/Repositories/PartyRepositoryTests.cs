@@ -29,7 +29,7 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
             {
                 // Arrange
                 PartyRepository v_Repository = CreateRepository();
-                Party v_Party = BoFactory.CreateParty().Generate();
+                PartyBase v_Party = BoFactory.CreateParty().Generate();
 
                 Check.ThatCode(async () =>
                 {
@@ -50,18 +50,18 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
                         nameof(PartyPty.IdPartyTypeNavigation),
                         nameof(PartyPty.PartyDifficultyPdf),
                         nameof(PartyPty.PartyThemePth),
-                        nameof(Party.PartyUsers),
-                        nameof(Party.PartyQuestions),
-                        nameof(Party.PartyType),
-                        nameof(Party.IdPartyType),
-                        nameof(Party.Score),
-                        nameof(Party.InProgress),
-                        nameof(Party.NbQuestions),
-                        nameof(Party.PartyTheme),
-                        nameof(Party.PartyDifficulty),
-                        nameof(Party.User),
-                        nameof(Party.Percent),
-                        nameof(Party.Time)
+                        nameof(PartyPty.Active),
+                        nameof(PartyBase.Users),
+                        nameof(PartyBase.Questions),
+                        nameof(PartyBase.PartyType),
+                        nameof(PartyBase.IdPartyType),
+                        nameof(PartyBase.Score),
+                        nameof(PartyBase.NbQuestions),
+                        nameof(PartyBase.Themes),
+                        nameof(PartyBase.Difficulties),
+                        nameof(PartyBase.UserHost),
+                        nameof(PartyBase.Percent),
+                        nameof(PartyBase.Time)
                         )
                     .IsEqualTo(v_Party);
             }

@@ -52,12 +52,27 @@ public static class RedisKeys
         public static string PartyQuestionUserAnswer(string p_Code, int p_QuestionId, int p_User) => $"Party:{p_Code}:Questions:{p_QuestionId}:Users:{p_User}:Answer";
 
         /// <summary>
+        /// Key pattern for the set of users who have answered a specific question
+        /// Format: Party:{string}:Questions:{int}:Answered
+        /// Example: Party:ABC123:Questions:42:Answered
+        /// Value: Redis SET of user IDs (integers) who have submitted an answer
+        /// </summary>
+        public static string PartyQuestionAnswered(string p_Code, int p_QuestionId) => $"Party:{p_Code}:Questions:{p_QuestionId}:Answered";
+
+        /// <summary>
         /// Key pattern for the sorted set of player scores in a party
         /// Format: Party:{string}:Scores
         /// Example: Party:123456:Scores
         /// Value: Redis SORTED SET of User objects with scores as ranking values
         /// </summary>
         public static string Scores(string p_Code) => $"Party:{p_Code}:Scores";
+
+        /// <summary>
+        /// Pub/Sub channel for notifying when all players have answered a question
+        /// Format: Party:{string}:Questions:{int}:AllAnswered
+        /// Example: Party:ABC123:Questions:42:AllAnswered
+        /// </summary>
+        public static string PartyQuestionAllAnsweredChannel(string p_Code, int p_QuestionId) => $"Party:{p_Code}:Questions:{p_QuestionId}:AllAnswered";
     }
 
     /// <summary>

@@ -6,7 +6,6 @@ using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Configuration;
 using Tuuuur.Domain.Interfaces;
 using Tuuuur.Domain.Interfaces.Data;
-using Tuuuur.Domain.Interfaces.Data.Entities;
 using Tuuuur.Domain.Interfaces.Services;
 using Tuuuur.Domain.Notifications;
 
@@ -24,7 +23,7 @@ internal class GroupLogicUseCase(
     protected override async Task<EmptyResponse> HandleLogic(GroupLogicRequest p_PartyLogicRequest, CancellationToken p_CancellationToken)
     {
         GroupParty v_Party = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(p_PartyLogicRequest.PartyCode), p_CancellationToken);
-        
+
         // Get the index of question to get
         int v_CurrentIndex = await p_CacheService.GetAsync<int>(RedisKeys.Party.CurrentQuestionIndex(v_Party.Code), p_CancellationToken);
 
@@ -51,6 +50,10 @@ internal class GroupLogicUseCase(
             CancellationToken.None
         );
 
+        // Initialize the answered set for this question
+        string v_AnsweredSetKey = RedisKeys.Party.PartyQuestionAnswered(v_Party.Code, v_CurrentQuestion.Id);
+        await p_CacheService.RemoveAsync(v_AnsweredSetKey, p_CancellationToken);
+
         // Update question state for each user in parallel
         Question v_QuestionCopied = v_Question;
         IEnumerable<Task> v_UpdateQuestionTasks = v_UserIds.Select(async p_UserId =>
@@ -69,7 +72,7 @@ internal class GroupLogicUseCase(
                 v_UserPartyQuestion,
                 p_CancellationToken: p_CancellationToken
             );
-            
+
             // Create a shuffled copy of answers for this user
             int v_Seed = v_UserPartyQuestion.AnswersOrder.GetHashCode();
             Random v_Random = new(v_Seed);
@@ -80,7 +83,7 @@ internal class GroupLogicUseCase(
                 Question = v_LocalQuestion,
                 CurrentIndex = v_CurrentIndex,
             };
-            
+
             // Send the question to the specific user
             await p_GroupNotificationService.NotifyPartyQuestionSend(
                 p_UserId,
@@ -91,8 +94,8 @@ internal class GroupLogicUseCase(
         // Send question for all users in the same time
         await Task.WhenAll(v_UpdateQuestionTasks);
 
-        // Wait for players to respond 
-        await Task.Delay(TimeSpan.FromSeconds(15), p_CancellationToken);
+        // Wait for players to respond with early exit if all answered
+        await WaitForAllPlayersOrTimeoutAsync(v_Party.Code, v_CurrentQuestion.Id, p_CancellationToken);
 
         // Fetch current scores from Redis
         List<(User User, int Score)> v_CurrentScores = await p_CacheService.SortedSetGetAllWithScoresAsync<User>(
@@ -116,7 +119,7 @@ internal class GroupLogicUseCase(
             {
                 // Answer can be null if the request was sent without response
                 Answer v_Answer = v_LocalQuestion.Answers.FirstOrDefault(p_P => p_P.Id == v_UserPartyQuestion.IdAnswer);
-                
+
                 int v_Score = p_CalculService.CalculateScore(v_UserPartyQuestion.DtPresentedAt, v_UserPartyQuestion.DtAnsweredAt);
 
                 if (v_Answer is null)
@@ -157,7 +160,7 @@ internal class GroupLogicUseCase(
                         p_CancellationToken
                     );
                 }
-                
+
                 int v_Seed = v_UserPartyQuestion.AnswersOrder.GetHashCode();
                 Random v_Random = new(v_Seed);
                 v_LocalQuestion.Answers = v_LocalQuestion.Answers.OrderBy(_ => v_Random.Next()).ToList();
@@ -168,7 +171,7 @@ internal class GroupLogicUseCase(
                     CurrentIndex = v_CurrentIndex,
                     Score = v_UserPartyQuestion.Score,
                 };
-                
+
                 // Send the question with correct answer after countdown
                 await p_GroupNotificationService.NotifyPartyQuestionAnswerSend(
                     p_UserId,
@@ -194,7 +197,7 @@ internal class GroupLogicUseCase(
 
         // Put time to let users see the correct answer
         await Task.Delay(TimeSpan.FromSeconds(5), p_CancellationToken);
-        
+
         // Send score each round if its configured
         if (v_Party.ScoreEachRound)
         {
@@ -202,10 +205,10 @@ internal class GroupLogicUseCase(
                 v_Party.Code,
                 v_ScoresList
             );
-            
+
             await Task.Delay(TimeSpan.FromSeconds(5), p_CancellationToken);
         }
-        
+
         // If the party is finished or not
         if (v_Party.NbQuestions != v_CurrentIndex + 1)
         {
@@ -223,21 +226,21 @@ internal class GroupLogicUseCase(
                 v_Party.Code,
                 v_ScoresList
             );
-            
+
             v_Party.InProgress = false;
             await p_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
-            
+
             // TODO : Enregistrer tout dans la base de données
-            
-             
-             
+
+
+
             // Sauvegarder l'ID avant de le réinitialiser
             List<Question> v_Questions = await p_CacheService.SortedSetRangeByRankAsync<Question>(RedisKeys.Party.Questions(v_Party.Code), p_CancellationToken: p_CancellationToken);
-            
+
             v_Party.Id = Guid.Empty;
             v_Party.Finish = true;
-            
-            IMappingAddEntity<PartyBase, IEntity> v_MappingAddEntity = await m_UnitOfWork.PartyRepository.CreatePartyAsync(v_Party, p_CancellationToken);
+
+            _ = await m_UnitOfWork.PartyRepository.CreatePartyAsync(v_Party, p_CancellationToken);
             m_UnitOfWork.Save();
 
             try
@@ -264,5 +267,33 @@ internal class GroupLogicUseCase(
         }
 
         return new EmptyResponse();
+    }
+
+    /// <summary>
+    /// Waits for all players to answer or until timeout (15 seconds).
+    /// Uses Redis Pub/Sub for instant notification when all players answer - zero polling overhead.
+    /// </summary>
+    private async Task WaitForAllPlayersOrTimeoutAsync(
+        string p_PartyCode,
+        int p_QuestionId,
+        CancellationToken p_CancellationToken)
+    {
+        string v_Channel = RedisKeys.Party.PartyQuestionAllAnsweredChannel(p_PartyCode, p_QuestionId);
+
+        try
+        {
+            // Subscribe and wait for Pub/Sub notification or timeout (15s)
+            // This is instant when all players answer - no polling!
+            await p_CacheService.SubscribeAndWaitAsync<bool>(v_Channel, TimeSpan.FromSeconds(15), p_CancellationToken);
+        }
+        catch (TaskCanceledException)
+        {
+            // Timeout reached - continue with scoring
+        }
+        finally
+        {
+            // Cleanup the answered set
+            await p_CacheService.RemoveAsync(RedisKeys.Party.PartyQuestionAnswered(p_PartyCode, p_QuestionId), p_CancellationToken);
+        }
     }
 }

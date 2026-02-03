@@ -42,14 +42,16 @@ public class StartGroupUseCaseTests
         User v_User = BoFactory.CreateUser().Generate();
         GroupParty v_Party = BoFactory.CreateGroupParty().Generate();
         v_Party.IdUserHost = v_User.Id;
+        v_Party.UserHost = v_User;
         v_Party.InProgress = false;
         v_Party.NbQuestions = 20;
-        v_Party.PartyTheme = [new PartyTheme() { IdTheme = 1 }];
-        v_Party.PartyDifficulty = [new PartyDifficulty() { IdDifficulty = 1 }];
+        v_Party.Themes = [new Theme() { Id = 1, Label = "Test", Icon = "icon" }];
+        v_Party.Difficulties = [new Difficulty() { Id = 1, Label = "Easy" }];
 
         List<Question> v_Questions = BoFactory.CreateQuestion().Generate(v_Party.NbQuestions);
 
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
+        m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<string>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party.Code);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<GroupParty>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party);
         m_UnitOfWorkMock.Setup(p_U => p_U.QuestionRepository.GetQuestionsByThemesIdsAndDifficultiesIdsAndNumberOfQuestionsAsync(It.IsAny<IEnumerable<int>>(), It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Questions);

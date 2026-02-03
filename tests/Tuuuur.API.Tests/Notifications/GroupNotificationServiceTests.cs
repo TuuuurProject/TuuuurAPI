@@ -172,7 +172,7 @@ public class GroupNotificationServiceTests
         {
             Code = v_PartyCode,
             IdUserHost = 1,
-            Active = true
+            InProgress = true
         };
         List<int> v_UserIds = [1, 2, 3];
 

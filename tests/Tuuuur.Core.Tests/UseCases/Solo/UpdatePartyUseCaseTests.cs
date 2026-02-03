@@ -21,7 +21,7 @@ public class UpdatePartyUseCaseTests
     private readonly Mock<ICalculService> m_CalculService;
 
     private readonly UpdatePartyUseCase m_UseCase;
-    
+
     public UpdatePartyUseCaseTests()
     {
         m_UnitOfWorkMock = new Mock<IUnitOfWork>();
@@ -31,55 +31,52 @@ public class UpdatePartyUseCaseTests
 
         m_UseCase = new UpdatePartyUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_CalculService.Object, m_UserRoleService.Object);
     }
-    
+
     [Fact]
     public async Task Handle_ExpectedAsync()
     {
         // Arrange
         User v_User = BoFactory.CreateUser().Generate();
-        Party v_Party = BoFactory.CreateParty().Generate();
+        PartyBase v_Party = BoFactory.CreateParty().Generate();
         int v_AnswerId = 1;
         v_Party.IdPartyType = (int)PartyTypeType.Solo;
-        v_Party.PartyUsers = [new PartyUser { User = v_User }];
-        v_Party.PartyQuestions =
+        v_Party.Users = [v_User];
+        v_Party.Questions =
         [
-            new PartyQuestion()
+            new Question()
             {
-                UserPartyQuestion = new UserPartyQuestion()
-                {
-                    Correct = null,
-                    DtAnsweredAt = DateTime.Now,
-                    DtPresentedAt = DateTime.Now.AddSeconds(3),
-                },
-                Order = 1,
-                Question = new Question()
-                {
-                    Answers =
-                    [
-                        new Answer()
-                        {
-                            Id = v_AnswerId,
-                            Valid = true
-                        }
-                    ]
-                }
-                
+                Index = 0,
+                Score = 0,
+                IdUserAnswer = null,
+                Correct = false,
+                DtAnsweredAt = null,
+                DtPresentedAt = DateTime.Now.AddSeconds(-3),
+                Answers =
+                [
+                    new Answer()
+                    {
+                        Id = v_AnswerId,
+                        Valid = true
+                    }
+                ]
             }
         ];
-        
+
         m_UserRoleService.Setup(p_P => p_P.GetCurrentUserEmail()).Returns(v_User.Email);
         m_CalculService.Setup(p_U => p_U.CalculateScore(It.IsAny<DateTime>(), It.IsAny<DateTime?>())).Returns(753);
 
-        
+
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
-        m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party);
-        m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.FinishPartyAsync(It.IsAny<Party>())).Returns(Task.CompletedTask);
-        m_UnitOfWorkMock.Setup(p_U => p_U.UserPartyQuestionRepository.UpdateAsync(It.IsAny<UserPartyQuestion>())).Returns(Task.CompletedTask);
-        
+        m_UnitOfWorkMock.SetupSequence(p_U => p_U.PartyRepository.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<int>(), default))
+            .ReturnsAsync(v_Party)
+            .ReturnsAsync(v_Party);
+        m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.FinishPartyAsync(It.IsAny<PartyBase>(), default)).Returns(Task.CompletedTask);
+        m_UnitOfWorkMock.Setup(p_U => p_U.UserPartyQuestionRepository.UpdateUserQuestionAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int?>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
         UpdateSoloPartyStateRequest v_Request = new(Guid.Empty, 1);
 
         // Act
-        GenericEntityResponse<Party> v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
+        GenericEntityResponse<PartyBase> v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(v_Result);

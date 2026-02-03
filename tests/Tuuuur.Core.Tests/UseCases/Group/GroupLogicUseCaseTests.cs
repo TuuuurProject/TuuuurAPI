@@ -105,6 +105,12 @@ public class GroupLogicUseCaseTests
         m_CacheServiceMock.Setup(p_C => p_C.SetAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        m_CacheServiceMock.Setup(p_C => p_C.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        m_CacheServiceMock.Setup(p_C => p_C.SubscribeAndWaitAsync<bool>(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
         m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<GroupLogicRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new EmptyResponse());
 

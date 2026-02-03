@@ -119,6 +119,11 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
         return await m_Database.SetContainsAsync(p_Key, JsonSerializer.Serialize(p_Value));
     }
 
+    public async Task<long> SetLengthAsync(string p_Key, CancellationToken p_CancellationToken = default)
+    {
+        return await m_Database.SetLengthAsync(p_Key);
+    }
+
     public async Task<bool> SortedSetAddAsync<T>(string p_Key, T p_Value, int p_Score, CancellationToken p_CancellationToken = default)
     {
         return await m_Database.SortedSetAddAsync(p_Key, JsonSerializer.Serialize(p_Value), p_Score);
@@ -178,12 +183,12 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
         }
         return v_Result;
     }
-    
+
     public async Task RemoveByPatternAsync(string p_Pattern, IEnumerable<string> p_KeysToKeep = null, CancellationToken p_CancellationToken = default)
     {
-        HashSet<string> v_KeysToKeepSet = p_KeysToKeep == null 
-            ? [] 
-            : [..p_KeysToKeep];
+        HashSet<string> v_KeysToKeepSet = p_KeysToKeep == null
+            ? []
+            : [.. p_KeysToKeep];
 
         EndPoint[] v_Endpoints = p_Redis.GetEndPoints();
 
@@ -200,7 +205,7 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
             foreach (RedisKey v_Key in v_Keys)
             {
                 if (p_CancellationToken.IsCancellationRequested) return;
-                if (v_KeysToKeepSet.Contains((string)v_Key!)) 
+                if (v_KeysToKeepSet.Contains((string)v_Key!))
                     continue;
 
                 v_KeysBatch.Add(v_Key);
@@ -218,6 +223,41 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
             {
                 await m_Database.KeyDeleteAsync(v_KeysBatch.ToArray());
             }
+        }
+    }
+
+    public async Task PublishAsync<T>(string p_Channel, T p_Message, CancellationToken p_CancellationToken = default)
+    {
+        ISubscriber v_Subscriber = p_Redis.GetSubscriber();
+        await v_Subscriber.PublishAsync(p_Channel, JsonSerializer.Serialize(p_Message));
+    }
+
+    public async Task<T> SubscribeAndWaitAsync<T>(string p_Channel, TimeSpan p_Timeout, CancellationToken p_CancellationToken = default)
+    {
+        ISubscriber v_Subscriber = p_Redis.GetSubscriber();
+        TaskCompletionSource<T> v_Tcs = new();
+
+        using CancellationTokenSource v_TimeoutCts = new(p_Timeout);
+        using CancellationTokenSource v_LinkedCts = CancellationTokenSource.CreateLinkedTokenSource(p_CancellationToken, v_TimeoutCts.Token);
+
+        await v_Subscriber.SubscribeAsync(p_Channel, (p_Ch, p_Msg) =>
+        {
+            if (!p_Msg.IsNullOrEmpty)
+            {
+                T v_Message = JsonSerializer.Deserialize<T>(p_Msg!);
+                v_Tcs.TrySetResult(v_Message);
+            }
+        });
+
+        v_LinkedCts.Token.Register(() => v_Tcs.TrySetCanceled());
+
+        try
+        {
+            return await v_Tcs.Task;
+        }
+        finally
+        {
+            await v_Subscriber.UnsubscribeAsync(p_Channel);
         }
     }
 }

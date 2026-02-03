@@ -77,6 +77,7 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.IdPartyType, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdPartyType))
             .ForMember(p_Trg => p_Trg.IdUserHost, p_Opt => p_Opt.MapFrom(p_Src => (int?)p_Src.IdUserHost))
             .ForMember(p_Trg => p_Trg.Finish, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Finish))
+            .ForMember(p_Trg => p_Trg.Active, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.IdPartyTypeNavigation, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyType))
             .ForMember(p_Trg => p_Trg.IdUserHostNavigation, p_Opt => p_Opt.MapFrom(p_PartyBase => p_PartyBase.UserHost))
             .ForMember(p_Trg => p_Trg.PartyDifficultyPdf, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Difficulties ?? new List<Difficulty>())
@@ -97,6 +98,7 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.IdUserHost, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserHost))
             .ForMember(p_Trg => p_Trg.UserHost, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserHostNavigation))
             .ForMember(p_Trg => p_Trg.Finish, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Finish))
+            .ForMember(p_Trg => p_Trg.Percent, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.Questions,
                 p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.Select(p_P => p_P.IdQuestionNavigation)))
             .ForMember(p_Trg => p_Trg.Users,
@@ -154,10 +156,11 @@ internal class InfrastructureProfile : Profile
         CreateMap<PartyPty, GroupParty>()
             .IncludeBase<PartyPty, PartyBase>()
             .ForMember(p_Trg => p_Trg.NbQuestions, p_Opt => p_Opt.Ignore())
-            .ForMember(p_Trg => p_Trg.InProgress, p_Opt => p_Opt.Ignore())
+            .ForMember(p_Trg => p_Trg.InProgress, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Active))
             .ForMember(p_Trg => p_Trg.Code, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.ScoreEachRound, p_Opt => p_Opt.Ignore())
-            .ReverseMap();
+            .ReverseMap()
+            .ForMember(p_Trg => p_Trg.Active, p_Opt => p_Opt.MapFrom(p_Src => p_Src.InProgress));
 
         CreateMap<PartyQuestionPqt, PartyQuestion>()
             .ForMember(p_Trg => p_Trg.Id, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Id))

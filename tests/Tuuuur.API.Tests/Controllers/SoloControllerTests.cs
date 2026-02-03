@@ -60,12 +60,12 @@ namespace Tuuuur.API.Tests.Controllers
             // Arrange
             Guid v_Id = Guid.NewGuid();
 
-            Party v_Party = new();
+            PartyBase v_Party = new();
 
-            m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<GetSoloPartyStateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<Party>(v_Party));
+            m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<GetSoloPartyStateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<PartyBase>(v_Party));
 
             // Act
-            IActionResult v_Result = await m_Controller.GetPartyStateAsync(v_Id, new GenericEntityPresenter<Party>(), CancellationToken.None);
+            IActionResult v_Result = await m_Controller.GetPartyStateAsync(v_Id, new GenericEntityPresenter<PartyBase>(), CancellationToken.None);
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();
@@ -83,12 +83,12 @@ namespace Tuuuur.API.Tests.Controllers
             {
                 AnswerId = 1,
             };
-            Party v_Party = new();
+            PartyBase v_Party = new();
 
-            m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<UpdateSoloPartyStateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<Party>(v_Party));
+            m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<UpdateSoloPartyStateRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<PartyBase>(v_Party));
 
             // Act
-            IActionResult v_Result = await m_Controller.UpdatePartyStateAsync(v_Id, v_Request, new GenericEntityPresenter<Party>(), CancellationToken.None);
+            IActionResult v_Result = await m_Controller.UpdatePartyStateAsync(v_Id, v_Request, new GenericEntityPresenter<PartyBase>(), CancellationToken.None);
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();
