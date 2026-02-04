@@ -8,7 +8,6 @@ using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Interfaces;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Notifications;
-using Tuuuur.Domain.Security;
 using Tuuuur.Factory.Tests;
 
 namespace Tuuuur.Core.Tests.UseCases.Group;

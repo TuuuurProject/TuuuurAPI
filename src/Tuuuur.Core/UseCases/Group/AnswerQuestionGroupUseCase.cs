@@ -52,19 +52,36 @@ internal class AnswerQuestionGroupUseCase(
         {
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Answer)} was not found, Key: {p_Request.AnswerId}")]);
         }
-        
+
         UserPartyQuestion v_UserPartyQuestion = await p_CacheService.GetAsync<UserPartyQuestion>(RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Code, v_Question.Id, v_User.Id), p_CancellationToken: p_CancellationToken);
         v_UserPartyQuestion.IdAnswer = p_Request.AnswerId;
         v_UserPartyQuestion.DtAnsweredAt = DateTime.Now;
-        
+
         await p_CacheService.SetAsync(RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Code, v_Question.Id, v_User.Id), v_UserPartyQuestion, p_CancellationToken: p_CancellationToken);
-        
+
+        // Add user to the answered set for early round termination
+        await p_CacheService.SetAddAsync(RedisKeys.Party.PartyQuestionAnswered(v_Party.Code, v_Question.Id), v_User.Id, p_CancellationToken: p_CancellationToken);
+
+        // Check if all players have answered
+        long v_AnsweredCount = await p_CacheService.SetLengthAsync(RedisKeys.Party.PartyQuestionAnswered(v_Party.Code, v_Question.Id), p_CancellationToken);
+        long v_TotalPlayers = await p_CacheService.SetLengthAsync(RedisKeys.Party.Users(v_Party.Code), p_CancellationToken);
+
+        if (v_AnsweredCount >= v_TotalPlayers)
+        {
+            // All players answered - publish instant notification via Pub/Sub
+            await p_CacheService.PublishAsync(
+                RedisKeys.Party.PartyQuestionAllAnsweredChannel(v_Party.Code, v_Question.Id),
+                true,
+                p_CancellationToken
+            );
+        }
+
         // Send group that user answer the question
         await p_GroupNotificationService.NotifyUserSendAnswerAsync(
             v_Party.Code,
             v_User
         );
-        
+
         return new EmptyResponse();
     }
 }

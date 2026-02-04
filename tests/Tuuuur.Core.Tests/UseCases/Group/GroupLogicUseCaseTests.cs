@@ -69,6 +69,9 @@ public class GroupLogicUseCaseTests
         m_UnitOfWorkMock.Setup(p_U => p_U.QuestionRepository.GetQuestionByIdWithAnswerAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_Questions[v_CurrentIndex]);
 
+        m_CacheServiceMock.Setup(p_C => p_C.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
         m_GroupNotificationServiceMock.Setup(p_G => p_G.NotifyCountdownAsync(It.IsAny<string>(), It.IsAny<int>()))
             .Returns(Task.CompletedTask);
 
@@ -77,6 +80,9 @@ public class GroupLogicUseCaseTests
 
         m_CacheServiceMock.Setup(p_C => p_C.SetAsync(It.IsAny<string>(), It.IsAny<UserPartyQuestion>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
+
+        m_CacheServiceMock.Setup(p_C => p_C.SubscribeAndWaitAsync<bool>(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         m_GroupNotificationServiceMock.Setup(p_G => p_G.NotifyPartyQuestionSend(It.IsAny<int>(), It.IsAny<GroupQuestion>()))
             .Returns(Task.CompletedTask);

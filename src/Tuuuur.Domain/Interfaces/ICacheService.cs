@@ -24,6 +24,7 @@ public interface ICacheService
     Task<bool> SetRemoveAsync<T>(string p_Key, T p_Value, CancellationToken p_CancellationToken = default);
     Task<List<T>> SetMembersAsync<T>(string p_Key, CancellationToken p_CancellationToken = default);
     Task<bool> SetContainsAsync<T>(string p_Key, T p_Value, CancellationToken p_CancellationToken = default);
+    Task<long> SetLengthAsync(string p_Key, CancellationToken p_CancellationToken = default);
 
     Task<bool> SortedSetAddAsync<T>(string p_Key, T p_Value, int p_Score, CancellationToken p_CancellationToken = default);
     Task<List<T>> SortedSetRangeByRankAsync<T>(string p_Key, long p_Start = 0, long p_Stop = -1, bool p_Descending = false, CancellationToken p_CancellationToken = default);
@@ -36,4 +37,7 @@ public interface ICacheService
     Task<List<T>> StreamReadAsync<T>(string p_Key, int p_Count = 10, CancellationToken p_CancellationToken = default);
 
     Task RemoveByPatternAsync(string p_Pattern, IEnumerable<string> p_KeysToKeep = null, CancellationToken p_CancellationToken = default);
+
+    Task PublishAsync<T>(string p_Channel, T p_Message, CancellationToken p_CancellationToken = default);
+    Task<T> SubscribeAndWaitAsync<T>(string p_Channel, TimeSpan p_Timeout, CancellationToken p_CancellationToken = default);
 }
