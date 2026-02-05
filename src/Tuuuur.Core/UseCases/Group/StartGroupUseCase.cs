@@ -99,7 +99,9 @@ internal class StartGroupUseCase(
         });
 
         await Task.WhenAll(v_InitScoreTasks);
-
+        
+        v_Party.PartyUsers.AddRange(v_Users.Select(p_P => new PartyUser { User = p_P }));
+        
         // Notify all players via WebSocket that party is updated
         await p_GroupNotificationService.NotifyPartyStartedAsync(
             v_Party.Code,
