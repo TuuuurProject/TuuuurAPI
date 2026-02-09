@@ -96,7 +96,7 @@ internal class GroupLogicUseCase(
         await Task.WhenAll(v_UpdateQuestionTasks);
 
         // Wait for players to respond with instant Pub/Sub notification
-        await WaitForAllPlayersOrTimeoutAsync(v_Party.Code, v_CurrentQuestion.Id, v_UserIds, p_CancellationToken);
+        await WaitForAllPlayersOrTimeoutAsync(v_Party.Code, v_CurrentQuestion.Id, p_CancellationToken);
 
         // Fetch current scores from Redis
         List<(User User, int Score)> v_CurrentScores = await p_CacheService.SortedSetGetAllWithScoresAsync<User>(
@@ -200,7 +200,7 @@ internal class GroupLogicUseCase(
         await Task.Delay(TimeSpan.FromSeconds(5), p_CancellationToken);
 
         // Send score each round if its configured
-        if (v_Party.ScoreEachRound)
+        if (v_Party.ScoreEachRound && v_Party.NbQuestions != v_CurrentIndex + 1)
         {
             await p_GroupNotificationService.NotifyPartyScoresAsync(
                 v_Party.Code,
@@ -276,7 +276,6 @@ internal class GroupLogicUseCase(
     private async Task WaitForAllPlayersOrTimeoutAsync(
         string p_PartyCode,
         int p_QuestionId,
-        List<int> p_UserIds,
         CancellationToken p_CancellationToken)
     {
         string v_Channel = RedisKeys.Party.PartyQuestionAllAnsweredChannel(p_PartyCode, p_QuestionId);

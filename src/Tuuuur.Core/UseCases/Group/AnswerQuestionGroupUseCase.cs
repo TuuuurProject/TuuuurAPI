@@ -7,6 +7,7 @@ using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Interfaces;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Notifications;
+using Tuuuur.Domain.Security;
 
 namespace Tuuuur.Core.UseCases.Group;
 

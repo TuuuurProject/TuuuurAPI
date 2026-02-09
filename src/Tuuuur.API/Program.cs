@@ -246,8 +246,7 @@ internal static class Program
         v_App.UseSerilogRequestLogging();
 
         v_App.UseMiddleware<HandleExceptionMiddleware>();
-
-        v_App.MapHub<NotificationsHub>("notifications");
+        
         v_App.MapHub<GroupHub>("group");
 
         v_App.MapControllers();
