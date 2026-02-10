@@ -4,4 +4,4 @@ using Tuuuur.Domain.Bo;
 
 namespace Tuuuur.Core.Requests;
 
-public record GetHistoryRequest(int Page, int Size): IRequest<GenericEntityResponse<HistoryPage>>;
+public record GetHistoryRequest(Guid PartyId): IRequest<GenericEntityResponse<PartyBase>>;

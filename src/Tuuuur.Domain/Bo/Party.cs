@@ -2,9 +2,18 @@ namespace Tuuuur.Domain.Bo;
 
 public record Party : PartyBase
 {
-    public string Code { get; set; }
-
+    /// <summary>
+    /// Number of questions
+    /// </summary>
     public int NbQuestions { get; set; }
-
+    
+    /// <summary>
+    /// Is the party in progress (for groups and duel)
+    /// </summary>
+    public bool InProgress { get; set; }
+    
+    /// <summary>
+    /// Users list
+    /// </summary>
     public virtual List<PartyUser> PartyUsers { get; set; } = [];
 }

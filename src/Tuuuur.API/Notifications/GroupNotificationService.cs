@@ -20,9 +20,9 @@ internal class GroupNotificationService(
 {
     private readonly ILogger<GroupNotificationService> m_Logger = p_Logger;
 
-    public async Task NotifyPlayerJoinedAsync(Guid p_PartyId, User p_User)
+    public async Task NotifyPlayerJoinedAsync(string p_Code, User p_User)
     {
-        List<string> v_UserIds = await GetPartyUserIdsAsync(p_PartyId);
+        List<string> v_UserIds = await GetPartyUserIdsAsync(p_Code);
         if (v_UserIds.Count != 0)
         {
             v_UserIds.Remove(p_User.Id.ToString());
@@ -30,9 +30,9 @@ internal class GroupNotificationService(
         }
     }
 
-    public async Task NotifyPlayerLeftAsync(Guid p_PartyId, User p_User)
+    public async Task NotifyPlayerLeftAsync(string p_Code, User p_User)
     {
-        List<string> v_UserIds = await GetPartyUserIdsAsync(p_PartyId);
+        List<string> v_UserIds = await GetPartyUserIdsAsync(p_Code);
         if (v_UserIds.Count != 0)
         {
             v_UserIds.Remove(p_User.Id.ToString());
@@ -40,9 +40,9 @@ internal class GroupNotificationService(
         }
     }
 
-    public async Task NotifyPartyDeletedAsync(Guid p_PartyId, User p_User)
+    public async Task NotifyPartyDeletedAsync(string p_Code, User p_User)
     {
-        List<string> v_UserIds = await GetPartyUserIdsAsync(p_PartyId);
+        List<string> v_UserIds = await GetPartyUserIdsAsync(p_Code);
         if (v_UserIds.Count != 0)
         {
             v_UserIds.Remove(p_User.Id.ToString());
@@ -50,20 +50,75 @@ internal class GroupNotificationService(
         }
     }
 
-    public async Task NotifyPartyUpdatedAsync(Guid p_PartyId, Party p_Party)
+    public async Task NotifyPartyUpdatedAsync(string p_Code, GroupParty p_Party)
     {
-        List<string> v_UserIds = await GetPartyUserIdsAsync(p_PartyId);
+        List<string> v_UserIds = await GetPartyUserIdsAsync(p_Code);
         if (v_UserIds.Count != 0)
         {
             await p_HubContext.Clients.Users(v_UserIds).OnPartyUpdated(p_Party);
         }
     }
 
-    private async Task<List<string>> GetPartyUserIdsAsync(Guid p_PartyId)
+    public async Task NotifyPartyStartedAsync(string p_Code, GroupParty p_Party)
+    {
+        List<string> v_UserIds = await GetPartyUserIdsAsync(p_Code);
+        if (v_UserIds.Count != 0)
+        {
+            await p_HubContext.Clients.Users(v_UserIds).OnPartyStarted(p_Party);
+        }
+    }
+
+    public async Task NotifyPartyQuestionSend(int p_UserId, GroupQuestion p_Question)
+    {
+        await p_HubContext.Clients.User(p_UserId.ToString()).OnQuestionSend(p_Question);
+    }
+    
+    public async Task NotifyPartyQuestionAnswerSend(int p_UserId, GroupQuestion p_Question)
+    {
+        await p_HubContext.Clients.Users(p_UserId.ToString()).OnQuestionAnswerSend(p_Question);
+    }
+
+    public async Task NotifyUserSendAnswerAsync(string p_Code, User p_User)
+    {
+        List<string> v_UserIds = await GetPartyUserIdsAsync(p_Code);
+        if (v_UserIds.Count != 0)
+        {
+            await p_HubContext.Clients.Users(v_UserIds.Where(p_P => p_P != p_User.Id.ToString())).OnUserAnswer(p_User);
+        }
+    }
+
+    public async Task NotifyPartyScoresAsync(string p_Code, IEnumerable<UserScore> p_UserScores)
+    {
+        List<string> v_UserIds = await GetPartyUserIdsAsync(p_Code);
+        if (v_UserIds.Count != 0)
+        {
+            await p_HubContext.Clients.Users(v_UserIds).OnScoreUpdate(p_UserScores);
+        }
+    }
+
+    public async Task NotifyPartyFinishedAsync(string p_Code, IEnumerable<UserScore> p_UserScores)
+    {
+        List<string> v_UserIds = await GetPartyUserIdsAsync(p_Code);
+        if (v_UserIds.Count != 0)
+        {
+            await p_HubContext.Clients.Users(v_UserIds).OnPartyFinished(p_UserScores);
+        }
+    }
+
+    public async Task NotifyCountdownAsync(string p_Code, int p_Seconds)
+    {
+        List<string> v_UserIds = await GetPartyUserIdsAsync(p_Code);
+        if (v_UserIds.Count != 0)
+        {
+            await p_HubContext.Clients.Users(v_UserIds).OnCountdown(p_Seconds);
+        }
+    }
+
+    private async Task<List<string>> GetPartyUserIdsAsync(string p_Code)
     {
         // Get user IDs from Redis set
         List<int> v_UserIds = await p_CacheService.SetMembersAsync<int>(
-            RedisKeys.Party.Users(p_PartyId),
+            RedisKeys.Party.Users(p_Code),
             CancellationToken.None
         );
 

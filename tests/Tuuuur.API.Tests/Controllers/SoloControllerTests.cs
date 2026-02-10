@@ -33,7 +33,7 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task CreateSoloPartyAsync_ReturnsOkObjectResult()
         {
             // Arrange
-            SettingsRequest v_ApiRequest = new()
+            SoloSettingsRequest v_ApiRequest = new()
             {
                 NbQuestions = 20,
                 Themes = [1, 2, 3],
@@ -44,7 +44,7 @@ namespace Tuuuur.API.Tests.Controllers
             m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<CreateSoloPartyRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GuidResponse(v_Id));
 
             // Act
-            IActionResult v_Result = await m_Controller.CreateSoloPartyAsync(v_ApiRequest, new SettingsRequestValidator(), new GuidPresenter(), CancellationToken.None);
+            IActionResult v_Result = await m_Controller.CreateSoloPartyAsync(v_ApiRequest, new SoloSettingsRequestValidator(), new GuidPresenter(), CancellationToken.None);
 
             // Assert
             v_Result.Should().BeOfType<JsonContentResult>();

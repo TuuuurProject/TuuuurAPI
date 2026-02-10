@@ -44,10 +44,6 @@ internal class ApiModule : Module
         p_Builder.RegisterGeneric(typeof(GenericEntityPresenter<>))
             .AsSelf();
 
-        p_Builder.RegisterType<NotificationsService>()
-            .As<INotificationsService>()
-            .InstancePerLifetimeScope();
-
         p_Builder.RegisterType<GroupNotificationService>()
             .As<IGroupNotificationService>()
             .InstancePerLifetimeScope();

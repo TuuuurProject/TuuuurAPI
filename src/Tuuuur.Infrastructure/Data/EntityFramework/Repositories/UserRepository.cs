@@ -17,7 +17,7 @@ internal class UserRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<U
     {
         return Mapper.Map<User>(await FindBy(p_U => p_U.Email == p_Email).SingleOrDefaultAsync(p_CancellationToken));
     }
-    
+
     public async Task<User> GetUserByEmailOrNickNameAsync(string p_Login, CancellationToken p_CancellationToken = default)
     {
         if (p_Login.Contains('@'))
@@ -26,12 +26,12 @@ internal class UserRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<U
         }
         return Mapper.Map<User>(await FindBy(p_U => p_U.NickName == p_Login).SingleOrDefaultAsync(p_CancellationToken));
     }
-    
+
     public async Task<User> GetUserByNickNameAsync(string p_NickaName, CancellationToken p_CancellationToken = default)
     {
         return Mapper.Map<User>(await FindBy(p_U => p_U.NickName == p_NickaName).SingleOrDefaultAsync(p_CancellationToken));
     }
-    
+
     public async Task<IMappingAddEntity<User, IEntity>> CreateUserAsync(User p_User, CancellationToken p_CancellationToken = default)
     {
         IMappingAddEntity<User, UserUsr> v_Mapping =
@@ -40,7 +40,7 @@ internal class UserRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<U
         await AddAsync(v_Mapping.DtoEntity, p_CancellationToken);
         return v_Mapping;
     }
-    
+
     public async Task UpdateUserAsync(User p_User, CancellationToken p_CancellationToken = default)
     {
         IMappingAddEntity<User, UserUsr> v_Mapping =
@@ -53,9 +53,15 @@ internal class UserRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<U
     {
         await DeleteAsync(p_UserId, p_CancellationToken);
     }
-    
+
     public async Task<User> GetUserByIdAsync(int p_Id, CancellationToken p_CancellationToken = default)
     {
         return Mapper.Map<User>(await FindBy(p_U => p_U.Id == p_Id).SingleOrDefaultAsync(p_CancellationToken));
+    }
+
+    public async Task<List<User>> GetUsersByIdsAsync(List<int> p_Ids, CancellationToken p_CancellationToken = default)
+    {
+        List<UserUsr> v_Users = await FindBy(p_U => p_Ids.Contains(p_U.Id)).ToListAsync(p_CancellationToken);
+        return Mapper.Map<List<User>>(v_Users);
     }
 }

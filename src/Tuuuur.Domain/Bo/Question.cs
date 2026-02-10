@@ -13,4 +13,26 @@ public class Question : IBOEntity
     public virtual List<PartyQuestion> PartyQuestion { get; set; } = [];
 
     public virtual List<QuestionTheme> QuestionTheme { get; set; } = [];
+
+    public void ClearAnswer()
+    {
+        foreach (Answer v_Answer in Answer)
+        {
+            v_Answer.Valid = null;
+        }
+    }
+
+    public Question Copy()
+    {
+        return new Question
+        {
+            Id = Id,
+            Label = Label,
+            IdDifficulty = IdDifficulty,
+            Answer = [.. Answer],
+            Difficulty = Difficulty,
+            PartyQuestion = PartyQuestion,
+            QuestionTheme = QuestionTheme
+        };
+    }
 }

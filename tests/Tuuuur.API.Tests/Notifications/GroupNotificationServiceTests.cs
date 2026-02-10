@@ -44,13 +44,13 @@ public class GroupNotificationServiceTests
     public async Task NotifyPlayerJoinedAsync_WithUsers_ShouldSendNotificationToOtherUsers()
     {
         // Arrange
-        Guid v_PartyId = Guid.NewGuid();
+        const string v_PartyCode = "123456";
         User v_User = new() { Id = 1, NickName = "TestUser", Email = "test@example.com" };
-        List<int> v_UserIds = new() { 1, 2, 3 };
+        List<int> v_UserIds = [1, 2, 3];
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SetMembersAsync<int>(
-                RedisKeys.Party.Users(v_PartyId),
+                RedisKeys.Party.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
 
@@ -68,7 +68,7 @@ public class GroupNotificationServiceTests
             .Returns(Task.CompletedTask);
 
         // Act
-        await m_Service.NotifyPlayerJoinedAsync(v_PartyId, v_User);
+        await m_Service.NotifyPlayerJoinedAsync(v_PartyCode, v_User);
 
         // Assert
         m_MockRepository.VerifyAll();
@@ -78,18 +78,18 @@ public class GroupNotificationServiceTests
     public async Task NotifyPlayerJoinedAsync_WithNoUsers_ShouldNotSendNotification()
     {
         // Arrange
-        Guid v_PartyId = Guid.NewGuid();
+        const string v_PartyCode = "123456";
         User v_User = new() { Id = 1, NickName = "TestUser", Email = "test@example.com" };
-        List<int> v_UserIds = new();
+        List<int> v_UserIds = [];
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SetMembersAsync<int>(
-                RedisKeys.Party.Users(v_PartyId),
+                RedisKeys.Party.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
 
         // Act
-        await m_Service.NotifyPlayerJoinedAsync(v_PartyId, v_User);
+        await m_Service.NotifyPlayerJoinedAsync(v_PartyCode, v_User);
 
         // Assert
         m_MockRepository.VerifyAll();
@@ -99,13 +99,13 @@ public class GroupNotificationServiceTests
     public async Task NotifyPlayerLeftAsync_WithUsers_ShouldSendNotificationToOtherUsers()
     {
         // Arrange
-        Guid v_PartyId = Guid.NewGuid();
+        const string v_PartyCode = "123456";
         User v_User = new() { Id = 2, NickName = "LeavingUser", Email = "leaving@example.com" };
         List<int> v_UserIds = [1, 2, 3];
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SetMembersAsync<int>(
-                RedisKeys.Party.Users(v_PartyId),
+                RedisKeys.Party.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
 
@@ -123,7 +123,7 @@ public class GroupNotificationServiceTests
             .Returns(Task.CompletedTask);
 
         // Act
-        await m_Service.NotifyPlayerLeftAsync(v_PartyId, v_User);
+        await m_Service.NotifyPlayerLeftAsync(v_PartyCode, v_User);
 
         // Assert
         m_MockRepository.VerifyAll();
@@ -133,13 +133,13 @@ public class GroupNotificationServiceTests
     public async Task NotifyPartyDeletedAsync_WithUsers_ShouldSendNotificationToOtherUsers()
     {
         // Arrange
-        Guid v_PartyId = Guid.NewGuid();
+        const string v_PartyCode = "123456";
         User v_User = new() { Id = 1, NickName = "HostUser", Email = "host@example.com" };
         List<int> v_UserIds = [1, 2, 3, 4];
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SetMembersAsync<int>(
-                RedisKeys.Party.Users(v_PartyId),
+                RedisKeys.Party.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
 
@@ -157,7 +157,7 @@ public class GroupNotificationServiceTests
             .Returns(Task.CompletedTask);
 
         // Act
-        await m_Service.NotifyPartyDeletedAsync(v_PartyId, v_User);
+        await m_Service.NotifyPartyDeletedAsync(v_PartyCode, v_User);
 
         // Assert
         m_MockRepository.VerifyAll();
@@ -167,11 +167,10 @@ public class GroupNotificationServiceTests
     public async Task NotifyPartyUpdatedAsync_WithUsers_ShouldSendNotificationToAllUsers()
     {
         // Arrange
-        Guid v_PartyId = Guid.NewGuid();
-        Party v_Party = new()
+        const string v_PartyCode = "123456";
+        GroupParty v_Party = new()
         {
-            Id = v_PartyId,
-            Code = "ABC123",
+            Code = v_PartyCode,
             IdUserHost = 1,
             Active = true
         };
@@ -179,7 +178,7 @@ public class GroupNotificationServiceTests
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SetMembersAsync<int>(
-                RedisKeys.Party.Users(v_PartyId),
+                RedisKeys.Party.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
 
@@ -197,7 +196,7 @@ public class GroupNotificationServiceTests
             .Returns(Task.CompletedTask);
 
         // Act
-        await m_Service.NotifyPartyUpdatedAsync(v_PartyId, v_Party);
+        await m_Service.NotifyPartyUpdatedAsync(v_PartyCode, v_Party);
 
         // Assert
         m_MockRepository.VerifyAll();
@@ -207,22 +206,21 @@ public class GroupNotificationServiceTests
     public async Task NotifyPartyUpdatedAsync_WithNoUsers_ShouldNotSendNotification()
     {
         // Arrange
-        Guid v_PartyId = Guid.NewGuid();
-        Party v_Party = new()
+        const string v_PartyCode = "123456";
+        GroupParty v_Party = new()
         {
-            Id = v_PartyId,
-            Code = "ABC123"
+            Code = v_PartyCode
         };
-        List<int> v_UserIds = new();
+        List<int> v_UserIds = [];
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SetMembersAsync<int>(
-                RedisKeys.Party.Users(v_PartyId),
+                RedisKeys.Party.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
 
         // Act
-        await m_Service.NotifyPartyUpdatedAsync(v_PartyId, v_Party);
+        await m_Service.NotifyPartyUpdatedAsync(v_PartyCode, v_Party);
 
         // Assert
         m_MockRepository.VerifyAll();
@@ -232,13 +230,13 @@ public class GroupNotificationServiceTests
     public async Task NotifyPlayerJoinedAsync_WithOnlyJoiningUser_ShouldNotSendNotification()
     {
         // Arrange
-        Guid v_PartyId = Guid.NewGuid();
+        const string v_PartyCode = "123456";
         User v_User = new() { Id = 1, NickName = "OnlyUser", Email = "only@example.com" };
         List<int> v_UserIds = [1];
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SetMembersAsync<int>(
-                RedisKeys.Party.Users(v_PartyId),
+                RedisKeys.Party.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
 
@@ -255,7 +253,7 @@ public class GroupNotificationServiceTests
             .Returns(Task.CompletedTask);
 
         // Act
-        await m_Service.NotifyPlayerJoinedAsync(v_PartyId, v_User);
+        await m_Service.NotifyPlayerJoinedAsync(v_PartyCode, v_User);
 
         // Assert - No notification should be sent (list becomes empty after removing the user)
         m_MockRepository.VerifyAll();

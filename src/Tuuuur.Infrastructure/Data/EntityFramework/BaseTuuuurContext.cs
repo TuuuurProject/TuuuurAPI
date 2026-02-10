@@ -120,15 +120,8 @@ public partial class BaseTuuuurContext : DbContext
 
             entity.ToTable("Party_PTY");
 
-            entity.HasIndex(e => e.Code, "IX_Party_Code")
-                .IsUnique()
-                .HasFilter("([Active]=(1) AND [Code] IS NOT NULL)");
-
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.Active).HasDefaultValue(true);
-            entity.Property(e => e.Code)
-                .HasMaxLength(6)
-                .IsUnicode(false);
             entity.Property(e => e.Dt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.IdPartyType).HasColumnName("Id_Party_Type");
             entity.Property(e => e.IdUserHost).HasColumnName("Id_User_Host");
@@ -140,7 +133,6 @@ public partial class BaseTuuuurContext : DbContext
 
             entity.HasOne(d => d.IdUserHostNavigation).WithMany(p => p.PartyPty)
                 .HasForeignKey(d => d.IdUserHost)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Party_HostUser");
         });
 

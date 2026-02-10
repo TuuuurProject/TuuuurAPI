@@ -9,21 +9,21 @@ using Tuuuur.Factory.Tests;
 
 namespace Tuuuur.Core.Tests.UseCases;
 
-public class GetHistoryUseCaseTests
+public class GetAllHistoryUseCaseTests
 {
     private readonly Mock<IUnitOfWork> m_UnitOfWorkMock;
-    private readonly Mock<ILogger<GetHistoryUseCase>> m_LoggerMock;
+    private readonly Mock<ILogger<GetAllHistoryUseCase>> m_LoggerMock;
     private readonly Mock<IUserRoleService> m_UserRoleService;
 
-    private readonly GetHistoryUseCase m_UseCase;
+    private readonly GetAllHistoryUseCase m_UseCase;
     
-    public GetHistoryUseCaseTests()
+    public GetAllHistoryUseCaseTests()
     {
         m_UnitOfWorkMock = new Mock<IUnitOfWork>();
-        m_LoggerMock = new Mock<ILogger<GetHistoryUseCase>>();
+        m_LoggerMock = new Mock<ILogger<GetAllHistoryUseCase>>();
         m_UserRoleService = new Mock<IUserRoleService>();
 
-        m_UseCase = new GetHistoryUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_UserRoleService.Object);
+        m_UseCase = new GetAllHistoryUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_UserRoleService.Object);
     }
     
     [Fact]
@@ -36,7 +36,7 @@ public class GetHistoryUseCaseTests
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
         m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.GetUserHistoryAsync(It.IsAny<int>(),It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(new HistoryPage());
 
-        GetHistoryRequest v_Request = new(1,50);
+        GetAllHistoryRequest v_Request = new(1,50);
         // Act
         GenericEntityResponse<HistoryPage> v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
 

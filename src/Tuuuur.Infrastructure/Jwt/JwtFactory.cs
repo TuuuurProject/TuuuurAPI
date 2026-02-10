@@ -27,12 +27,12 @@ internal class JwtFactory(JwtConfiguration p_JwtConfiguration) : IJwtFactory
         SecurityTokenDescriptor v_TokenDescriptor = new()
         {
             Subject = new ClaimsIdentity([
-                new Claim(ClaimTypes.Sid, p_UserInfos.Id.ToString()),
-                new Claim(ClaimTypes.NameIdentifier, p_UserInfos.NickName),
-                new Claim(ClaimTypes.Email, p_UserInfos.Email),
+                new Claim(ClaimNames.Id, p_UserInfos.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.UniqueName, p_UserInfos.NickName),
                 new Claim(JwtRegisteredClaimNames.Email, p_UserInfos.Email),
-                new Claim(ClaimTypes.Role, v_Role)
+                new Claim(ClaimNames.Role, v_Role)
             ]),
+
             Expires = DateTime.UtcNow.AddMinutes(p_JwtConfiguration.Validity),
             Issuer = p_JwtConfiguration.Issuer,
             Audience = p_JwtConfiguration.Audience,
@@ -107,7 +107,7 @@ internal class JwtFactory(JwtConfiguration p_JwtConfiguration) : IJwtFactory
                 }
             }
 
-            string v_UserIdClaim = v_Principal.FindFirst(ClaimTypes.Sid)?.Value;
+            string v_UserIdClaim = v_Principal.FindFirst(JwtRegisteredClaimNames.Sid)?.Value;
 
             if (string.IsNullOrWhiteSpace(v_UserIdClaim))
                 return null;

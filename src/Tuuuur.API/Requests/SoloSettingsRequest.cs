@@ -5,9 +5,9 @@ using Tuuuur.Domain.Errors;
 namespace Tuuuur.API.Requests;
 
 /// <summary>
-/// Request for group settings
+/// Request for solo settings
 /// </summary>
-public record SettingsRequest
+public record SoloSettingsRequest
 {
     /// <summary>
     /// Selected themes
@@ -26,14 +26,14 @@ public record SettingsRequest
     public int NbQuestions { get; init; }
 }
 /// <summary>
-/// Validator for createsoloparty request
+/// Validator for request
 /// </summary>
-public class SettingsRequestValidator : AbstractValidator<SettingsRequest>
+public class SoloSettingsRequestValidator : AbstractValidator<SoloSettingsRequest>
 {
     /// <summary>
     /// ctor containing validation rules
     /// </summary>
-    public SettingsRequestValidator()
+    public SoloSettingsRequestValidator()
     {
         RuleFor(p_Request => p_Request.Themes).NotEmpty().WithErrorCode(DomainErrors.Theme.Invalid);
         RuleFor(p_Request => p_Request.Difficulties).NotEmpty().WithErrorCode(DomainErrors.Difficulty.Invalid);

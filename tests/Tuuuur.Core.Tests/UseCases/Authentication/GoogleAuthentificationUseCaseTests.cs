@@ -68,6 +68,10 @@ namespace Tuuuur.Core.Tests.UseCases.Authentication
             m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.CreateUserAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
                 .Verifiable();
 
+            m_UnitOfWorkMock.Setup(p_U => p_U.Save())
+                .Returns(1)
+                .Verifiable();
+
             JwtTokenResponse v_JwtTokenResponse = new();
             m_JwtFactoryMock.Setup(p_J => p_J.CreateTokenAsync(It.IsAny<User>(), It.IsAny<IUnitOfWork>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_JwtTokenResponse);
 
@@ -77,6 +81,8 @@ namespace Tuuuur.Core.Tests.UseCases.Authentication
             // Assert
             Assert.NotNull(v_Result);
             Assert.True(v_Result.Success);
+            m_UnitOfWorkMock.Verify(p_U => p_U.UserRepository.CreateUserAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
+            m_UnitOfWorkMock.Verify(p_U => p_U.Save(), Times.Once);
         }
     }
 }

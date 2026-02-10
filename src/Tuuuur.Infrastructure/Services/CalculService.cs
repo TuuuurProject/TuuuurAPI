@@ -7,7 +7,7 @@ public class CalculService(CalculConfiguration p_CalculConfiguration) : ICalculS
     public int CalculateScore(DateTime p_DtPresentedAt, DateTime? p_DtAnsweredAt)
     {
         if (p_DtAnsweredAt is null)
-            throw new NotImplementedException();
+            return 0;
         
         double v_ResponseDuration = (p_DtAnsweredAt - p_DtPresentedAt).Value.TotalSeconds;
 
