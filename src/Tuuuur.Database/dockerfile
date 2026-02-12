@@ -17,4 +17,4 @@ RUN apt-get update && \
 
 ENV PATH="$PATH:/opt/sqlpackage"
 
-CMD ["sh", "-c", "sqlpackage /Action:Publish /SourceFile:Tuuuur.Database/bin/Release/Tuuuur.Database.dacpac /TargetServerName:$DB_SERVER /TargetDatabaseName:$DB_NAME /TargetUser:$DB_USER /TargetPassword:$DB_PASSWORD /TargetEncryptConnection:False /TargetTrustServerCertificate:True /p:DropObjectsNotInSource=False /p:BlockOnPossibleDataLoss=False /p:ExcludeObjectTypes=Users;Logins"]
+CMD ["sh", "-c", "sqlpackage /Action:Publish /SourceFile:Tuuuur.Database/bin/Release/Tuuuur.Database.dacpac /TargetServerName:$DB_SERVER /TargetDatabaseName:$DB_NAME /TargetUser:$DB_USER /TargetPassword:$DB_PASSWORD /TargetEncryptConnection:False /TargetTrustServerCertificate:True /p:DropObjectsNotInSource=False /p:BlockOnPossibleDataLoss=False /p:IncludeLogins=False /p:ExcludeObjectTypes=Users;Logins"]
