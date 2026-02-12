@@ -1,11 +1,13 @@
 ﻿using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Configuration;
+using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Security;
 using Tuuuur.Domain.Token;
 using Tuuuur.Infrastructure.Jwt;
 using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Tuuuur.Domain.Interfaces.Data.Entities;
 
 namespace Tuuuur.Infrastructure.Tests.Jwt
 {
@@ -27,11 +29,12 @@ namespace Tuuuur.Infrastructure.Tests.Jwt
         }
 
         [Fact]
-        public void CreateToken_ReturnsValidJwtTokenResponse()
+        public async Task CreateToken_ReturnsValidJwtTokenResponse()
         {
             // Arrange
             User v_User = new()
             {
+                Id = 1,
                 NickName = "test",
                 Email = "test@example.com",
                 IsAdmin = true
@@ -43,17 +46,34 @@ namespace Tuuuur.Infrastructure.Tests.Jwt
                 new(JwtRegisteredClaimNames.Email, v_User.Email),
                 new(ClaimTypes.Role, RolesType.Admin)
             };
-
+            
+            RefreshToken v_RefreshToken = new()
+            {
+                UserId = v_User.Id,
+                Token = "new-token-67890",
+                ExpiresAt = DateTime.UtcNow.AddDays(90),
+                CreatedAt = DateTime.UtcNow
+            };
+            
+            Mock<IMappingAddEntity<RefreshToken, IEntity>> v_MappingAddEntityMock = new();
+            v_MappingAddEntityMock.Setup(p_P => p_P.BoEntity).Returns(v_RefreshToken);
+            
             JwtFactory v_JwtFactory = new(m_JwtConfiguration);
+            Mock<IUnitOfWork> v_UnitOfWorkMock = new();
+            v_UnitOfWorkMock.Setup(p_U => p_U.RefreshTokenRepository.CreateRefreshTokenAsync(It.IsAny<RefreshToken>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(v_MappingAddEntityMock.Object);
 
             // Act
-            JwtTokenResponse v_Result = v_JwtFactory.CreateToken(v_User);
+            JwtTokenResponse v_Result = await v_JwtFactory.CreateTokenAsync(v_User, v_UnitOfWorkMock.Object, CancellationToken.None);
 
             // Assert
             Check.That(v_Result).IsNotNull();
             Check.That(v_Result.Token).IsNotEmpty();
+            Check.That(v_Result.RefreshToken).IsNotEmpty();
             Check.That(v_Result.ValidFrom).IsBeforeOrEqualTo(DateTime.UtcNow);
             Check.That(v_Result.ValidTo).IsAfter(DateTime.UtcNow);
+            Check.That(v_Result.RefreshTokenExpiresAt).IsAfter(DateTime.UtcNow);
+
             JwtSecurityTokenHandler v_Handler = new();
             JwtSecurityToken v_DecodedToken = v_Handler.ReadJwtToken(v_Result.Token);
             Check.That(v_DecodedToken.Issuer).IsEqualTo(m_JwtConfiguration.Issuer);
@@ -61,6 +81,9 @@ namespace Tuuuur.Infrastructure.Tests.Jwt
 
             foreach (Claim v_ExpectedClaim in v_ExpectedClaims)
                 Check.That(v_DecodedToken.Claims.Any(p_X => p_X.Value == v_ExpectedClaim.Value)).IsTrue();
+
+            // Vérifier que le refresh token a été sauvegardé
+            v_UnitOfWorkMock.Verify(p_U => p_U.RefreshTokenRepository.CreateRefreshTokenAsync(It.IsAny<RefreshToken>(), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

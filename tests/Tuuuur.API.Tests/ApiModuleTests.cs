@@ -24,7 +24,7 @@ namespace Tuuuur.API.Tests
             typeof(EmptyPresenter),
             typeof(GuidPresenter),
             typeof(GoogleConfiguration),
-            typeof(INotificationsService),
+            typeof(IGroupNotificationService),
             typeof(IUserRoleService)
         };
         private IList<Type> m_TypesLoaded;

@@ -1,6 +1,4 @@
-﻿
-using AutoMapper;
-using LinqKit;
+﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Tuuuur.Domain.Bo;

@@ -49,6 +49,7 @@ internal class GetPartyUseCase(
                         IdUser = v_User.Id,
                         IdPartyQuestion = v_PartyQuestion.Id,
                         Correct = null,
+                        DtPresentedAt = DateTime.UtcNow
                     };
                     _ = await m_UnitOfWork.UserPartyQuestionRepository.CreateUserPartyQuestionAsync(v_UserPartyQuestionToAdd, p_CancellationToken);
                 }

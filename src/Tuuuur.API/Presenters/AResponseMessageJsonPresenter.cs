@@ -54,6 +54,7 @@ namespace Tuuuur.API.Presenters
                     DomainErrors.Data.NotFound => HttpStatusCode.NotFound,
                     DomainErrors.Data.AlreadyExist => HttpStatusCode.Conflict,
                     DomainErrors.Authentication.Invalid => HttpStatusCode.Unauthorized,
+                    DomainErrors.Authentication.RefreshToken.Invalid => HttpStatusCode.Unauthorized,
                     _ => HttpStatusCode.InternalServerError,
                 };
             }

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Tuuuur.Domain.Errors;
 
@@ -75,11 +75,19 @@ public static class DomainErrors
             public const string InvalidLength = CodePrefix + GeneralErrors.InvalidFormat.InvalidLength;
             public const string TooMuchDemand = CodePrefix + "too-much-demand";
         }
+
+        public static class RefreshToken
+        {
+            private const string RefreshTokenPrefix = AuthentPrefix + "refresh-token.";
+            public const string Invalid = RefreshTokenPrefix + GeneralErrors.Invalid;
+        }
     }
 
     public static class Party
     {
         private const string PartyPrefix = DomainPrefix + "party.";
+        public const string InvalidSettings = "invalid-settings";
+        public const string InProgress = "in-progress";
 
         public static class Id
         {
@@ -100,6 +108,26 @@ public static class DomainErrors
             public const string Empty = CodePrefix + GeneralErrors.Empty;
             public const string Invalid = CodePrefix + GeneralErrors.Invalid;
         }
+
+        public static class NbQuestions
+        {
+            private const string NbQuestionsPrefix = DomainPrefix + "nbquestions.";
+            public const string Invalid = NbQuestionsPrefix + GeneralErrors.Invalid;
+        }
+    }
+
+    public static class Difficulty
+    {
+        private const string PartyDifficultyPrefix = DomainPrefix + "partydifficulty.";
+        public const string Empty = PartyDifficultyPrefix + GeneralErrors.Empty;
+        public const string Invalid = PartyDifficultyPrefix + GeneralErrors.Invalid;
+    }
+
+    public static class Theme
+    {
+        private const string ThemePrefix = DomainPrefix + "theme.";
+        public const string Empty = ThemePrefix + GeneralErrors.Empty;
+        public const string Invalid = ThemePrefix + GeneralErrors.Invalid;
     }
 
     public static class User

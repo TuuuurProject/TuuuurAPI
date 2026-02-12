@@ -44,6 +44,10 @@ BEGIN
     FROM [dbo].[Elo_ELO] ELO
              INNER JOIN deleted d ON ELO.Id_User = d.Id;
 
+    DELETE RefreshToken
+    FROM [dbo].[RefreshToken_RTK] RefreshToken
+             INNER JOIN deleted d ON RefreshToken.UserId = d.Id;
+
     DELETE PQT
     FROM [dbo].[PartyQuestion_PQT] PQT
              INNER JOIN [dbo].[Party_PTY] PTY ON PQT.Id_Party = PTY.Id

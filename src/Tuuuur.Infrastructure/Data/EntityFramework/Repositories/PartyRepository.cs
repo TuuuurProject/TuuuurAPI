@@ -13,10 +13,10 @@ namespace Tuuuur.Infrastructure.Data.EntityFramework.Repositories;
 internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<PartyRepository> p_Logger)
     : GenericRepository<PartyPty>(p_DbContext, p_Mapper, p_Logger), IPartyRepository
 {
-    public async Task<IMappingAddEntity<Party, IEntity>> CreatePartyAsync(Party p_Party, CancellationToken p_CancellationToken = default)
+    public async Task<IMappingAddEntity<PartyBase, IEntity>> CreatePartyAsync(PartyBase p_Party, CancellationToken p_CancellationToken = default)
     {
-        IMappingAddEntity<Party, PartyPty> v_Mapping =
-            new MappingAddEntity<Party, PartyPty>(Mapper, p_Party);
+        IMappingAddEntity<PartyBase, PartyPty> v_Mapping =
+            new MappingAddEntity<PartyBase, PartyPty>(Mapper, p_Party);
 
         await AddAsync(v_Mapping.DtoEntity, p_CancellationToken);
         return v_Mapping;
@@ -39,8 +39,11 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
                     .Include(p_P => p_P.PartyUserPus)
                     .Include(p_P => p_P.IdPartyTypeNavigation)
                     )
+                    .AsNoTracking() 
+                    .AsSplitQuery()
             .FirstOrDefaultAsync(p_CancellationToken);
-        return Mapper.Map<Party>(v_PartyPty);
+        
+        return v_PartyPty == null ? null : Mapper.Map<Party>(v_PartyPty);
     }
     
     public async Task UpdateAsync(Party p_Party)
@@ -60,7 +63,7 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
         long v_TotalCount = await CountAsync(p_P => p_P.IdUserHost == p_UserId, p_CancellationToken);
         
         List<PartyPty> v_Parties = await FindBy(
-            p_P => p_P.IdUserHost == p_UserId,
+            null,
             p_Include: p_Includes => p_Includes
                 .Include(p_P => p_P.PartyThemePth)
                     .ThenInclude(p_P => p_P.IdThemeNavigation)
@@ -71,6 +74,8 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
                 .Include(p_P => p_P.PartyUserPus)
                 .Include(p_P => p_P.IdPartyTypeNavigation))
             .OrderByDescending(p_P => p_P.Dt)
+            .AsNoTracking() 
+            .AsSplitQuery()
             .Skip(v_Skip)
             .Take(p_Size)
             .ToListAsync(p_CancellationToken);

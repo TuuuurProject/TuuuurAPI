@@ -15,7 +15,7 @@ internal class QuestionRepository(DbContext p_DbContext, IMapper p_Mapper, ILogg
     : GenericRepository<QuestionQst>(p_DbContext, p_Mapper, p_Logger), IQuestionRepository
 {
     public async Task<IEnumerable<Question>> GetQuestionsByThemesIdsAndDifficultiesIdsAndNumberOfQuestionsAsync(
-        int[] p_ThemesIds, int[] p_DifficultiesIds, int p_NbQuestions, CancellationToken p_CancellationToken = default)
+        IEnumerable<int> p_ThemesIds, IEnumerable<int> p_DifficultiesIds, int p_NbQuestions, CancellationToken p_CancellationToken = default)
     {
         List<QuestionQst> v_Query = await FindBy(p_P => 
             p_P.QuestionThemeQth.Any(p_Theme => p_ThemesIds.Contains(p_Theme.IdTheme)) && 
@@ -33,6 +33,9 @@ internal class QuestionRepository(DbContext p_DbContext, IMapper p_Mapper, ILogg
             p_P => p_P.Id == p_Id, 
             p_Include: p_Include => p_Include
                 .Include(p_P => p_P.AnswerAns)
+                .Include(p_P => p_P.QuestionThemeQth)
+                .ThenInclude(p_P => p_P.IdThemeNavigation)
+                .Include(p_P => p_P.IdDifficultyNavigation)
                 .Include(p_P => p_P.PartyQuestionPqt))
             .FirstOrDefaultAsync(p_CancellationToken);
         return Mapper.Map<Question>(v_QuestionQst);

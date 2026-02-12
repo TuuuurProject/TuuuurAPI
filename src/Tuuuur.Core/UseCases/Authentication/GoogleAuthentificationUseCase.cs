@@ -13,7 +13,7 @@ using Tuuuur.Domain.Token;
 namespace Tuuuur.Core.UseCases.Authentication;
 
 internal partial class GoogleAuthentificationUseCase(
-    IUnitOfWork p_UnitOfWork, 
+    IUnitOfWork p_UnitOfWork,
     ILogger<GoogleAuthentificationUseCase> p_Logger,
     IJwtFactory p_JwtFactory)
     : ADbUseCase<GoogleAuthentificationRequest, JwtAuthenticationResponse>(p_Logger, p_UnitOfWork)
@@ -38,15 +38,18 @@ internal partial class GoogleAuthentificationUseCase(
                 IsGoogleUser = true,
                 IsNew = false,
             };
-                
+
             await m_UnitOfWork.UserRepository.CreateUserAsync(v_User, p_CancellationToken);
             _ = m_UnitOfWork.Save();
+
+            // Mandatory to ensure the Id is properly set
+            v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(p_Request.Email, p_CancellationToken);
         }
-        
+
         else if (!v_User.IsGoogleUser)
             return new JwtAuthenticationResponse([new ErrorDto(DomainErrors.Authentication.Google.InvalidGoogle, $"The email {p_Request.Email} is already registered but is not linked to Google. Please sign in using your credentials.")]);
-            
-        JwtTokenResponse v_TokenInfos = p_JwtFactory.CreateToken(v_User);
+
+        JwtTokenResponse v_TokenInfos = await p_JwtFactory.CreateTokenAsync(v_User, m_UnitOfWork, p_CancellationToken);
 
         return new JwtAuthenticationResponse(new UserToken
         {

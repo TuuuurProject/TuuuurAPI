@@ -3,8 +3,10 @@ using System.Reflection;
 using Tuuuur.API.Presenters;
 using Tuuuur.API.Notifications;
 using Tuuuur.API.Security;
+using Tuuuur.API.Hubs;
 using Tuuuur.Domain.Notifications;
 using Tuuuur.Domain.Security;
+using Tuuuur.Domain.Hubs;
 using Tuuuur.API.Configuration;
 using Tuuuur.Domain.Configuration;
 using Module = Autofac.Module;
@@ -34,7 +36,7 @@ internal class ApiModule : Module
         p_Builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly())
             .Where(t => t.Name.EndsWith("Presenter"))
             .InstancePerLifetimeScope();
-        
+
         p_Builder.RegisterGeneric(typeof(GenericEntityListPresenter<>))
             .AsSelf()
             .InstancePerLifetimeScope();
@@ -42,14 +44,14 @@ internal class ApiModule : Module
         p_Builder.RegisterGeneric(typeof(GenericEntityPresenter<>))
             .AsSelf();
 
-        p_Builder.RegisterType<NotificationsService>()
-            .As<INotificationsService>()
+        p_Builder.RegisterType<GroupNotificationService>()
+            .As<IGroupNotificationService>()
             .InstancePerLifetimeScope();
-        
+
         p_Builder.RegisterType<UserRoleService>()
             .As<IUserRoleService>()
             .InstancePerLifetimeScope();
-            
+
         p_Builder.RegisterConfiguration<GoogleConfiguration>();
     }
 }

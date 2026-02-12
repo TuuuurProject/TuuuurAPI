@@ -34,6 +34,8 @@ public partial class BaseTuuuurContext : DbContext
 
     public virtual DbSet<QuestionThemeQth> QuestionThemeQth { get; set; }
 
+    public virtual DbSet<RefreshTokenRtk> RefreshTokenRtk { get; set; }
+
     public virtual DbSet<ThemeThm> ThemeThm { get; set; }
 
     public virtual DbSet<UserAuthUat> UserAuthUat { get; set; }
@@ -118,15 +120,8 @@ public partial class BaseTuuuurContext : DbContext
 
             entity.ToTable("Party_PTY");
 
-            entity.HasIndex(e => e.Code, "IX_Party_Code")
-                .IsUnique()
-                .HasFilter("([Active]=(1) AND [Code] IS NOT NULL)");
-
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.Active).HasDefaultValue(true);
-            entity.Property(e => e.Code)
-                .HasMaxLength(6)
-                .IsUnicode(false);
             entity.Property(e => e.Dt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.IdPartyType).HasColumnName("Id_Party_Type");
             entity.Property(e => e.IdUserHost).HasColumnName("Id_User_Host");
@@ -138,7 +133,6 @@ public partial class BaseTuuuurContext : DbContext
 
             entity.HasOne(d => d.IdUserHostNavigation).WithMany(p => p.PartyPty)
                 .HasForeignKey(d => d.IdUserHost)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Party_HostUser");
         });
 
@@ -253,6 +247,26 @@ public partial class BaseTuuuurContext : DbContext
                 .HasForeignKey(d => d.IdTheme)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_QuestionTheme_Theme");
+        });
+
+        modelBuilder.Entity<RefreshTokenRtk>(entity =>
+        {
+            entity.ToTable("RefreshToken_RTK");
+
+            entity.HasIndex(e => e.Token, "IX_RefreshToken_Token");
+
+            entity.HasIndex(e => e.UserId, "IX_RefreshToken_UserId");
+
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.Token)
+                .IsRequired()
+                .HasMaxLength(500)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.User).WithMany(p => p.RefreshTokenRtk)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RefreshToken_User");
         });
 
         modelBuilder.Entity<ThemeThm>(entity =>

@@ -31,11 +31,11 @@ public class GroupControllerTests
     public async Task CreatePartyAsync_ReturnsOkObjectResult()
     {
         // Arrange
-        Party v_Party = BoFactory.CreateParty();
-        m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<CreateGroupPartyRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<Party>(v_Party));
+        GroupParty v_Party = BoFactory.CreateGroupParty();
+        m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<CreateGroupPartyRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<GroupParty>(v_Party));
         
         // Act
-        IActionResult v_Result = await m_Controller.CreatePartyAsync(new GenericEntityPresenter<Party>(), CancellationToken.None);
+        IActionResult v_Result = await m_Controller.CreatePartyAsync(new GenericEntityPresenter<GroupParty>(), CancellationToken.None);
 
         // Assert
         v_Result.Should().BeOfType<JsonContentResult>();
@@ -48,11 +48,11 @@ public class GroupControllerTests
     {
         // Arrange
         CodeRequest v_Request = new(){ Code = "438212" };
-        Party v_Party = BoFactory.CreateParty();
-        m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<JoinGroupPartyRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<Party>(v_Party));
+        GroupParty v_Party = BoFactory.CreateGroupParty();
+        m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<JoinGroupPartyRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<GroupParty>(v_Party));
         
         // Act
-        IActionResult v_Result = await m_Controller.JoinPartyAsync(v_Request, new GenericEntityPresenter<Party>(), CancellationToken.None);
+        IActionResult v_Result = await m_Controller.JoinPartyAsync(v_Request, new GenericEntityPresenter<GroupParty>(), CancellationToken.None);
 
         // Assert
         v_Result.Should().BeOfType<JsonContentResult>();
@@ -64,7 +64,6 @@ public class GroupControllerTests
     public async Task LeavePartyAsync_ReturnsOkObjectResult()
     {
         // Arrange
-        Party v_Party = BoFactory.CreateParty();
         m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<LeaveGroupPartyRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
         
         // Act

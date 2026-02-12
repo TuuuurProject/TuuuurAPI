@@ -4,6 +4,7 @@ using Tuuuur.Core.Requests.Group;
 using Tuuuur.Core.Responses;
 using Tuuuur.Core.UseCases.Group;
 using Tuuuur.Domain.Bo;
+using Tuuuur.Domain.Configuration;
 using Tuuuur.Domain.Interfaces;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Notifications;
@@ -17,7 +18,7 @@ public class LeaveGroupUseCaseTests
     private readonly MockRepository m_MockRepository;
     private readonly Mock<IUnitOfWork> m_UnitOfWorkMock;
     private readonly Mock<IUserRoleService> m_UserRoleServiceMock;
-    private readonly Mock<INotificationsService> m_NotificationServiceMock;
+    private readonly Mock<IGroupNotificationService> m_GroupPartyNotificationServiceMock;
     private readonly Mock<ICacheService> m_CacheServiceMock;
 
     private readonly LeaveGroupUseCase m_UseCase;
@@ -26,46 +27,53 @@ public class LeaveGroupUseCaseTests
     {
         m_MockRepository = new MockRepository(MockBehavior.Strict);
         m_UnitOfWorkMock = m_MockRepository.Create<IUnitOfWork>();
-        Mock<ILogger<LeaveGroupUseCase>> v_LoggerMock = m_MockRepository.Create<ILogger<LeaveGroupUseCase>>();
+        
+        Mock<ILogger<LeaveGroupUseCase>> v_LoggerMock = new(); 
+        
         m_UserRoleServiceMock = m_MockRepository.Create<IUserRoleService>();
-        m_NotificationServiceMock = m_MockRepository.Create<INotificationsService>();
+        m_GroupPartyNotificationServiceMock = m_MockRepository.Create<IGroupNotificationService>();
         m_CacheServiceMock = m_MockRepository.Create<ICacheService>();
 
-        m_UseCase = new LeaveGroupUseCase(m_UnitOfWorkMock.Object, v_LoggerMock.Object, m_UserRoleServiceMock.Object,
-            m_NotificationServiceMock.Object, m_CacheServiceMock.Object);
+        m_UseCase = new LeaveGroupUseCase(
+            m_UnitOfWorkMock.Object, 
+            v_LoggerMock.Object, 
+            m_UserRoleServiceMock.Object,
+            m_GroupPartyNotificationServiceMock.Object, 
+            m_CacheServiceMock.Object
+        );
     }
 
     [Fact]
-    public async Task Handle_ExpectedAsync()
+    public async Task Handle_AsSimpleUser_ShouldLeaveGroup_ExpectedAsync()
     {
         // Arrange
         User v_User = BoFactory.CreateUser().Generate();
-        Party v_Party = BoFactory.CreateParty().Generate();
-        m_UserRoleServiceMock.Setup(p_U => p_U.GetCurrentUserEmail()).Returns(v_User.Email);
-        m_UnitOfWorkMock
-            .Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        
+        GroupParty v_Party = new()
+        {
+            Id = Guid.NewGuid(),
+            Code = "123456",
+            IdUserHost = v_User.Id + 1,
+            PartyUsers = []
+        };
+
+        m_UserRoleServiceMock.Setup(p_U => p_U.GetCurrentUserEmail())
+            .Returns(v_User.Email);
+        m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(v_User.Email, It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_User);
-        m_UnitOfWorkMock
-            .Setup(p_U => p_U.UserRepository.GetUserByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(v_User);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<Guid?>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(v_Party.Id);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<Guid>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(v_Party.Id);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<Party>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_Party.Code), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_Party);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetMembersAsync<int>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetMembersAsync<int>(RedisKeys.Party.Users(v_Party.Code), It.IsAny<CancellationToken>()))
             .ReturnsAsync([v_User.Id, v_User.Id + 1]);
-        m_CacheServiceMock
-            .Setup(p_Cs => p_Cs.SetRemoveAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<string>(RedisKeys.User.UserParty(v_User.Id), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(v_Party.Code);
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetRemoveAsync(RedisKeys.Party.Users(v_Party.Code), v_User.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.RemoveAsync(RedisKeys.User.UserParty(v_User.Id), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
-
-        m_NotificationServiceMock
-            .Setup(p_Ns => p_Ns.PushMessageAsync(It.IsAny<ClientType>(), It.IsAny<Notification>(), It.IsAny<string>()))
+        m_GroupPartyNotificationServiceMock
+            .Setup(p_Ns => p_Ns.NotifyPlayerLeftAsync(v_Party.Code, v_User))
             .Returns(Task.CompletedTask);
-
 
         LeaveGroupPartyRequest v_Request = new();
 
@@ -74,13 +82,9 @@ public class LeaveGroupUseCaseTests
 
         // Assert
         Assert.NotNull(v_Result);
-        Assert.True(v_Result.Success);
-
-        // Assert
-        m_UnitOfWorkMock.Verify(
-            p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(v_User.Email, It.IsAny<CancellationToken>()), Times.Once);
         v_Result.Success.Should().BeTrue();
         v_Result.Errors.Should().BeNull();
+
         m_MockRepository.VerifyAll();
     }
 }

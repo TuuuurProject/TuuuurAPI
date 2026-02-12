@@ -4,4 +4,4 @@ using Tuuuur.Domain.Bo;
 
 namespace Tuuuur.Core.Requests.Group;
 
-public record JoinGroupPartyRequest(string Code) : IRequest<GenericEntityResponse<Party>>;
+public record JoinGroupPartyRequest(string Code) : IRequest<GenericEntityResponse<GroupParty>>;

@@ -1,4 +1,5 @@
 ﻿using Asp.Versioning;
+using FluentValidation.Results;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Tuuuur.API.Presenters;
@@ -24,12 +25,11 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
     /// </summary>
     /// <returns></returns>
     [HttpPost("create")]
-    [MapToApiVersion("1")]
-    [ProducesResponseType(typeof(Guid),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PartyBase),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreatePartyAsync(
-        [FromServices] GenericEntityPresenter<Party> p_Presenter,
+        [FromServices] GenericEntityPresenter<GroupParty> p_Presenter,
         CancellationToken p_CancellationToken)
     {
         p_Presenter.Handle(await m_Mediator.Send(new CreateGroupPartyRequest(), p_CancellationToken));
@@ -42,13 +42,12 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
     /// </summary>
     /// <returns></returns>
     [HttpPost("join")]
-    [MapToApiVersion("1")]
-    [ProducesResponseType(typeof(Guid),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PartyBase),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> JoinPartyAsync(
         [FromBody] CodeRequest p_Request,
-        [FromServices] GenericEntityPresenter<Party> p_Presenter,
+        [FromServices] GenericEntityPresenter<GroupParty> p_Presenter,
         CancellationToken p_CancellationToken)
     {
         p_Presenter.Handle(await m_Mediator.Send(new JoinGroupPartyRequest(p_Request.Code), p_CancellationToken));
@@ -61,8 +60,7 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
     /// </summary>
     /// <returns></returns>
     [HttpPost("leave")]
-    [MapToApiVersion("1")]
-    [ProducesResponseType(typeof(Guid),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> LeavePartyAsync(
@@ -75,36 +73,20 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
     }
     
     /// <summary>
-    /// Start group party
+    /// Group settings
     /// </summary>
     /// <returns></returns>
-    [HttpPost("start")]
-    [MapToApiVersion("1")]
-    [ProducesResponseType(typeof(Guid),StatusCodes.Status200OK)]
+    [HttpPost("settings")]
+    [ProducesResponseType(typeof(PartyBase),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> StartPartyAsync(
-        [FromRoute] Guid p_GroupeId,
+    public async Task<IActionResult> UpdatePartySettingsAsync(
+        [FromBody] GroupSettingsRequest p_Request,
+        [FromServices] EmptyPresenter p_Presenter,
         CancellationToken p_CancellationToken)
     {
-        await Task.Delay(10, p_CancellationToken);
-        return Ok();
-    }
-    
-    /// <summary>
-    /// Submit answer for group party
-    /// </summary>
-    /// <returns></returns>
-    [HttpPost("answer")]
-    [MapToApiVersion("1")]
-    [ProducesResponseType(typeof(Guid),StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SubmitAnswerPartyAsync(
-        [FromRoute] Guid p_GroupeId,
-        CancellationToken p_CancellationToken)
-    {
-        await Task.Delay(5, p_CancellationToken);
-        return Ok();
+        p_Presenter.Handle(await m_Mediator.Send(new EditGroupSettingsRequest(p_Request.Themes, p_Request.Difficulties, p_Request.NbQuestions, p_Request.ScoreEachRound), p_CancellationToken));
+
+        return p_Presenter.ContentResult;
     }
 }

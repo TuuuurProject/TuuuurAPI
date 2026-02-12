@@ -14,9 +14,11 @@ internal class InfrastructureProfile : Profile
         CreateMap<UserAuthUat, UserAuth>()
             .ReverseMap()
             .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.Ignore());
-
-        CreateMap<ThemeThm, Theme>() .ReverseMap();
-        CreateMap<DifficultyDft, Difficulty>() .ReverseMap();
+        CreateMap<RefreshTokenRtk, RefreshToken>()
+            .ReverseMap()
+            .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.Ignore());
+        CreateMap<ThemeThm, Theme>().ReverseMap();
+        CreateMap<DifficultyDft, Difficulty>().ReverseMap();
         CreateMap<QuestionQst, Question>()
             .ForMember(p_Trg => p_Trg.Label, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Question))
             .ForMember(p_Trg => p_Trg.IdDifficulty, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdDifficulty))
@@ -26,26 +28,39 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.QuestionTheme, p_Opt => p_Opt.MapFrom(p_Src => p_Src.QuestionThemeQth))
             .ReverseMap();
 
-        CreateMap<PartyPty, Party>()
+        CreateMap<PartyPty, PartyBase>()
             .ForMember(p_Trg => p_Trg.Id, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Id))
             .ForMember(p_Trg => p_Trg.Dt, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Dt))
-            .ForMember(p_Trg => p_Trg.Code, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Code))
             .ForMember(p_Trg => p_Trg.IdPartyType, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdPartyType))
             .ForMember(p_Trg => p_Trg.PartyType, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdPartyTypeNavigation))
             .ForMember(p_Trg => p_Trg.IdUserHost, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserHost))
             .ForMember(p_Trg => p_Trg.Active, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Active))
             .ForMember(p_Trg => p_Trg.Finish, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Finish))
             .ForMember(p_Trg => p_Trg.PartyQuestions, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt))
-            .ForMember(p_Trg => p_Trg.PartyUsers, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyUserPus))
             .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserHostNavigation))
             .ForMember(p_Trg => p_Trg.PartyDifficulty, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyDifficultyPdf))
             .ForMember(p_Trg => p_Trg.PartyTheme, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyThemePth))
             .ForMember(p_Trg => p_Trg.Score, p_Opt => p_Opt.Ignore())
-            .ForMember(p_Trg => p_Trg.NbQuestions, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.Percent, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.Time, p_Opt => p_Opt.Ignore())
             .ReverseMap();
         
+        CreateMap<PartyPty, Party>()
+            .IncludeBase<PartyPty, PartyBase>()
+            .ForMember(p_Trg => p_Trg.PartyUsers, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyUserPus))
+            .ForMember(p_Trg => p_Trg.NbQuestions, p_Opt => p_Opt.Ignore())
+            .ForMember(p_Trg => p_Trg.InProgress, p_Opt => p_Opt.Ignore())
+            .ReverseMap();
+        
+        CreateMap<PartyPty, GroupParty>()
+            .IncludeBase<PartyPty, PartyBase>()
+            .ForMember(p_Trg => p_Trg.PartyUsers, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyUserPus))
+            .ForMember(p_Trg => p_Trg.NbQuestions, p_Opt => p_Opt.Ignore())
+            .ForMember(p_Trg => p_Trg.InProgress, p_Opt => p_Opt.Ignore())
+            .ForMember(p_Trg => p_Trg.Code, p_Opt => p_Opt.Ignore())
+            .ForMember(p_Trg => p_Trg.ScoreEachRound, p_Opt => p_Opt.Ignore())
+            .ReverseMap();
+
         CreateMap<PartyPty, History>()
             .ForMember(p_Trg => p_Trg.Id, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Id))
             .ForMember(p_Trg => p_Trg.Dt, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Dt))
@@ -73,7 +88,7 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.Question, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdQuestionNavigation))
             .ForMember(p_Trg => p_Trg.UserPartyQuestion, p_Opt => p_Opt.MapFrom(p_Src => p_Src.UserPartyQuestionUpq.FirstOrDefault()))
             .ReverseMap();
-        
+
         CreateMap<PartyUserPus, PartyUser>()
             .ForMember(p_Trg => p_Trg.Id, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Id))
             .ForMember(p_Trg => p_Trg.IdUser, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUser))
@@ -81,33 +96,35 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserNavigation))
             .ForMember(p_Trg => p_Trg.Party, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdPartyNavigation))
             .ReverseMap();
-        
-        
+
+
         CreateMap<AnswerAns, Answer>()
             .ForMember(p_Trg => p_Trg.Question, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdQuestionNavigation))
             .ForMember(p_Trg => p_Trg.IdQuestion, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdQuestion))
             .ReverseMap();
-        
+
         CreateMap<PartyTypePty, PartyType>()
             .ReverseMap();
-        
+
         CreateMap<UserPartyQuestionUpq, UserPartyQuestion>()
             .ForMember(p_Trg => p_Trg.PartyQuestion, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdPartyQuestionNavigation))
             .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserNavigation))
             .ForMember(p_Trg => p_Trg.Answer, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdAnswerNavigation))
             .ReverseMap();
-        
+
         CreateMap<QuestionThemeQth, QuestionTheme>()
             .ForMember(p_Trg => p_Trg.Question, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdQuestionNavigation))
             .ForMember(p_Trg => p_Trg.Theme, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdThemeNavigation))
             .ReverseMap();
-        
+
         CreateMap<PartyThemePth, PartyTheme>()
             .ForMember(p_Trg => p_Trg.Theme, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdThemeNavigation))
-            .ReverseMap();
-        
+            .ReverseMap()
+            .ForMember(p_Trg => p_Trg.IdThemeNavigation, p_Opt => p_Opt.Ignore());
+
         CreateMap<PartyDifficultyPdf, PartyDifficulty>()
             .ForMember(p_Trg => p_Trg.Difficulty, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdDifficultyNavigation))
-            .ReverseMap();
+            .ReverseMap()
+            .ForMember(p_Trg => p_Trg.IdDifficultyNavigation, p_Opt => p_Opt.Ignore());
     }
 }

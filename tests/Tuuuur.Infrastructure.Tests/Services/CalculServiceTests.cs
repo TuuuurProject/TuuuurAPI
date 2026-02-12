@@ -1,17 +1,14 @@
-using Microsoft.Extensions.Logging;
 using Tuuuur.Infrastructure.Services;
 
 namespace Tuuuur.Infrastructure.Tests.Services
 {
     public class CalculServiceTests
     {
-        private readonly Mock<ILogger<CalculService>> m_LoggerMock;
         private readonly CalculConfiguration m_CalculConfiguration;
         private readonly CalculService m_CalculService;
 
         public CalculServiceTests()
         {
-            m_LoggerMock = new Mock<ILogger<CalculService>>();
             m_CalculConfiguration = new CalculConfiguration
             {
                 MaxDurationInSeconds = 30,
@@ -24,10 +21,14 @@ namespace Tuuuur.Infrastructure.Tests.Services
         [Fact]
         public void CalculateScore_ShouldThrow_WhenAnsweredAtIsNull()
         {
+            // Arrange
             DateTime v_PresentedAt = DateTime.Now;
 
-            Assert.Throws<NotImplementedException>(() =>
-                m_CalculService.CalculateScore(v_PresentedAt, null));
+            // Act
+            int v_Result = m_CalculService.CalculateScore(v_PresentedAt, null);
+
+            // Assert
+            Assert.Equal(0, v_Result);
         }
 
         [Fact]

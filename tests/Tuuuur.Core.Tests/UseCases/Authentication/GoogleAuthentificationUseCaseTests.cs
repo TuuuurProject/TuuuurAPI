@@ -39,11 +39,11 @@ namespace Tuuuur.Core.Tests.UseCases.Authentication
             GoogleAuthentificationRequest v_Request = new(v_Email);
             User v_User = BoFactory.CreateUser();
             v_User.IsGoogleUser = true;
-            
+
             m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
 
             JwtTokenResponse v_JwtTokenResponse = new();
-            m_JwtFactoryMock.Setup(p_J => p_J.CreateToken(v_User)).Returns(v_JwtTokenResponse);
+            m_JwtFactoryMock.Setup(p_J => p_J.CreateTokenAsync(It.IsAny<User>(), It.IsAny<IUnitOfWork>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_JwtTokenResponse);
 
             // Act
             JwtAuthenticationResponse v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
@@ -52,7 +52,7 @@ namespace Tuuuur.Core.Tests.UseCases.Authentication
             Assert.NotNull(v_Result);
             Assert.True(v_Result.Success);
         }
-        
+
         [Fact]
         public async Task Handle_WhenUserNotExists_ShouldCreateUserAndReturnJwtTokenAsync()
         {
@@ -61,15 +61,19 @@ namespace Tuuuur.Core.Tests.UseCases.Authentication
             GoogleAuthentificationRequest v_Request = new(v_Email);
             User v_User = BoFactory.CreateUser();
             v_User.IsGoogleUser = true;
-            
+
             m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((User)null);
-            
+
             m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.CreateUserAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
                 .Verifiable();
 
+            m_UnitOfWorkMock.Setup(p_U => p_U.Save())
+                .Returns(1)
+                .Verifiable();
+
             JwtTokenResponse v_JwtTokenResponse = new();
-            m_JwtFactoryMock.Setup(p_J => p_J.CreateToken(v_User)).Returns(v_JwtTokenResponse);
+            m_JwtFactoryMock.Setup(p_J => p_J.CreateTokenAsync(It.IsAny<User>(), It.IsAny<IUnitOfWork>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_JwtTokenResponse);
 
             // Act
             JwtAuthenticationResponse v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
@@ -77,6 +81,8 @@ namespace Tuuuur.Core.Tests.UseCases.Authentication
             // Assert
             Assert.NotNull(v_Result);
             Assert.True(v_Result.Success);
+            m_UnitOfWorkMock.Verify(p_U => p_U.UserRepository.CreateUserAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
+            m_UnitOfWorkMock.Verify(p_U => p_U.Save(), Times.Once);
         }
     }
 }

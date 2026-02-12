@@ -39,7 +39,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     /// <returns></returns>
     [HttpGet]
     [MapToApiVersion("1")]
-    [ProducesResponseType(typeof(void),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public IActionResult Get()
     {
@@ -60,7 +60,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     [Authorize(Roles = RolesType.Admin)]
     [HttpGet("[action]")]
     [MapToApiVersion("1")]
-    [ProducesResponseType(typeof(void),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public IActionResult AdminOnly()
     {
@@ -69,7 +69,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
             if (!User.IsInRole(RolesType.Admin)) return Forbid();
 
             m_Logger.LogInformation("User is logged");
-            
+
             return Ok(new { User = User.Identity.Name, Claims = User.Claims.Select(p_C => new { p_C.Type, p_C.Value }) });
         }
 
@@ -88,7 +88,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     [AllowAnonymous]
     [HttpPost("login")]
     [MapToApiVersion("1")]
-    [ProducesResponseType(typeof(void),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> LoginAsync(
         [FromBody] AuthenticateApiRequest p_AuthenticateApiRequest,
@@ -121,7 +121,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     [AllowAnonymous]
     [HttpPost("register")]
     [MapToApiVersion("1")]
-    [ProducesResponseType(typeof(void),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> RegisterAsync(
         [FromBody] RegisterApiRequest p_RegisterApiRequest,
@@ -142,8 +142,8 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
 
         return p_Presenter.ContentResult;
     }
-    
-    
+
+
     /// <summary>
     /// Validate account 2FA
     /// </summary>
@@ -171,7 +171,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
 
         return p_Presenter.ContentResult;
     }
-    
+
     /// <summary>
     /// Forgot password
     /// </summary>
@@ -198,7 +198,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
 
         return p_Presenter.ContentResult;
     }
-    
+
     /// <summary>
     /// Reset password
     /// </summary>
@@ -224,10 +224,31 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
 
         p_Presenter.Handle(
             await m_Mediator.Send(
-                new ResetPasswordRequest(p_ApiRequest.Login, p_ApiRequest.Password, p_ApiRequest.Code), 
+                new ResetPasswordRequest(p_ApiRequest.Login, p_ApiRequest.Password, p_ApiRequest.Code),
                 p_CancellationToken)
             );
 
+        return p_Presenter.ContentResult;
+    }
+
+    /// <summary>
+    /// Refresh access token using refresh token
+    /// </summary>
+    /// <param name="p_Request"></param>
+    /// <param name="p_Presenter"></param>
+    /// <param name="p_CancellationToken"></param>
+    /// <returns></returns>
+    [AllowAnonymous]
+    [HttpPost("refresh")]
+    [MapToApiVersion("1")]
+    [ProducesResponseType(typeof(UserToken), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> RefreshTokenAsync(
+        [FromBody] RefreshTokenApiRequest p_Request,
+        [FromServices] JwtAuthenticationPresenter p_Presenter,
+        CancellationToken p_CancellationToken = default)
+    {
+        p_Presenter.Handle(await m_Mediator.Send(new RefreshTokenRequest(p_Request.Bearer, p_Request.RefreshToken), p_CancellationToken));
         return p_Presenter.ContentResult;
     }
 
@@ -242,7 +263,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     [AllowAnonymous]
     [ProducesResponseType(typeof(UserToken), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]    
+    [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     [HttpPost("google")]
     public async Task<IActionResult> GoogleAuthentificationAsync(
         [FromBody] TokenRequest p_Request,
@@ -261,7 +282,7 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
             );
 
             p_Presenter.Handle(await m_Mediator.Send(new GoogleAuthentificationRequest(v_Payload.Email), p_CancellationToken));
-            
+
             return p_Presenter.ContentResult;
         }
         catch (Exception v_Ex)

@@ -31,8 +31,8 @@ public class SoloController(ILogger<SoloController> p_Logger, IMediator p_Mediat
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateSoloPartyAsync(
-        [FromBody] CreateSoloPartyApiRequest p_ApiRequest,
-        [FromServices] CreateSoloPartyRequestValidator p_Validator,
+        [FromBody] SoloSettingsRequest p_ApiRequest,
+        [FromServices] SoloSettingsRequestValidator p_Validator,
         [FromServices] GuidPresenter p_Presenter,
         CancellationToken p_CancellationToken)
     {

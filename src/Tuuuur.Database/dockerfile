@@ -10,11 +10,11 @@ RUN dotnet build "Tuuuur.Database/Tuuuur.Database.sqlproj" -c Release
 
 RUN apt-get update && \
     apt-get install -y wget unzip && \
-    wget https://aka.ms/sqlpackage-linux -O sqlpackage.zip && \
+    wget --no-check-certificate https://aka.ms/sqlpackage-linux -O sqlpackage.zip && \
     unzip sqlpackage.zip -d /opt/sqlpackage && \
     chmod +x /opt/sqlpackage/sqlpackage && \
     rm sqlpackage.zip
 
 ENV PATH="$PATH:/opt/sqlpackage"
 
-CMD ["sh", "-c", "sqlpackage /Action:Publish /SourceFile:Tuuuur.Database/bin/Release/Tuuuur.Database.dacpac /TargetServerName:$DB_SERVER /TargetDatabaseName:$DB_NAME /TargetUser:$DB_USER /TargetPassword:$DB_PASSWORD /TargetEncryptConnection:False /TargetTrustServerCertificate:True /p:DropObjectsNotInSource=True /p:BlockOnPossibleDataLoss=False"]
+CMD ["sh", "-c", "sqlpackage /Action:Publish /SourceFile:Tuuuur.Database/bin/Release/Tuuuur.Database.dacpac /TargetServerName:$DB_SERVER /TargetDatabaseName:$DB_NAME /TargetUser:$DB_USER /TargetPassword:$DB_PASSWORD /TargetEncryptConnection:False /TargetTrustServerCertificate:True /p:DropObjectsNotInSource=False /p:BlockOnPossibleDataLoss=False /p:ExcludeObjectTypes=Users;Logins"]
