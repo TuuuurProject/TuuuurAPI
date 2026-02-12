@@ -85,3 +85,23 @@ jobs:
             ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/tuuuur/database:${{ inputs.image_tag }}-${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Save Git SHA to Secret Manager
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GIT_SHA: ${{ github.sha }}
+          ENV_TAG: ${{ inputs.image_tag }}
+        run: |
+          # Nom du secret basé sur l'environnement (preprod-git-sha ou prod-git-sha)
+          SECRET_NAME="tuuuur-api-${ENV_TAG}-git-sha"
+          
+          # Vérifie si le secret existe déjà
+          if gcloud secrets describe ${SECRET_NAME} --project=${GCP_PROJECT_ID} &>/dev/null; then
+            # Met à jour le secret existant
+            echo -n "${GIT_SHA}" | gcloud secrets versions add ${SECRET_NAME} --data-file=- --project=${GCP_PROJECT_ID}
+            echo "✅ Secret ${SECRET_NAME} mis à jour avec le SHA: ${GIT_SHA}"
+          else
+            # Crée le secret
+            echo -n "${GIT_SHA}" | gcloud secrets create ${SECRET_NAME} --data-file=- --project=${GCP_PROJECT_ID}
+            echo "✅ Secret ${SECRET_NAME} créé avec le SHA: ${GIT_SHA}"
+          fi
