@@ -82,9 +82,7 @@ internal class InfrastructureProfile : Profile
         CreateMap<PartyQuestionPqt, PartyQuestion>()
             .ForMember(p_Trg => p_Trg.Id, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Id))
             .ForMember(p_Trg => p_Trg.IdQuestion, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdQuestion))
-            .ForMember(p_Trg => p_Trg.IdParty, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdParty))
             .ForMember(p_Trg => p_Trg.Order, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Order))
-            .ForMember(p_Trg => p_Trg.Party, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.Question, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdQuestionNavigation))
             .ForMember(p_Trg => p_Trg.UserPartyQuestion, p_Opt => p_Opt.MapFrom(p_Src => p_Src.UserPartyQuestionUpq.FirstOrDefault()))
             .ReverseMap();
@@ -113,7 +111,6 @@ internal class InfrastructureProfile : Profile
             .ReverseMap();
 
         CreateMap<QuestionThemeQth, QuestionTheme>()
-            .ForMember(p_Trg => p_Trg.Question, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdQuestionNavigation))
             .ForMember(p_Trg => p_Trg.Theme, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdThemeNavigation))
             .ReverseMap();
 
