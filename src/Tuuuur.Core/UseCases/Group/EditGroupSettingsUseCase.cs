@@ -52,6 +52,16 @@ internal class EditGroupSettingsUseCase(
 
         await p_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
         
+        List<int> v_UserIds = await p_CacheService.SetMembersAsync<int>(
+            RedisKeys.Party.Users(v_Party.Code),
+            CancellationToken.None
+        );
+
+        // Get all users in a single database query to avoid DbContext concurrency issues
+        List<User> v_Users = await m_UnitOfWork.UserRepository.GetUsersByIdsAsync(v_UserIds, p_CancellationToken);
+
+        v_Party.PartyUsers.AddRange(v_Users.Select(p_P => new PartyUser { User = p_P }));
+        
         // Notify all players via WebSocket that party is updated
         await p_GroupNotificationService.NotifyPartyUpdatedAsync(
             v_Party.Code,

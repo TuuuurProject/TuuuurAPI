@@ -111,9 +111,7 @@ public static class BoFactory
     {
         return new Faker<QuestionTheme>()
             .RuleFor(p_Qt => p_Qt.Id, p_F => p_F.Random.Int(1, 10000))
-            .RuleFor(p_Qt => p_Qt.IdQuestion, p_QuestionId ?? new Faker().Random.Int(1, 1000))
             .RuleFor(p_Qt => p_Qt.IdTheme, p_ThemeId ?? new Faker().Random.Int(1, 100))
-            .RuleFor(p_Qt => p_Qt.Question, _ => null)
             .RuleFor(p_Qt => p_Qt.Theme, _ => null);
     }
 
@@ -122,9 +120,7 @@ public static class BoFactory
         return new Faker<PartyQuestion>()
             .RuleFor(p_Pq => p_Pq.Id, p_F => p_F.Random.Int(1, 10000))
             .RuleFor(p_Pq => p_Pq.IdQuestion, p_QuestionId ?? new Faker().Random.Int(1, 1000))
-            .RuleFor(p_Pq => p_Pq.IdParty, p_PartyId ?? Guid.NewGuid())
             .RuleFor(p_Pq => p_Pq.Order, p_F => p_F.Random.Int(0, 50))
-            .RuleFor(p_Pq => p_Pq.Party, _ => null)
             .RuleFor(p_Pq => p_Pq.Question, _ => null)
             .RuleFor(p_Pq => p_Pq.UserPartyQuestion, _ => null);
     }

@@ -62,7 +62,7 @@ internal class GetPartyUseCase(
             v_Party.PartyQuestions = v_Party.PartyQuestions.Where(p_P => p_P.UserPartyQuestion is not null).ToList();
             
             v_Party.PartyQuestions
-                .Where(p_Question => p_Question.UserPartyQuestion.IdAnswer == null)
+                .Where(p_Question => !p_Question.UserPartyQuestion.DtAnsweredAt.HasValue)
                 .ToList()
                 .ForEach(p_Question => 
                 {
