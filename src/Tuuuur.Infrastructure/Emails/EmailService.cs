@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Logging;
@@ -10,12 +11,12 @@ internal class EmailService(SmtpEmailConfiguration p_SmtpEmailConfiguration, ILo
     : IEmailService
 {
     public async Task SendAsync(
-        string p_Subject, 
-        string p_Content, 
-        IEnumerable<string> p_To, 
-        IEnumerable<string> p_Cc = null, 
-        IEnumerable<string> p_Bcc = null, 
-        IDictionary<string, string> p_InlineImages = null, 
+        string p_Subject,
+        string p_Content,
+        IEnumerable<string> p_To,
+        IEnumerable<string> p_Cc = null,
+        IEnumerable<string> p_Bcc = null,
+        IDictionary<string, string> p_InlineImages = null,
         CancellationToken p_CancellationToken = default)
     {
         MimeMessage v_Email = new();
@@ -30,7 +31,7 @@ internal class EmailService(SmtpEmailConfiguration p_SmtpEmailConfiguration, ILo
             v_Email.Bcc.AddRange(p_Bcc.Select(MailboxAddress.Parse));
 
         v_Email.Subject = p_Subject;
-        
+
         BodyBuilder v_BodyBuilder = new BodyBuilder
         {
             HtmlBody = p_Content
@@ -41,11 +42,39 @@ internal class EmailService(SmtpEmailConfiguration p_SmtpEmailConfiguration, ILo
             foreach (KeyValuePair<string, string> v_Kvp in p_InlineImages)
             {
                 string v_ContentId = v_Kvp.Key;
-                string v_FilePath = v_Kvp.Value;
+                string v_Value = v_Kvp.Value;
 
-                if (File.Exists(v_FilePath))
+                // Check if it's a base64 encoded image (data:image/png;base64,...)
+                if (v_Value.StartsWith("data:image/", StringComparison.OrdinalIgnoreCase))
                 {
-                    MimeEntity v_Resource = await v_BodyBuilder.LinkedResources.AddAsync(v_FilePath, p_CancellationToken);
+                    try
+                    {
+                        // Extract format and base64 content
+                        string[] v_Parts = v_Value.Split(",");
+                        if (v_Parts.Length == 2)
+                        {
+                            string v_Header = v_Parts[0];
+                            string v_Base64 = v_Parts[1];
+
+                            Match v_TypeMatch = Regex.Match(v_Header, @"image/(\w+)");
+                            string v_ImageType = v_TypeMatch.Success ? v_TypeMatch.Groups[1].Value : "png";
+
+                            byte[] v_ImageBytes = Convert.FromBase64String(v_Base64);
+                            using MemoryStream v_Stream = new MemoryStream(v_ImageBytes);
+
+                            MimeEntity v_Resource = await v_BodyBuilder.LinkedResources.AddAsync($"image.{v_ImageType}", v_Stream, p_CancellationToken);
+                            v_Resource.ContentId = v_ContentId;
+                        }
+                    }
+                    catch (Exception v_Ex)
+                    {
+                        p_Logger.LogWarning(v_Ex, "Failed to process base64 image for {ContentId}", v_ContentId);
+                    }
+                }
+                // Handle file paths
+                else if (File.Exists(v_Value))
+                {
+                    MimeEntity v_Resource = await v_BodyBuilder.LinkedResources.AddAsync(v_Value, p_CancellationToken);
                     v_Resource.ContentId = v_ContentId;
                 }
             }
