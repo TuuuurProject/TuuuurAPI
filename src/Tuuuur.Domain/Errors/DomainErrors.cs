@@ -146,6 +146,8 @@ public static class DomainErrors
         {
             private const string NicknamePrefix = UserPrefix + "nickname.";
             public const string Empty = NicknamePrefix + GeneralErrors.Empty;
+            public const string TooLong = NicknamePrefix + "too-long";
+            public const string Invalid = NicknamePrefix + GeneralErrors.Invalid;
         }
     }
 }

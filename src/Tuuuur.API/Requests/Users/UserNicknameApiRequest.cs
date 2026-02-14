@@ -25,8 +25,16 @@ public class UserNicknameApiRequestValidator : AbstractValidator<UserNicknameApi
     public UserNicknameApiRequestValidator()
     {
         RuleFor(p_Request => p_Request.Nickname)
-            .NotEmpty().NotNull()
+            .NotEmpty()
             .WithErrorCode(DomainErrors.User.Nickname.Empty)
-            .WithMessage("Nickname cannot be empty.");
+            .WithMessage("Nickname cannot be empty.")
+            
+            .MaximumLength(50)
+            .WithErrorCode(DomainErrors.User.Nickname.TooLong)
+            .WithMessage("Nickname must not exceed 50 characters.")
+
+            .Matches("^[a-zA-Z0-9\\- ]+$")
+            .WithErrorCode(DomainErrors.User.Nickname.Invalid)
+            .WithMessage("Nickname must contain only letters, numbers, spaces, and hyphens.");
     }
 }
