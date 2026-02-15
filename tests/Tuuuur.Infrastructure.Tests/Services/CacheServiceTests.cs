@@ -13,10 +13,10 @@ public class CacheServiceTests
     public CacheServiceTests()
     {
         m_MockRepository = new MockRepository(MockBehavior.Strict);
-        
+
         Mock<IConnectionMultiplexer> v_ConnectionMultiplexerMock = m_MockRepository.Create<IConnectionMultiplexer>();
         m_DatabaseMock = m_MockRepository.Create<IDatabase>();
-        
+
         v_ConnectionMultiplexerMock
             .Setup(p_Cm => p_Cm.GetDatabase(It.IsAny<int>(), It.IsAny<object>()))
             .Returns(m_DatabaseMock.Object);
@@ -43,12 +43,12 @@ public class CacheServiceTests
         const string v_Key = "test:key";
         TestObject v_Data = new TestObject(1, "Test");
         string v_Json = JsonSerializer.Serialize(v_Data);
-        
+
         m_DatabaseMock
             .Setup(p_Db => p_Db.StringSetAsync(
-                v_Key, 
-                v_Json, 
-                default,
+                v_Key,
+                v_Json,
+                TimeSpan.FromHours(24),
                 default(ValueCondition),
                 CommandFlags.None
             ))
@@ -69,11 +69,11 @@ public class CacheServiceTests
         TestObject v_Data = new TestObject(1, "Test");
         string v_Json = JsonSerializer.Serialize(v_Data);
         TimeSpan v_Expiration = TimeSpan.FromMinutes(10);
-        
+
         m_DatabaseMock
             .Setup(p_Db => p_Db.StringSetAsync(
-                v_Key, 
-                v_Json, 
+                v_Key,
+                v_Json,
                 v_Expiration,
                 default(ValueCondition),
                 CommandFlags.None
@@ -94,7 +94,7 @@ public class CacheServiceTests
         const string v_Key = "test:key";
         TestObject v_ExpectedData = new TestObject(1, "Test");
         string v_Json = JsonSerializer.Serialize(v_ExpectedData);
-        
+
         m_DatabaseMock
             .Setup(p_Db => p_Db.StringGetAsync(v_Key, CommandFlags.None))
             .ReturnsAsync(v_Json);
@@ -154,9 +154,12 @@ public class CacheServiceTests
         m_DatabaseMock
             .Setup(p_Db => p_Db.HashSetAsync(v_MasterKey, v_FieldKey, v_Json, When.Always, CommandFlags.None))
             .ReturnsAsync(true);
+        m_DatabaseMock
+            .Setup(p_Db => p_Db.KeyExpireAsync(v_MasterKey, TimeSpan.FromHours(24), ExpireWhen.Always, CommandFlags.None))
+            .ReturnsAsync(true);
 
         // Act
-        await m_CacheService.HashSetAsync(v_MasterKey, v_FieldKey, v_Data, CancellationToken.None);
+        await m_CacheService.HashSetAsync(v_MasterKey, v_FieldKey, v_Data, default, CancellationToken.None);
 
         // Assert
         m_MockRepository.VerifyAll();
@@ -170,7 +173,7 @@ public class CacheServiceTests
         TestObject v_Obj1 = new TestObject(1, "A");
         TestObject v_Obj2 = new TestObject(2, "B");
 
-        HashEntry[] v_RedisEntries = 
+        HashEntry[] v_RedisEntries =
         [
             new HashEntry("key1", JsonSerializer.Serialize(v_Obj1)),
             new HashEntry("key2", JsonSerializer.Serialize(v_Obj2))
@@ -201,25 +204,28 @@ public class CacheServiceTests
         m_DatabaseMock
             .Setup(p_Db => p_Db.ListRightPushAsync(v_Key, v_Json, When.Always, CommandFlags.None))
             .ReturnsAsync(1);
+        m_DatabaseMock
+            .Setup(p_Db => p_Db.KeyExpireAsync(v_Key, TimeSpan.FromHours(24), ExpireWhen.Always, CommandFlags.None))
+            .ReturnsAsync(true);
 
         // Act
-        long v_Result = await m_CacheService.ListRightPushAsync(v_Key, v_Data, CancellationToken.None);
+        long v_Result = await m_CacheService.ListRightPushAsync(v_Key, v_Data, default, CancellationToken.None);
 
         // Assert
         v_Result.Should().Be(1);
         m_MockRepository.VerifyAll();
     }
-    
+
     [Fact]
     public async Task SetAsync_ShouldDoNothing_IfCancellationRequested()
     {
         // Arrange
         CancellationTokenSource v_CancellationTokenSource = new CancellationTokenSource();
         await v_CancellationTokenSource.CancelAsync();
-        
-        
+
+
         // Act
-        await m_CacheService.SetAsync("any", new TestObject(1, "A"), TimeSpan.Zero , v_CancellationTokenSource.Token);
+        await m_CacheService.SetAsync("any", new TestObject(1, "A"), TimeSpan.Zero, v_CancellationTokenSource.Token);
 
         // Assert
         m_MockRepository.VerifyAll();

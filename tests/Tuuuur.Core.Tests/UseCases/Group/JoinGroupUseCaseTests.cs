@@ -1,13 +1,10 @@
 using Microsoft.Extensions.Logging;
-using Tuuuur.Core.Requests;
 using Tuuuur.Core.Requests.Group;
 using Tuuuur.Core.Responses;
 using Tuuuur.Core.UseCases.Group;
-using Tuuuur.Domain;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Interfaces;
 using Tuuuur.Domain.Interfaces.Data;
-using Tuuuur.Domain.Interfaces.Data.Entities;
 using Tuuuur.Domain.Notifications;
 using Tuuuur.Domain.Security;
 using Tuuuur.Factory.Tests;
@@ -50,7 +47,7 @@ public class JoinGroupUseCaseTests
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<GroupParty>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party);
 
         m_CacheServiceMock.Setup(p_Cs => p_Cs.SetMembersAsync<int>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([v_User.Id, v_User.Id + 1]);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetAddAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetAddAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.SetAsync(It.IsAny<string>(), It.IsAny<string>(), TimeSpan.Zero, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         m_GroupPartyNotificationServiceMock.Setup(p_Ns => p_Ns.NotifyPlayerJoinedAsync(It.IsAny<string>(), It.IsAny<User>())).Returns(Task.CompletedTask);

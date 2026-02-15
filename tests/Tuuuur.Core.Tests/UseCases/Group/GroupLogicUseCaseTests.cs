@@ -6,7 +6,6 @@ using Tuuuur.Core.UseCases.Group;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Interfaces;
 using Tuuuur.Domain.Interfaces.Data;
-using Tuuuur.Domain.Interfaces.Data.Entities;
 using Tuuuur.Domain.Interfaces.Services;
 using Tuuuur.Domain.Notifications;
 using Tuuuur.Factory.Tests;
@@ -15,25 +14,23 @@ namespace Tuuuur.Core.Tests.UseCases.Group;
 
 public class GroupLogicUseCaseTests
 {
-    private readonly MockRepository m_MockRepository;
     private readonly Mock<IUnitOfWork> m_UnitOfWorkMock;
     private readonly Mock<ICacheService> m_CacheServiceMock;
     private readonly Mock<IGroupNotificationService> m_GroupNotificationServiceMock;
     private readonly Mock<ICalculService> m_CalculServiceMock;
     private readonly Mock<IMediator> m_MediatorMock;
-    private readonly Mock<ILogger<GroupLogicUseCase>> m_LoggerMock;
 
     private readonly GroupLogicUseCase m_UseCase;
 
     public GroupLogicUseCaseTests()
     {
-        m_MockRepository = new MockRepository(MockBehavior.Strict);
-        m_UnitOfWorkMock = m_MockRepository.Create<IUnitOfWork>();
-        m_CacheServiceMock = m_MockRepository.Create<ICacheService>();
-        m_GroupNotificationServiceMock = m_MockRepository.Create<IGroupNotificationService>();
-        m_CalculServiceMock = m_MockRepository.Create<ICalculService>();
-        m_MediatorMock = m_MockRepository.Create<IMediator>();
-        m_LoggerMock = m_MockRepository.Create<ILogger<GroupLogicUseCase>>();
+        MockRepository v_MockRepository = new(MockBehavior.Strict);
+        m_UnitOfWorkMock = v_MockRepository.Create<IUnitOfWork>();
+        m_CacheServiceMock = v_MockRepository.Create<ICacheService>();
+        m_GroupNotificationServiceMock = v_MockRepository.Create<IGroupNotificationService>();
+        m_CalculServiceMock = v_MockRepository.Create<ICalculService>();
+        m_MediatorMock = v_MockRepository.Create<IMediator>();
+        Mock<ILogger<GroupLogicUseCase>> v_LoggerMock = v_MockRepository.Create<ILogger<GroupLogicUseCase>>();
 
         m_UseCase = new GroupLogicUseCase(
             m_UnitOfWorkMock.Object,
@@ -41,7 +38,7 @@ public class GroupLogicUseCaseTests
             m_GroupNotificationServiceMock.Object,
             m_CalculServiceMock.Object,
             m_MediatorMock.Object,
-            m_LoggerMock.Object);
+            v_LoggerMock.Object);
     }
 
     [Fact]
@@ -102,7 +99,7 @@ public class GroupLogicUseCaseTests
                 DtAnsweredAt = DateTime.Now.AddSeconds(5)
             });
 
-        m_CacheServiceMock.Setup(p_C => p_C.SortedSetAddAsync(It.IsAny<string>(), It.IsAny<User>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_C => p_C.SortedSetAddAsync(It.IsAny<string>(), It.IsAny<User>(), It.IsAny<int>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
         m_GroupNotificationServiceMock.Setup(p_G => p_G.NotifyPartyQuestionAnswerSend(It.IsAny<int>(), It.IsAny<GroupQuestion>()))
