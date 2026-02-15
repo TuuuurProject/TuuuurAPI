@@ -62,7 +62,7 @@ public class CacheServiceTests
     }
 
     [Fact]
-    public async Task SetAsync_WithExpiration_ShouldCallStringSetAsyncWithTimeSpan()
+    public async Task SetAsync_WithExpiration_ShouldCallStringSetAsyncWithTimeSpanAsync()
     {
         // Arrange
         const string v_Key = "test:key";
@@ -88,7 +88,7 @@ public class CacheServiceTests
     }
 
     [Fact]
-    public async Task GetAsync_KeyExists_ShouldReturnDeserializedObject()
+    public async Task GetAsync_KeyExists_ShouldReturnDeserializedObjectAsync()
     {
         // Arrange
         const string v_Key = "test:key";
@@ -109,7 +109,7 @@ public class CacheServiceTests
     }
 
     [Fact]
-    public async Task GetAsync_KeyDoesNotExist_ShouldReturnNull()
+    public async Task GetAsync_KeyDoesNotExist_ShouldReturnNullAsync()
     {
         // Arrange
         const string v_Key = "test:missing";
@@ -126,7 +126,7 @@ public class CacheServiceTests
     }
 
     [Fact]
-    public async Task RemoveAsync_ShouldCallKeyDelete()
+    public async Task RemoveAsync_ShouldCallKeyDeleteAsync()
     {
         // Arrange
         const string v_Key = "test:key";
@@ -143,7 +143,7 @@ public class CacheServiceTests
     }
 
     [Fact]
-    public async Task HashSetAsync_ShouldSerializeAndCallHashSet()
+    public async Task HashSetAsync_ShouldSerializeAndCallHashSetAsync()
     {
         // Arrange
         const string v_MasterKey = "master";
@@ -159,14 +159,14 @@ public class CacheServiceTests
             .ReturnsAsync(true);
 
         // Act
-        await m_CacheService.HashSetAsync(v_MasterKey, v_FieldKey, v_Data, default, CancellationToken.None);
+        await m_CacheService.HashSetAsync(v_MasterKey, v_FieldKey, v_Data, TimeSpan.Zero, CancellationToken.None);
 
         // Assert
         m_MockRepository.VerifyAll();
     }
 
     [Fact]
-    public async Task HashGetAllAsync_ShouldReturnDictionary()
+    public async Task HashGetAllAsync_ShouldReturnDictionaryAsync()
     {
         // Arrange
         const string v_MasterKey = "master";
@@ -194,7 +194,7 @@ public class CacheServiceTests
 
 
     [Fact]
-    public async Task ListRightPushAsync_ShouldSerializeAndPush()
+    public async Task ListRightPushAsync_ShouldSerializeAndPushAsync()
     {
         // Arrange
         const string v_Key = "list:key";
@@ -217,7 +217,7 @@ public class CacheServiceTests
     }
 
     [Fact]
-    public async Task SetAsync_ShouldDoNothing_IfCancellationRequested()
+    public async Task SetAsync_ShouldDoNothing_IfCancellationRequestedAsync()
     {
         // Arrange
         CancellationTokenSource v_CancellationTokenSource = new CancellationTokenSource();

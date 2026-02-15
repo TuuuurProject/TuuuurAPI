@@ -56,7 +56,7 @@ internal class EmailService(SmtpEmailConfiguration p_SmtpEmailConfiguration, ILo
                             string v_Header = v_Parts[0];
                             string v_Base64 = v_Parts[1];
 
-                            Match v_TypeMatch = Regex.Match(v_Header, @"image/(\w+)");
+                            Match v_TypeMatch = Regex.Match(v_Header, @"image/(\w+)", RegexOptions.None, TimeSpan.FromMilliseconds(100));
                             string v_ImageType = v_TypeMatch.Success ? v_TypeMatch.Groups[1].Value : "png";
 
                             byte[] v_ImageBytes = Convert.FromBase64String(v_Base64);
