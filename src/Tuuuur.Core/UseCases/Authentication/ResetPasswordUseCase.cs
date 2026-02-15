@@ -34,6 +34,7 @@ internal class ResetPasswordUseCase(
         v_User.Password = v_HashResponse.Value;
         await m_UnitOfWork.UserRepository.UpdateUserAsync(v_User, p_CancellationToken);
         await m_UnitOfWork.UserAuthRepository.DeleteUserAuthAsync(v_UserAuth.Id, p_CancellationToken);
+        await m_UnitOfWork.UserRepository.DeleteUserNotRegisteredAsync(p_CancellationToken);
         _ = m_UnitOfWork.Save();
             
         return new EmptyResponse();

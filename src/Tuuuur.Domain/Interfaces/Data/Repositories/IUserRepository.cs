@@ -13,4 +13,5 @@ public interface IUserRepository : IGenericRepository
     Task DeleteUserAsync(int p_UserId, CancellationToken p_CancellationToken = default);
     Task<User> GetUserByIdAsync(int p_Id, CancellationToken p_CancellationToken = default);
     Task<List<User>> GetUsersByIdsAsync(List<int> p_Ids, CancellationToken p_CancellationToken = default);
+    Task DeleteUserNotRegisteredAsync(CancellationToken p_CancellationToken = default);
 }
