@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Tuuuur.API.Requests.Users;
 using Tuuuur.Domain.Errors;
 
 namespace Tuuuur.API.Requests.Authentification
@@ -39,10 +40,19 @@ namespace Tuuuur.API.Requests.Authentification
                 .Matches("[A-Z]+").WithErrorCode(DomainErrors.Authentication.Password.InvalidUppercase)
                 .Matches("[a-z]+").WithErrorCode(DomainErrors.Authentication.Password.InvalidLowercase)
                 .Matches("[0-9]+").WithErrorCode(DomainErrors.Authentication.Password.InvalidNumber);
+            
             RuleFor(p_Request => p_Request.NickName)
                 .NotEmpty()
-                .Matches("^[a-zA-Z0-9_-]+$")
-                .WithMessage(DomainErrors.Authentication.NickName.InvalidNickName);
+                .WithErrorCode(DomainErrors.User.Nickname.Empty)
+                .WithMessage("Nickname cannot be empty.")
+            
+                .MaximumLength(50)
+                .WithErrorCode(DomainErrors.User.Nickname.TooLong)
+                .WithMessage("Nickname must not exceed 50 characters.")
+
+                .Matches("^[a-zA-Z0-9\\- ]+$")
+                .WithErrorCode(DomainErrors.User.Nickname.Invalid)
+                .WithMessage("Nickname must contain only letters, numbers, spaces, and hyphens.");
         }
     }
 }
