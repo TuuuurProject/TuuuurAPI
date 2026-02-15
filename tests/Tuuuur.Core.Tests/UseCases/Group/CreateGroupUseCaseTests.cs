@@ -18,7 +18,7 @@ public class CreateGroupUseCaseTests
     private readonly Mock<ICacheService> m_CacheServiceMock;
 
     private readonly CreateGroupUseCase m_UseCase;
-    
+
     public CreateGroupUseCaseTests()
     {
         m_MockRepository = new MockRepository(MockBehavior.Strict);
@@ -28,19 +28,19 @@ public class CreateGroupUseCaseTests
         m_CacheServiceMock = m_MockRepository.Create<ICacheService>();
 
         m_UseCase = new CreateGroupUseCase(
-            m_UnitOfWorkMock.Object, 
-            v_LoggerMock.Object, 
-            m_UserRoleServiceMock.Object, 
+            m_UnitOfWorkMock.Object,
+            v_LoggerMock.Object,
+            m_UserRoleServiceMock.Object,
             m_CacheServiceMock.Object
         );
     }
-    
+
     [Fact]
     public async Task Handle_ExpectedAsync()
     {
         // Arrange
         User v_User = BoFactory.CreateUser().Generate();
-        
+
         m_UserRoleServiceMock.Setup(p_P => p_P.GetCurrentUserEmail())
             .Returns(v_User.Email);
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(v_User.Email, It.IsAny<CancellationToken>()))
@@ -49,7 +49,7 @@ public class CreateGroupUseCaseTests
             .ReturnsAsync(string.Empty);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<GroupParty>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((GroupParty)null);
-        
+
         m_CacheServiceMock.Setup(p_Cs => p_Cs.SetAsync(
                 It.IsAny<string>(),
                 It.IsAny<GroupParty>(),
@@ -58,19 +58,20 @@ public class CreateGroupUseCaseTests
             ))
             .Returns(Task.CompletedTask);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.SetAsync(
-                It.IsAny<string>(), 
-                It.IsAny<string>(), 
-                It.IsAny<TimeSpan>(), 
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<TimeSpan>(),
                 It.IsAny<CancellationToken>()
             ))
             .Returns(Task.CompletedTask);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.SetAddAsync(
-                It.IsAny<string>(), 
+                It.IsAny<string>(),
                 v_User.Id,
+                It.IsAny<TimeSpan>(),
                 It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(true);
-        
+
         CreateGroupPartyRequest v_Request = new();
 
         // Act

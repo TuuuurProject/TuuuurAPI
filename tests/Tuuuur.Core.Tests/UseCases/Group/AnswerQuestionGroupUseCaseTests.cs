@@ -17,7 +17,6 @@ public class AnswerQuestionGroupUseCaseTests
     private readonly Mock<IUnitOfWork> m_UnitOfWorkMock;
     private readonly Mock<ICacheService> m_CacheServiceMock;
     private readonly Mock<IGroupNotificationService> m_GroupNotificationServiceMock;
-    private readonly Mock<ILogger<AnswerQuestionGroupUseCase>> m_LoggerMock;
 
     private readonly AnswerQuestionGroupUseCase m_UseCase;
 
@@ -27,13 +26,13 @@ public class AnswerQuestionGroupUseCaseTests
         m_UnitOfWorkMock = m_MockRepository.Create<IUnitOfWork>();
         m_CacheServiceMock = m_MockRepository.Create<ICacheService>();
         m_GroupNotificationServiceMock = m_MockRepository.Create<IGroupNotificationService>();
-        m_LoggerMock = new Mock<ILogger<AnswerQuestionGroupUseCase>>();
+        Mock<ILogger<AnswerQuestionGroupUseCase>> v_LoggerMock = new();
 
         m_UseCase = new AnswerQuestionGroupUseCase(
             m_UnitOfWorkMock.Object,
             m_CacheServiceMock.Object,
             m_GroupNotificationServiceMock.Object,
-            m_LoggerMock.Object
+            v_LoggerMock.Object
         );
     }
 
@@ -224,8 +223,7 @@ public class AnswerQuestionGroupUseCaseTests
             .Returns(Task.CompletedTask);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.SetAddAsync(
                 It.IsAny<string>(),
-                v_User.Id,
-                It.IsAny<CancellationToken>()
+                v_User.Id, It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(true);
         m_CacheServiceMock.SetupSequence(p_Cs => p_Cs.SetLengthAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -301,6 +299,7 @@ public class AnswerQuestionGroupUseCaseTests
         m_CacheServiceMock.Setup(p_Cs => p_Cs.SetAddAsync(
                 It.IsAny<string>(),
                 v_User.Id,
+                It.IsAny<TimeSpan>(),
                 It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(true);

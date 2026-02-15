@@ -56,7 +56,7 @@ internal class StartGroupUseCase(
         {
             return new EmptyResponse([new ErrorDto(DomainErrors.Party.InvalidSettings, $"Party settings are invalid")]);
         }
-        
+
         IEnumerable<Question> v_Questions = await m_UnitOfWork.QuestionRepository
             .GetQuestionsByThemesIdsAndDifficultiesIdsAndNumberOfQuestionsAsync(v_Party.PartyTheme.Select(p_P => p_P.IdTheme),
                 v_Party.PartyDifficulty.Select(p_P => p_P.IdDifficulty), v_Party.NbQuestions, p_CancellationToken);
@@ -70,7 +70,7 @@ internal class StartGroupUseCase(
                 v_Enumerable[v_Index],
                 p_Score: v_Index, p_CancellationToken: p_CancellationToken);
         }
-        
+
         // Put the question index to 0
         await p_CacheService.SetAsync(
             RedisKeys.Party.CurrentQuestionIndex(v_Party.Code),
@@ -94,14 +94,15 @@ internal class StartGroupUseCase(
                 RedisKeys.Party.Scores(v_Party.Code),
                 p_User,
                 0,
+                TimeSpan.Zero,
                 p_CancellationToken
             );
         });
 
         await Task.WhenAll(v_InitScoreTasks);
-        
+
         v_Party.PartyUsers.AddRange(v_Users.Select(p_P => new PartyUser { User = p_P }));
-        
+
         // Notify all players via WebSocket that party is updated
         await p_GroupNotificationService.NotifyPartyStartedAsync(
             v_Party.Code,
