@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Requests.Authentication;
 using Tuuuur.Core.Requests.Tools;
 using Tuuuur.Core.Responses;
-using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Core.UseCases.Authentication;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Errors;
@@ -71,15 +70,16 @@ public class RegistrationUseCaseTests
 
         // Assert
         m_UnitOfWorkMock.Verify(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(v_User.Email, v_CancellationToken), Times.Once);
+        m_UnitOfWorkMock.Verify(p_Uow => p_Uow.UserRepository.DeleteUserNotRegisteredAsync(v_CancellationToken), Times.Once);
         m_MediatorMock.Verify(p_M => p_M.Send(It.IsAny<HashRequest>(), v_CancellationToken), Times.Once);
         m_UnitOfWorkMock.Verify(p_Uow => p_Uow.UserRepository.CreateUserAsync(v_User, v_CancellationToken), Times.Once);
-        m_UnitOfWorkMock.Verify(p_Uow => p_Uow.Save(), Times.Once);
+        m_UnitOfWorkMock.Verify(p_Uow => p_Uow.Save(), Times.Exactly(2));
         v_Result.Success.Should().BeTrue();
         v_Result.Errors.Should().BeNull();
     }
 
     [Fact]
-    public async void Handle_WhenUserEmailExists_ShouldThrowDuplicateNameExceptionAsync()
+    public async Task Handle_WhenUserEmailExists_ShouldThrowDuplicateNameExceptionAsync()
     {
         // Arrange
         CancellationToken v_CancellationToken = CancellationToken.None;
@@ -125,7 +125,7 @@ public class RegistrationUseCaseTests
     }
     
     [Fact]
-    public async void Handle_WhenUserNickNameExists_ShouldThrowDuplicateNameExceptionAsync()
+    public async Task Handle_WhenUserNickNameExists_ShouldThrowDuplicateNameExceptionAsync()
     {
         // Arrange
         CancellationToken v_CancellationToken = CancellationToken.None;

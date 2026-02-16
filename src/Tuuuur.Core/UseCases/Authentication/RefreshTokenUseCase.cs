@@ -1,4 +1,3 @@
-using MediatR;
 using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Requests.Authentication;
 using Tuuuur.Core.Responses;
@@ -7,7 +6,6 @@ using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Interfaces.Token;
-using Tuuuur.Domain.Security;
 using Tuuuur.Domain.Token;
 
 namespace Tuuuur.Core.UseCases.Authentication;

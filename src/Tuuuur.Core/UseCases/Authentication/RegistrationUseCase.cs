@@ -32,6 +32,8 @@ internal class RegistrationUseCase(
 {
     protected override async Task<EmptyResponse> HandleLogic(RegistrationRequest p_Request, CancellationToken p_CancellationToken)
     {
+        await m_UnitOfWork.UserRepository.DeleteUserNotRegisteredAsync(p_CancellationToken);
+        _ = m_UnitOfWork.Save();
         return await m_UnitOfWork.ExecutionStrategy(async () => await RegisterUserAsync(p_Request, p_CancellationToken));
     }
 

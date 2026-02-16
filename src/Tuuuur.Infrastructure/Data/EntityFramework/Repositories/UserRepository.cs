@@ -64,4 +64,17 @@ internal class UserRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<U
         List<UserUsr> v_Users = await FindBy(p_U => p_Ids.Contains(p_U.Id)).ToListAsync(p_CancellationToken);
         return Mapper.Map<List<User>>(v_Users);
     }
+    
+    /// <summary>
+    /// Function to delete IsNew users if their password is not set in time
+    /// </summary>
+    /// <param name="p_CancellationToken"></param>
+    public async Task DeleteUserNotRegisteredAsync(CancellationToken p_CancellationToken = default)
+    {
+        IEnumerable<UserUsr> v_Users = await FindBy(p_Usr => p_Usr.IsNew && p_Usr.UserAuthUat.Count == 0).ToListAsync(p_CancellationToken);
+        foreach (UserUsr v_User in v_Users)
+        {
+            await DeleteUserAsync(v_User.Id, p_CancellationToken);
+        }
+    }
 }
