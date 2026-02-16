@@ -107,7 +107,7 @@ internal class JwtFactory(JwtConfiguration p_JwtConfiguration) : IJwtFactory
                 }
             }
 
-            string v_UserIdClaim = v_Principal.FindFirst(JwtRegisteredClaimNames.Sid)?.Value;
+            string v_UserIdClaim = v_Principal.FindFirst(ClaimNames.Id)?.Value;
 
             if (string.IsNullOrWhiteSpace(v_UserIdClaim))
                 return null;
