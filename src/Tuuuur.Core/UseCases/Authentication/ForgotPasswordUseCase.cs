@@ -13,10 +13,10 @@ using Tuuuur.Domain.Interfaces.Emails;
 namespace Tuuuur.Core.UseCases.Authentication;
 
 internal class ForgotPasswordUseCase(
-    IUnitOfWork p_UnitOfWork, 
-    ILogger<ForgotPasswordUseCase> p_Logger, 
-    IMediator p_Mediator,     
-    IRenderingService p_RenderingService, 
+    IUnitOfWork p_UnitOfWork,
+    ILogger<ForgotPasswordUseCase> p_Logger,
+    IMediator p_Mediator,
+    IRenderingService p_RenderingService,
     IEmailService p_EmailService)
     : ADbUseCase<ForgotPasswordRequest, EmptyResponse>(p_Logger, p_UnitOfWork)
 {
@@ -26,29 +26,29 @@ internal class ForgotPasswordUseCase(
 
         if (v_User is null || v_User.IsNew || v_User.IsGoogleUser)
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {p_Request.Login}")]);
-            
-        GenericEntityResponse<UserAuth> v_UserAuth = await p_Mediator.Send(new GenerateOptRequest(v_User),  p_CancellationToken);
-        if(!v_UserAuth.Success) return new EmptyResponse(v_UserAuth.Errors);
-            
+
+        GenericEntityResponse<UserAuth> v_UserAuth = await p_Mediator.Send(new GenerateOptRequest(v_User), p_CancellationToken);
+        if (!v_UserAuth.Success) return new EmptyResponse(v_UserAuth.Errors);
+
         ForgotPasswordModel v_ModelToRender = new()
         {
             NickName = v_User.NickName,
             TwoFactorCode = v_UserAuth.Value.Code,
         };
-            
+
         Dictionary<string, string> v_InlineImages = new()
         {
-            { "LogoImage", Logo.GetFullPath() }
+            { "LogoImage", Logo.GetDataUri() }
         };
-            
+
         string v_Content = await p_RenderingService.RenderAsync(v_ModelToRender);
-            
+
         await p_EmailService.SendAsync(
             $"Tuuuur - Code de réinitialisation du mot de passe",
             v_Content,
             [v_User.Email],
             p_InlineImages: v_InlineImages,
-            p_CancellationToken: p_CancellationToken);            
+            p_CancellationToken: p_CancellationToken);
         return new EmptyResponse();
     }
 }

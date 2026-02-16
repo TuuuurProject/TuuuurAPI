@@ -23,10 +23,10 @@ namespace Tuuuur.Core.UseCases.Authentication;
 /// <param name="p_RenderingService"></param>
 /// <param name="p_EmailService"></param>
 internal class RegistrationUseCase(
-    IUnitOfWork p_UnitOfWork, 
-    ILogger<RegistrationUseCase> p_Logger, 
+    IUnitOfWork p_UnitOfWork,
+    ILogger<RegistrationUseCase> p_Logger,
     IMediator p_Mediator,
-    IRenderingService p_RenderingService, 
+    IRenderingService p_RenderingService,
     IEmailService p_EmailService)
     : ADbUseCase<RegistrationRequest, EmptyResponse>(p_Logger, p_UnitOfWork)
 {
@@ -37,12 +37,12 @@ internal class RegistrationUseCase(
 
     private async Task<EmptyResponse> RegisterUserAsync(RegistrationRequest p_Request, CancellationToken p_CancellationToken)
     {
-        try 
+        try
         {
             m_UnitOfWork.BeginTransaction();
             if (await m_UnitOfWork.UserRepository.GetUserByEmailAsync(p_Request.User.Email, p_CancellationToken) != null)
                 throw new DuplicateNameException("An user already exists with this email");
-            
+
             if (await m_UnitOfWork.UserRepository.GetUserByNickNameAsync(p_Request.User.NickName, p_CancellationToken) != null)
                 throw new DuplicateNameException("An user already exists with this nickname");
 
@@ -54,34 +54,34 @@ internal class RegistrationUseCase(
             p_Request.User.Password = v_HashResponse.Value;
             p_Request.User.IsNew = true;
             p_Request.User.IsGoogleUser = false;
-            
+
             IMappingAddEntity<User, IEntity> v_UserMap = await m_UnitOfWork.UserRepository.CreateUserAsync(p_Request.User, p_CancellationToken);
             m_UnitOfWork.Save();
 
-            GenericEntityResponse<UserAuth> v_UserAuth = await p_Mediator.Send(new GenerateOptRequest(v_UserMap.MapBoEntity),  p_CancellationToken);
-            if(!v_UserAuth.Success) return new EmptyResponse(v_UserAuth.Errors);
-            
+            GenericEntityResponse<UserAuth> v_UserAuth = await p_Mediator.Send(new GenerateOptRequest(v_UserMap.MapBoEntity), p_CancellationToken);
+            if (!v_UserAuth.Success) return new EmptyResponse(v_UserAuth.Errors);
+
             ConfirmAccountModel v_ModelToRender = new()
             {
                 NickName = p_Request.User.NickName,
                 TwoFactorCode = v_UserAuth.Value.Code,
             };
-			
+
             string v_Content = await p_RenderingService.RenderAsync(v_ModelToRender);
-            
+
             Dictionary<string, string> v_InlineImages = new()
             {
-                { "LogoImage", Logo.GetFullPath() }
+                { "LogoImage", Logo.GetDataUri() }
             };
-                
+
             await p_EmailService.SendAsync(
                 "Tuuuur - Confirmez votre e-mail",
                 v_Content,
                 [p_Request.User.Email],
                 p_InlineImages: v_InlineImages,
-                p_CancellationToken: p_CancellationToken);       
-            
-            
+                p_CancellationToken: p_CancellationToken);
+
+
             m_UnitOfWork.CommitTransaction();
             return new EmptyResponse();
         }
