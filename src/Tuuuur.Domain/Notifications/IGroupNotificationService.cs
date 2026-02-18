@@ -18,6 +18,14 @@ public interface IGroupNotificationService
     Task NotifyPlayerLeftAsync(string p_Code, User p_User);
 
     /// <summary>
+    /// Notify party members that player is expelled
+    /// </summary>
+    /// <param name="p_Code"></param>
+    /// <param name="p_User"></param>
+    /// <returns></returns>
+    Task NotifyPlayerExpelledAsync(string p_Code, User p_User);
+
+    /// <summary>
     /// Notify party members that the party was deleted
     /// </summary>
     /// <param name="p_Code"></param>

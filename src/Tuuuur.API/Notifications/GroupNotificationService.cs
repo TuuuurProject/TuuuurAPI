@@ -39,6 +39,16 @@ internal class GroupNotificationService(
             await p_HubContext.Clients.Users(v_UserIds).OnPlayerLeft(p_User);
         }
     }
+    
+    public async Task NotifyPlayerExpelledAsync(string p_Code, User p_User)
+    {
+        List<string> v_UserIds = await GetPartyUserIdsAsync(p_Code);
+        if (v_UserIds.Count != 0)
+        {
+            v_UserIds.Remove(p_User.Id.ToString());
+            await p_HubContext.Clients.Users(v_UserIds).OnPlayerExpelled(p_User);
+        }
+    }
 
     public async Task NotifyPartyDeletedAsync(string p_Code, User p_User)
     {
