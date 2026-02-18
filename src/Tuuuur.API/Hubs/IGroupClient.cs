@@ -69,6 +69,13 @@ public interface IGroupClient
     /// <summary>
     /// Notified when score is updated
     /// </summary>
+    /// <param name="p_UserAnswered"></param>
+    /// <returns></returns>
+    Task OnAllPlayerAnswered(IEnumerable<UserAnswered> p_UserAnswered);
+    
+    /// <summary>
+    /// Notified when score is updated
+    /// </summary>
     /// <param name="p_UserScores"></param>
     /// <returns></returns>
     Task OnScoreUpdate(IEnumerable<UserScore> p_UserScores);

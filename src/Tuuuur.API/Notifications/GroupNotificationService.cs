@@ -87,6 +87,15 @@ internal class GroupNotificationService(
         }
     }
 
+    public async Task NotifyAllPlayerAnswered(string p_Code, IEnumerable<UserAnswered> p_UserAnswered)
+    {
+        List<string> v_UserIds = await GetPartyUserIdsAsync(p_Code);
+        if (v_UserIds.Count != 0)
+        {
+            await p_HubContext.Clients.Users(v_UserIds).OnAllPlayerAnswered(p_UserAnswered);
+        }
+    }
+
     public async Task NotifyPartyScoresAsync(string p_Code, IEnumerable<UserScore> p_UserScores)
     {
         List<string> v_UserIds = await GetPartyUserIdsAsync(p_Code);

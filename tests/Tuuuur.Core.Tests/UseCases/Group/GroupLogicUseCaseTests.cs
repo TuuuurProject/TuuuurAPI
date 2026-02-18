@@ -83,6 +83,9 @@ public class GroupLogicUseCaseTests
 
         m_GroupNotificationServiceMock.Setup(p_G => p_G.NotifyPartyQuestionSend(It.IsAny<int>(), It.IsAny<GroupQuestion>()))
             .Returns(Task.CompletedTask);
+        
+        m_GroupNotificationServiceMock.Setup(p_G => p_G.NotifyAllPlayerAnswered(It.IsAny<string>(), It.IsAny<IEnumerable<UserAnswered>>()))
+            .Returns(Task.CompletedTask);
 
         m_CacheServiceMock.Setup(p_C => p_C.SortedSetGetAllWithScoresAsync<User>(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([(v_User, 0)]);

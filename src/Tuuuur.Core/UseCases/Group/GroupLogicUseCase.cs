@@ -107,6 +107,8 @@ internal class GroupLogicUseCase(
 
         v_Question = await m_UnitOfWork.QuestionRepository.GetQuestionByIdWithAnswerAsync(v_CurrentQuestion.Id, p_CancellationToken);
 
+        List<UserAnswered> v_UserAnswereds = [];
+
         // Update scores for all users in parallel
         IEnumerable<Task<UserScore>> v_UpdateScoreTasks = v_UserIds.Select(async p_UserId =>
         {
@@ -179,6 +181,8 @@ internal class GroupLogicUseCase(
                     p_UserId,
                     v_GroupQuestion
                 );
+                
+                v_UserAnswereds.Add(new UserAnswered(){ Correct = v_UserPartyQuestion.Correct ?? false , User = v_ExistingScore.User });
 
                 return new UserScore
                 {
@@ -192,11 +196,14 @@ internal class GroupLogicUseCase(
 
         // Update all scores in parallel, get results and order it
         UserScore[] v_AllScores = await Task.WhenAll(v_UpdateScoreTasks);
+        
+        await p_GroupNotificationService.NotifyAllPlayerAnswered(v_Party.Code, v_UserAnswereds);
+        
         List<UserScore> v_ScoresList = v_AllScores
             .Where(p_S => p_S != null)
             .OrderByDescending(p_S => p_S.Score)
             .ToList();
-
+        
         // Put time to let users see the correct answer
         await Task.Delay(TimeSpan.FromSeconds(5), p_CancellationToken);
 
