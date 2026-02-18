@@ -182,7 +182,7 @@ internal class GroupLogicUseCase(
                     v_GroupQuestion
                 );
                 
-                v_UserAnswereds.Add(new UserAnswered(){ RightAnswer = v_UserPartyQuestion.Correct ?? false , User = v_ExistingScore.User });
+                v_UserAnswereds.Add(new UserAnswered(){ Correct = v_UserPartyQuestion.Correct ?? false , User = v_ExistingScore.User });
 
                 return new UserScore
                 {
