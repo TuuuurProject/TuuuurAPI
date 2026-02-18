@@ -64,7 +64,7 @@ public interface IGroupNotificationService
     /// <param name="p_Code"></param>
     /// <param name="p_UserAnswered"></param>
     /// <returns></returns>
-    Task NotifyAllPlayerHaveAnswered(string p_Code, IEnumerable<UserAnswered> p_UserAnswered);
+    Task NotifyAllPlayerAnswered(string p_Code, IEnumerable<UserAnswered> p_UserAnswered);
     
     /// <summary>
     /// Notify user that another user answer the question

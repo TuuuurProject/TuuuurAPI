@@ -197,7 +197,7 @@ internal class GroupLogicUseCase(
         // Update all scores in parallel, get results and order it
         UserScore[] v_AllScores = await Task.WhenAll(v_UpdateScoreTasks);
         
-        await p_GroupNotificationService.NotifyAllPlayerHaveAnswered(v_Party.Code, v_UserAnswereds);
+        await p_GroupNotificationService.NotifyAllPlayerAnswered(v_Party.Code, v_UserAnswereds);
         
         List<UserScore> v_ScoresList = v_AllScores
             .Where(p_S => p_S != null)
