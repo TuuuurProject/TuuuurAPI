@@ -16,6 +16,11 @@ public interface IGroupClient
     /// Notified when a player leaves the party
     /// </summary>
     Task OnPlayerLeft(User p_User);
+    
+    /// <summary>
+    /// Notified when a player is expelled
+    /// </summary>
+    Task OnPlayerExpelled(User p_User);
 
     /// <summary>
     /// Notified when the party is deleted

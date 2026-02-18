@@ -74,4 +74,19 @@ public class GroupControllerTests
         ContentResult v_ContentResult = v_Result.As<ContentResult>();
         v_ContentResult.StatusCode.Should().Be(StatusCodes.Status200OK);
     }
+    
+    [Fact]
+    public async Task DeleteUserOnPartyAsync_ReturnsOkObjectResult()
+    {
+        // Arrange
+        m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<DeleteUserOnPartyRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
+        
+        // Act
+        IActionResult v_Result = await m_Controller.DeleteUserOnPartyAsync(1, new EmptyPresenter(), CancellationToken.None);
+
+        // Assert
+        v_Result.Should().BeOfType<JsonContentResult>();
+        ContentResult v_ContentResult = v_Result.As<ContentResult>();
+        v_ContentResult.StatusCode.Should().Be(StatusCodes.Status200OK);
+    }
 }

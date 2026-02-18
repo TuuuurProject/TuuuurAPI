@@ -89,4 +89,23 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
 
         return p_Presenter.ContentResult;
     }
+    
+    
+    /// <summary>
+    /// Remove user on party
+    /// </summary>
+    /// <returns></returns>
+    [HttpDelete("user/{p_UserId}")]
+    [ProducesResponseType(typeof(bool),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteUserOnPartyAsync(
+        [FromRoute] int p_UserId,
+        [FromServices] EmptyPresenter p_Presenter,
+        CancellationToken p_CancellationToken)
+    {
+        p_Presenter.Handle(await m_Mediator.Send(new DeleteUserOnPartyRequest(p_UserId), p_CancellationToken));
+
+        return p_Presenter.ContentResult;
+    }
 }
