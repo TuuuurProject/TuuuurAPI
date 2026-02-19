@@ -79,7 +79,7 @@ public class ExpelUserOnPartyUseCaseTests
             .Setup(p_Ns => p_Ns.NotifyPlayerExpelledAsync(It.IsAny<string>(), It.IsAny<User>()))
             .Returns(Task.CompletedTask);
 
-        DeleteUserOnPartyRequest v_Request = new(v_TargetUser.Id);
+        ExpelUserOnPartyRequest v_Request = new(v_TargetUser.Id);
 
         // Act
         EmptyResponse v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);

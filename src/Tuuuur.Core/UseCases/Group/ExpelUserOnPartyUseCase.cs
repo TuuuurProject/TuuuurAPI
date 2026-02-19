@@ -16,9 +16,9 @@ internal class ExpelUserOnPartyUseCase(IUnitOfWork p_UnitOfWork,
     IUserRoleService p_UserRoleService,
     IGroupNotificationService p_GroupNotificationService,
     ICacheService p_CacheService) :
-    ADbUseCase<DeleteUserOnPartyRequest, EmptyResponse>(p_Logger, p_UnitOfWork)
+    ADbUseCase<ExpelUserOnPartyRequest, EmptyResponse>(p_Logger, p_UnitOfWork)
 {
-    protected override async Task<EmptyResponse> HandleLogic(DeleteUserOnPartyRequest p_Request, CancellationToken p_CancellationToken)
+    protected override async Task<EmptyResponse> HandleLogic(ExpelUserOnPartyRequest p_Request, CancellationToken p_CancellationToken)
     {
         string v_UserEmail = p_UserRoleService.GetCurrentUserEmail();
         User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_UserEmail, p_CancellationToken);
