@@ -13,7 +13,7 @@ using Tuuuur.Factory.Tests;
 
 namespace Tuuuur.Core.Tests.UseCases.Group;
 
-public class DeleteUserOnPartyUseCaseTests
+public class ExpelUserOnPartyUseCaseTests
 {
     private readonly MockRepository m_MockRepository;
     private readonly Mock<IUnitOfWork> m_UnitOfWorkMock;
@@ -21,20 +21,20 @@ public class DeleteUserOnPartyUseCaseTests
     private readonly Mock<IGroupNotificationService> m_GroupPartyNotificationServiceMock;
     private readonly Mock<ICacheService> m_CacheServiceMock;
 
-    private readonly DeleteUserOnPartyUseCase m_UseCase;
+    private readonly ExpelUserOnPartyUseCase m_UseCase;
 
-    public DeleteUserOnPartyUseCaseTests()
+    public ExpelUserOnPartyUseCaseTests()
     {
         m_MockRepository = new MockRepository(MockBehavior.Strict);
         m_UnitOfWorkMock = m_MockRepository.Create<IUnitOfWork>();
         
-        Mock<ILogger<DeleteUserOnPartyUseCase>> v_LoggerMock = new(); 
+        Mock<ILogger<ExpelUserOnPartyUseCase>> v_LoggerMock = new(); 
         
         m_UserRoleServiceMock = m_MockRepository.Create<IUserRoleService>();
         m_GroupPartyNotificationServiceMock = m_MockRepository.Create<IGroupNotificationService>();
         m_CacheServiceMock = m_MockRepository.Create<ICacheService>();
 
-        m_UseCase = new DeleteUserOnPartyUseCase(
+        m_UseCase = new ExpelUserOnPartyUseCase(
             m_UnitOfWorkMock.Object, 
             v_LoggerMock.Object, 
             m_UserRoleServiceMock.Object,
@@ -79,7 +79,7 @@ public class DeleteUserOnPartyUseCaseTests
             .Setup(p_Ns => p_Ns.NotifyPlayerExpelledAsync(It.IsAny<string>(), It.IsAny<User>()))
             .Returns(Task.CompletedTask);
 
-        DeleteUserOnPartyRequest v_Request = new(v_TargetUser.Id);
+        ExpelUserOnPartyRequest v_Request = new(v_TargetUser.Id);
 
         // Act
         EmptyResponse v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
