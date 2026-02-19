@@ -11,8 +11,8 @@ using Tuuuur.Domain.Security;
 
 namespace Tuuuur.Core.UseCases.Group;
 
-internal class DeleteUserOnPartyUseCase(IUnitOfWork p_UnitOfWork,
-    ILogger<DeleteUserOnPartyUseCase> p_Logger,
+internal class ExpelUserOnPartyUseCase(IUnitOfWork p_UnitOfWork,
+    ILogger<ExpelUserOnPartyUseCase> p_Logger,
     IUserRoleService p_UserRoleService,
     IGroupNotificationService p_GroupNotificationService,
     ICacheService p_CacheService) :
