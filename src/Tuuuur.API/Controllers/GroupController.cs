@@ -20,6 +20,27 @@ namespace Tuuuur.API.Controllers;
 public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Mediator, ValidationPresenter p_ValidationPresenter)
     : BaseController(p_Logger, p_Mediator, p_ValidationPresenter)
 {
+    
+    /// <summary>
+    /// Fetch group party
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("{p_PartyId:guid}")]
+    [MapToApiVersion("1")]
+    [ProducesResponseType(typeof(Party),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetGroupPartyAsync(
+        [FromRoute] Guid p_PartyId,
+        [FromServices] GenericEntityPresenter<GroupParty> p_Presenter,
+        CancellationToken p_CancellationToken)
+    {
+        p_Presenter.Handle(await m_Mediator.Send(new GetGroupRequest(p_PartyId), p_CancellationToken));
+
+        return p_Presenter.ContentResult;
+    }
+    
+    
     /// <summary>
     /// Create group party
     /// </summary>

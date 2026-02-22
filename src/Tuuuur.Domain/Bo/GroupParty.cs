@@ -26,4 +26,6 @@ public record GroupParty : PartyBase
     /// Users list
     /// </summary>
     public virtual List<PartyUser> PartyUsers { get; set; } = [];
+    
+    public List<UserScore> UserScores { get; set; } = [];
 }

@@ -182,7 +182,7 @@ internal class GroupLogicUseCase(
                     v_GroupQuestion
                 );
                 
-                v_UserAnswereds.Add(new UserAnswered(){ Correct = v_UserPartyQuestion.Correct ?? false , User = v_ExistingScore.User });
+                v_UserAnswereds.Add(new UserAnswered(){ Correct = (bool)v_UserPartyQuestion.Correct , User = v_ExistingScore.User });
 
                 return new UserScore
                 {
@@ -246,6 +246,7 @@ internal class GroupLogicUseCase(
             v_Party.Finish = true;
 
             v_Party.PartyQuestions.AddRange(v_Questions.Select(p_P => new PartyQuestion { IdQuestion = p_P.Id }));
+            v_Party.PartyUsers.AddRange(v_UserIds.Select(p_P => new PartyUser() { IdUser = p_P }));
 
             IMappingAddEntity<PartyBase, IEntity> v_MappingAddEntity = await m_UnitOfWork.PartyRepository.CreatePartyAsync(v_Party, p_CancellationToken);
             m_UnitOfWork.Save();

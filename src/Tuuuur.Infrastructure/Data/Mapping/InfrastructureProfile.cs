@@ -36,30 +36,81 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.IdUserHost, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserHost))
             .ForMember(p_Trg => p_Trg.Active, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Active))
             .ForMember(p_Trg => p_Trg.Finish, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Finish))
-            .ForMember(p_Trg => p_Trg.PartyQuestions, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt))
             .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserHostNavigation))
             .ForMember(p_Trg => p_Trg.PartyDifficulty, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyDifficultyPdf))
             .ForMember(p_Trg => p_Trg.PartyTheme, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyThemePth))
+            .ForMember(p_Trg => p_Trg.PartyQuestions, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt))
             .ForMember(p_Trg => p_Trg.Score, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.Percent, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.Time, p_Opt => p_Opt.Ignore())
             .ReverseMap();
-        
+
         CreateMap<PartyPty, Party>()
             .IncludeBase<PartyPty, PartyBase>()
             .ForMember(p_Trg => p_Trg.PartyUsers, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyUserPus))
             .ForMember(p_Trg => p_Trg.NbQuestions, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.InProgress, p_Opt => p_Opt.Ignore())
             .ReverseMap();
-        
+
         CreateMap<PartyPty, GroupParty>()
             .IncludeBase<PartyPty, PartyBase>()
             .ForMember(p_Trg => p_Trg.PartyUsers, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyUserPus))
-            .ForMember(p_Trg => p_Trg.NbQuestions, p_Opt => p_Opt.Ignore())
+            .ForMember(p_Trg => p_Trg.NbQuestions, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.Count))
+            .ForMember(p_Trg => p_Trg.PartyUsers, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyUserPus))
+            .ForMember(p_Trg => p_Trg.UserScores, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.SelectMany(p_PartyQuestionPqt => p_PartyQuestionPqt.UserPartyQuestionUpq)))
             .ForMember(p_Trg => p_Trg.InProgress, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.Code, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.ScoreEachRound, p_Opt => p_Opt.Ignore())
+            .AfterMap((p_Src, p_Dest, p_Ctx) =>
+            {
+                if (p_Dest == null)
+                    return;
+                
+                if (p_Dest?.UserScores != null)
+                {
+                    p_Dest.UserScores = p_Dest.UserScores
+                        .Where(p_UserScore => p_UserScore?.User != null)
+                        .GroupBy(p_UserScore => p_UserScore.User.Id)
+                        .Select(p_Grouping => new UserScore
+                        {
+                            Score = p_Grouping.Sum(p_UserScore => p_UserScore.Score),
+                            User = p_Grouping.First().User
+                        })
+                        .OrderByDescending(p_UserScore => p_UserScore.Score)
+                        .ToList();
+                }
+
+                try
+                {
+                    bool v_HasUserId = p_Ctx.Items != null && p_Ctx.Items.ContainsKey($"{nameof(User)}.{nameof(User.Id)}");
+                    int? v_CtxItem = (int?)p_Ctx.Items?[$"{nameof(User)}.{nameof(User.Id)}"];
+
+                    if (!v_CtxItem.HasValue)
+                    {
+                        return;
+                    }
+
+                    foreach (PartyQuestionPqt v_PartyQuestionPqt in p_Src.PartyQuestionPqt)
+                    {
+                        if (v_HasUserId)
+                        {
+                            v_PartyQuestionPqt.UserPartyQuestionUpq = v_PartyQuestionPqt.UserPartyQuestionUpq.Where(p_P => p_P.IdUser == v_CtxItem).ToList();
+                        }
+                    }
+                
+                    p_Dest.PartyQuestions = p_Ctx.Mapper.Map<List<PartyQuestion>>(p_Src.PartyQuestionPqt);
+                }
+                catch (Exception v_Exception)
+                {
+                    // ignored
+                }
+            })
             .ReverseMap();
+
+        CreateMap<UserPartyQuestionUpq, UserScore>()
+            .ForMember(p_Trg => p_Trg.Score, p_Opt => p_Opt.MapFrom(p_P => p_P.Score))
+            .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.MapFrom(p_P => p_P.IdUserNavigation));
+
 
         CreateMap<PartyPty, History>()
             .ForMember(p_Trg => p_Trg.Id, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Id))

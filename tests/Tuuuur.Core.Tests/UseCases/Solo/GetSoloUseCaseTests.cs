@@ -1,32 +1,30 @@
 using Microsoft.Extensions.Logging;
-using Tuuuur.Core.Requests;
 using Tuuuur.Core.Requests.Parties;
 using Tuuuur.Core.Responses;
 using Tuuuur.Core.UseCases.Parties;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Bo.Enum;
 using Tuuuur.Domain.Interfaces.Data;
-using Tuuuur.Domain.Interfaces.Data.Entities;
 using Tuuuur.Domain.Security;
 using Tuuuur.Factory.Tests;
 
-namespace Tuuuur.Core.Tests.UseCases.Parties;
+namespace Tuuuur.Core.Tests.UseCases.Solo;
 
-public class GetPartyUseCaseTests
+public class GetSoloUseCaseTests
 {
     private readonly Mock<IUnitOfWork> m_UnitOfWorkMock;
-    private readonly Mock<ILogger<GetPartyUseCase>> m_LoggerMock;
+    private readonly Mock<ILogger<GetSoloUseCase>> m_LoggerMock;
     private readonly Mock<IUserRoleService> m_UserRoleService;
 
-    private readonly GetPartyUseCase m_UseCase;
+    private readonly GetSoloUseCase m_UseCase;
     
-    public GetPartyUseCaseTests()
+    public GetSoloUseCaseTests()
     {
         m_UnitOfWorkMock = new Mock<IUnitOfWork>();
-        m_LoggerMock = new Mock<ILogger<GetPartyUseCase>>();
+        m_LoggerMock = new Mock<ILogger<GetSoloUseCase>>();
         m_UserRoleService = new Mock<IUserRoleService>();
 
-        m_UseCase = new GetPartyUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_UserRoleService.Object);
+        m_UseCase = new GetSoloUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_UserRoleService.Object);
     }
     
     [Fact]
@@ -40,9 +38,9 @@ public class GetPartyUseCaseTests
         
         m_UserRoleService.Setup(p_P => p_P.GetCurrentUserEmail()).Returns(v_User.Email);
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
-        m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party);
+        m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.GetPartyByIdAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party);
         
-        GetSoloPartyStateRequest v_Request = new(Guid.Empty);
+        GetSoloRequest v_Request = new(Guid.Empty);
 
         // Act
         GenericEntityResponse<Party> v_Result = await m_UseCase.Handle(v_Request, CancellationToken.None);
