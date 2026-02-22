@@ -33,7 +33,7 @@ namespace Tuuuur.Core.UseCases.Parties
             }
 
             Party v_Party =
-                await m_UnitOfWork.PartyRepository.GetByIdAsync(p_Request.PartyId, v_User.Id, p_CancellationToken);
+                await m_UnitOfWork.PartyRepository.GetPartyByIdAsync(p_Request.PartyId, v_User.Id, p_CancellationToken);
             if (v_Party.Finish)
             {
                 throw new InvalidOperationException();
@@ -101,7 +101,7 @@ namespace Tuuuur.Core.UseCases.Parties
             await m_UnitOfWork.UserPartyQuestionRepository.UpdateAsync(v_UserPartyQuestion);
             _ = m_UnitOfWork.Save();
 
-            v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(p_Request.PartyId, v_User.Id,
+            v_Party = await m_UnitOfWork.PartyRepository.GetPartyByIdAsync(p_Request.PartyId, v_User.Id,
                 p_CancellationToken);
             v_Party.NbQuestions = v_Party.PartyQuestions.Count;
             v_Party.PartyQuestions = v_Party.PartyQuestions.Where(p_P => p_P.UserPartyQuestion is not null).ToList();

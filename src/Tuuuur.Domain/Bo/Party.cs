@@ -15,5 +15,7 @@ public record Party : PartyBase
     /// <summary>
     /// Users list
     /// </summary>
-    public virtual List<PartyUser> PartyUsers { get; set; } = [];
+    public List<PartyUser> PartyUsers { get; set; } = [];
+    
+    public List<UserScore> UserScores { get; set; } = [];
 }
