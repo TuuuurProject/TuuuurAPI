@@ -39,6 +39,7 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserHostNavigation))
             .ForMember(p_Trg => p_Trg.PartyDifficulty, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyDifficultyPdf))
             .ForMember(p_Trg => p_Trg.PartyTheme, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyThemePth))
+            .ForMember(p_Trg => p_Trg.PartyQuestions, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt))
             .ForMember(p_Trg => p_Trg.Score, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.Percent, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.Time, p_Opt => p_Opt.Ignore())
@@ -46,7 +47,6 @@ internal class InfrastructureProfile : Profile
 
         CreateMap<PartyPty, Party>()
             .IncludeBase<PartyPty, PartyBase>()
-            .ForMember(p_Trg => p_Trg.PartyQuestions, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt))
             .ForMember(p_Trg => p_Trg.PartyUsers, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyUserPus))
             .ForMember(p_Trg => p_Trg.NbQuestions, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.InProgress, p_Opt => p_Opt.Ignore())
@@ -80,23 +80,30 @@ internal class InfrastructureProfile : Profile
                         .ToList();
                 }
 
-                bool v_HasUserId = p_Ctx.Items != null && p_Ctx.Items.ContainsKey($"{nameof(User)}.{nameof(User.Id)}");
-                int? v_CtxItem = (int?)p_Ctx.Items?[$"{nameof(User)}.{nameof(User.Id)}"];
-
-                if (!v_CtxItem.HasValue)
+                try
                 {
-                    return;
-                }
+                    bool v_HasUserId = p_Ctx.Items != null && p_Ctx.Items.ContainsKey($"{nameof(User)}.{nameof(User.Id)}");
+                    int? v_CtxItem = (int?)p_Ctx.Items?[$"{nameof(User)}.{nameof(User.Id)}"];
 
-                foreach (PartyQuestionPqt v_PartyQuestionPqt in p_Src.PartyQuestionPqt)
-                {
-                    if (v_HasUserId)
+                    if (!v_CtxItem.HasValue)
                     {
-                        v_PartyQuestionPqt.UserPartyQuestionUpq = v_PartyQuestionPqt.UserPartyQuestionUpq.Where(p_P => p_P.IdUser == v_CtxItem).ToList();
+                        return;
                     }
-                }
+
+                    foreach (PartyQuestionPqt v_PartyQuestionPqt in p_Src.PartyQuestionPqt)
+                    {
+                        if (v_HasUserId)
+                        {
+                            v_PartyQuestionPqt.UserPartyQuestionUpq = v_PartyQuestionPqt.UserPartyQuestionUpq.Where(p_P => p_P.IdUser == v_CtxItem).ToList();
+                        }
+                    }
                 
-                p_Dest.PartyQuestions = p_Ctx.Mapper.Map<List<PartyQuestion>>(p_Src.PartyQuestionPqt);
+                    p_Dest.PartyQuestions = p_Ctx.Mapper.Map<List<PartyQuestion>>(p_Src.PartyQuestionPqt);
+                }
+                catch (Exception v_Exception)
+                {
+                    // ignored
+                }
             })
             .ReverseMap();
 

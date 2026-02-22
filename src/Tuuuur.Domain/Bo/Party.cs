@@ -16,6 +16,4 @@ public record Party : PartyBase
     /// Users list
     /// </summary>
     public List<PartyUser> PartyUsers { get; set; } = [];
-    
-    public List<UserScore> UserScores { get; set; } = [];
 }

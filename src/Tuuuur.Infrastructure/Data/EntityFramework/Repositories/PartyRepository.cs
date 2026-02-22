@@ -73,10 +73,10 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
     {
         int v_Skip = (p_Page - 1) * p_Size;
 
-        long v_TotalCount = await CountAsync(p_P => p_P.IdUserHost == p_UserId, p_CancellationToken);
+        long v_TotalCount = await CountAsync(p_P => p_P.PartyUserPus.Any(p_UserPus => p_UserPus.IdUser == p_UserId), p_CancellationToken);
 
         List<PartyPty> v_Parties = await FindBy(
-            p_Predicate => p_Predicate.PartyUserPus.All(p_UserPus => p_UserPus.IdUser == p_UserId),
+            p_Predicate => p_Predicate.PartyUserPus.Any(p_UserPus => p_UserPus.IdUser == p_UserId),
             p_Include: p_Includes => p_Includes
                 .Include(p_P => p_P.PartyThemePth)
                     .ThenInclude(p_P => p_P.IdThemeNavigation)

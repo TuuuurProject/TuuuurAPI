@@ -1,32 +1,30 @@
 using Microsoft.Extensions.Logging;
-using Tuuuur.Core.Requests;
 using Tuuuur.Core.Requests.Parties;
 using Tuuuur.Core.Responses;
 using Tuuuur.Core.UseCases.Parties;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Bo.Enum;
 using Tuuuur.Domain.Interfaces.Data;
-using Tuuuur.Domain.Interfaces.Data.Entities;
 using Tuuuur.Domain.Security;
 using Tuuuur.Factory.Tests;
 
-namespace Tuuuur.Core.Tests.UseCases.Parties;
+namespace Tuuuur.Core.Tests.UseCases.Solo;
 
 public class GetSoloUseCaseTests
 {
     private readonly Mock<IUnitOfWork> m_UnitOfWorkMock;
-    private readonly Mock<ILogger<GetPartyUseCase>> m_LoggerMock;
+    private readonly Mock<ILogger<GetSoloUseCase>> m_LoggerMock;
     private readonly Mock<IUserRoleService> m_UserRoleService;
 
-    private readonly GetPartyUseCase m_UseCase;
+    private readonly GetSoloUseCase m_UseCase;
     
     public GetSoloUseCaseTests()
     {
         m_UnitOfWorkMock = new Mock<IUnitOfWork>();
-        m_LoggerMock = new Mock<ILogger<GetPartyUseCase>>();
+        m_LoggerMock = new Mock<ILogger<GetSoloUseCase>>();
         m_UserRoleService = new Mock<IUserRoleService>();
 
-        m_UseCase = new GetPartyUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_UserRoleService.Object);
+        m_UseCase = new GetSoloUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_UserRoleService.Object);
     }
     
     [Fact]
