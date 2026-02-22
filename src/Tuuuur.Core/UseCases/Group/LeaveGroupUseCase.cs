@@ -36,7 +36,7 @@ internal class LeaveGroupUseCase(IUnitOfWork p_UnitOfWork,
 
         GroupParty v_Party = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_PartyCode), p_CancellationToken);
 
-        List<int> v_UserInParty = await p_CacheService.SetMembersAsync<int>(RedisKeys.Party.Users(v_Party.Code), p_CancellationToken: p_CancellationToken);
+        List<Guid> v_UserInParty = await p_CacheService.SetMembersAsync<Guid>(RedisKeys.Party.Users(v_Party.Code), p_CancellationToken: p_CancellationToken);
 
         // If user is not in the party
         if (v_PartyCode != v_Party.Code)
@@ -52,7 +52,7 @@ internal class LeaveGroupUseCase(IUnitOfWork p_UnitOfWork,
             );
 
             // Send notification to other users
-            foreach (int v_UserIdToNotif in v_UserInParty.Where(p_P => p_P != v_User.Id))
+            foreach (Guid v_UserIdToNotif in v_UserInParty.Where(p_P => p_P != v_User.Id))
             {
                 await p_CacheService.RemoveAsync(RedisKeys.User.UserParty(v_UserIdToNotif), p_CancellationToken: p_CancellationToken);
             }

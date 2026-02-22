@@ -342,6 +342,7 @@ public partial class BaseTuuuurContext : DbContext
 
             entity.HasIndex(e => e.NickName, "IX_UserNickName").IsUnique();
 
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.Avatar).IsUnicode(false);
             entity.Property(e => e.Email)
                 .IsRequired()

@@ -5,7 +5,7 @@ namespace Tuuuur.Infrastructure.Data.EntityFramework.Entities;
 
 public partial class UserUsr
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     public string NickName { get; set; }
 

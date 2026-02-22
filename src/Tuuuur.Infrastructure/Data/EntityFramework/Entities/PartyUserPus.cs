@@ -7,7 +7,7 @@ public partial class PartyUserPus
 {
     public int Id { get; set; }
 
-    public int IdUser { get; set; }
+    public Guid IdUser { get; set; }
 
     public Guid IdParty { get; set; }
 

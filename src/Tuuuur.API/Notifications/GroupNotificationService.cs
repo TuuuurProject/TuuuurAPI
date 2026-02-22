@@ -77,12 +77,12 @@ internal class GroupNotificationService(
         }
     }
 
-    public async Task NotifyPartyQuestionSend(int p_UserId, GroupQuestion p_Question)
+    public async Task NotifyPartyQuestionSend(Guid p_UserId, GroupQuestion p_Question)
     {
         await p_HubContext.Clients.User(p_UserId.ToString()).OnQuestionSend(p_Question);
     }
     
-    public async Task NotifyPartyQuestionAnswerSend(int p_UserId, GroupQuestion p_Question)
+    public async Task NotifyPartyQuestionAnswerSend(Guid p_UserId, GroupQuestion p_Question)
     {
         await p_HubContext.Clients.Users(p_UserId.ToString()).OnQuestionAnswerSend(p_Question);
     }
@@ -135,7 +135,7 @@ internal class GroupNotificationService(
     private async Task<List<string>> GetPartyUserIdsAsync(string p_Code)
     {
         // Get user IDs from Redis set
-        List<int> v_UserIds = await p_CacheService.SetMembersAsync<int>(
+        List<Guid> v_UserIds = await p_CacheService.SetMembersAsync<Guid>(
             RedisKeys.Party.Users(p_Code),
             CancellationToken.None
         );

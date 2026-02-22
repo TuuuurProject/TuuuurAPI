@@ -1,6 +1,6 @@
 CREATE TABLE [dbo].[Elo_ELO]
 (
-    [Id_User]   INT             NOT NULL,
+    [Id_User]   UNIQUEIDENTIFIER NOT NULL,
     [Id_Theme]  INT             NOT NULL,
     [Value]     INT             NOT NULL CONSTRAINT [DF_Elo_Value] DEFAULT (1000),
     CONSTRAINT [PK_ELO_ELO] PRIMARY KEY CLUSTERED ([Id_User], [Id_Theme]),

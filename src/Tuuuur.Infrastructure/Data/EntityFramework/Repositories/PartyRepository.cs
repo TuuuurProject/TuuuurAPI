@@ -21,13 +21,13 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
         return v_Mapping;
     }
 
-    public async Task<Party> GetPartyByIdAsync(Guid p_PartyId, int p_UserId, CancellationToken p_CancellationToken = default)
+    public async Task<Party> GetPartyByIdAsync(Guid p_PartyId, Guid p_UserId, CancellationToken p_CancellationToken = default)
     {
         PartyPty v_Entity = await FetchPartyByIdAsync(p_PartyId, p_CancellationToken);
         return Mapper.Map<Party>(v_Entity, p_Options => { p_Options.Items[$"{nameof(User)}.{nameof(User.Id)}"] = p_UserId; });
     }
 
-    public async Task<GroupParty> GetGroupByIdAsync(Guid p_PartyId, int p_UserId, CancellationToken p_CancellationToken = default)
+    public async Task<GroupParty> GetGroupByIdAsync(Guid p_PartyId, Guid p_UserId, CancellationToken p_CancellationToken = default)
     {
         PartyPty v_Entity = await FetchPartyByIdAsync(p_PartyId, p_CancellationToken);
         return Mapper.Map<GroupParty>(v_Entity, p_Options => { p_Options.Items[$"{nameof(User)}.{nameof(User.Id)}"] = p_UserId; });
@@ -66,7 +66,7 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
     }
 
     public async Task<HistoryPage> GetUserHistoryAsync(
-        int p_UserId,
+        Guid p_UserId,
         int p_Page,
         int p_Size,
         CancellationToken p_CancellationToken = default)

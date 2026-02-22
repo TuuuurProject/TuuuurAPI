@@ -4,7 +4,7 @@ namespace Tuuuur.Domain.Bo;
 
 public record User : IBOEntity
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     public string NickName { get; set; }
 

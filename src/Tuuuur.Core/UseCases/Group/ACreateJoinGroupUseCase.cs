@@ -6,17 +6,16 @@ using Tuuuur.Domain.Configuration;
 using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Interfaces;
 using Tuuuur.Domain.Interfaces.Data;
-using Tuuuur.Domain.Notifications;
 using Tuuuur.Domain.Security;
 
 namespace Tuuuur.Core.UseCases.Group;
 
 internal abstract class ACreateJoinGroupUseCase<TRequest>(
-    ILogger m_Logger,
-    IUnitOfWork m_UnitOfWork,
+    ILogger p_Logger,
+    IUnitOfWork p_UnitOfWork,
     IUserRoleService p_UserRoleService,
     ICacheService p_CacheService)
-    : ADbUseCase<TRequest, GenericEntityResponse<GroupParty>>(m_Logger, m_UnitOfWork)
+    : ADbUseCase<TRequest, GenericEntityResponse<GroupParty>>(p_Logger, p_UnitOfWork)
     where TRequest : IRequest<GenericEntityResponse<GroupParty>>
 {
     protected readonly ICacheService m_CacheService = p_CacheService;
@@ -35,8 +34,8 @@ internal abstract class ACreateJoinGroupUseCase<TRequest>(
         if (v_PartyCode != string.Empty)
         {
             GroupParty v_ExistingParty = await m_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_PartyCode), p_CancellationToken);
-            List<int> v_UserInExistingParty = await m_CacheService.SetMembersAsync<int>(RedisKeys.Party.Users(v_PartyCode), p_CancellationToken: p_CancellationToken);
-            foreach (int v_UserId in v_UserInExistingParty)
+            List<Guid> v_UserInExistingParty = await m_CacheService.SetMembersAsync<Guid>(RedisKeys.Party.Users(v_PartyCode), p_CancellationToken: p_CancellationToken);
+            foreach (Guid v_UserId in v_UserInExistingParty)
             {
                 v_ExistingParty.PartyUsers.Add(new PartyUser { User = await m_UnitOfWork.UserRepository.GetUserByIdAsync(v_UserId, p_CancellationToken), IdUser = v_UserId });
             }

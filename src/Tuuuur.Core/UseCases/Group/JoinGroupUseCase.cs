@@ -30,7 +30,7 @@ internal class JoinGroupUseCase(IUnitOfWork p_UnitOfWork,
         if (v_Party == null)
             return new GenericEntityResponse<GroupParty>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found, Key: {p_Request.Code}")]);
 
-        List<int> v_UserInParty = await m_CacheService.SetMembersAsync<int>(RedisKeys.Party.Users(v_Party.Code), p_CancellationToken: p_CancellationToken);
+        List<Guid> v_UserInParty = await m_CacheService.SetMembersAsync<Guid>(RedisKeys.Party.Users(v_Party.Code), p_CancellationToken: p_CancellationToken);
 
         await m_CacheService.SetAddAsync(RedisKeys.Party.Users(v_Party.Code), p_User.Id, p_CancellationToken: p_CancellationToken);
         await m_CacheService.SetAsync(RedisKeys.User.UserParty(p_User.Id), v_Party.Code, p_CancellationToken: p_CancellationToken);
@@ -40,7 +40,7 @@ internal class JoinGroupUseCase(IUnitOfWork p_UnitOfWork,
             p_User
         );
 
-        foreach (int v_UserIdToNotif in v_UserInParty)
+        foreach (Guid v_UserIdToNotif in v_UserInParty)
         {
             User v_UserToNotify = await m_UnitOfWork.UserRepository.GetUserByIdAsync(v_UserIdToNotif, p_CancellationToken);
             v_Party.PartyUsers.Add(new PartyUser { User = v_UserToNotify, IdUser = v_UserIdToNotif });

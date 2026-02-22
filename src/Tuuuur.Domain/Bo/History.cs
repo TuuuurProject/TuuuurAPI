@@ -7,5 +7,5 @@ public record History : PartyBase
     public int NbQuestions => PartyQuestions.Count;
 
     [JsonIgnore]
-    public override List<PartyQuestion> PartyQuestions { get; set; } = [];
+    public new List<PartyQuestion> PartyQuestions { get; set; } = [];
 }

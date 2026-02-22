@@ -121,7 +121,7 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ExpelUserOnPartyAsync(
-        [FromRoute] int p_UserId,
+        [FromRoute] Guid p_UserId,
         [FromServices] EmptyPresenter p_Presenter,
         CancellationToken p_CancellationToken)
     {

@@ -83,7 +83,7 @@ internal class InfrastructureProfile : Profile
                 try
                 {
                     bool v_HasUserId = p_Ctx.Items != null && p_Ctx.Items.ContainsKey($"{nameof(User)}.{nameof(User.Id)}");
-                    int? v_CtxItem = (int?)p_Ctx.Items?[$"{nameof(User)}.{nameof(User.Id)}"];
+                    Guid? v_CtxItem = (Guid?)p_Ctx.Items?[$"{nameof(User)}.{nameof(User.Id)}"];
 
                     if (!v_CtxItem.HasValue)
                     {

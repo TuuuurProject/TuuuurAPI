@@ -42,7 +42,7 @@ internal class ExpelUserOnPartyUseCase(IUnitOfWork p_UnitOfWork,
         if(v_Party.InProgress)
             return new EmptyResponse([new ErrorDto(DomainErrors.Party.InProgress, $"You can't delete an user when the party is in progress")]);
         
-        List<int> v_UserIds = await p_CacheService.SetMembersAsync<int>(
+        List<Guid> v_UserIds = await p_CacheService.SetMembersAsync<Guid>(
             RedisKeys.Party.Users(v_Party.Code),
             CancellationToken.None
         );

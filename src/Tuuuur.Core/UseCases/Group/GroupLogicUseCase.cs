@@ -46,7 +46,7 @@ internal class GroupLogicUseCase(
             await Task.Delay(1000, p_CancellationToken);
         }
 
-        List<int> v_UserIds = await p_CacheService.SetMembersAsync<int>(
+        List<Guid> v_UserIds = await p_CacheService.SetMembersAsync<Guid>(
             RedisKeys.Party.Users(v_Party.Code),
             CancellationToken.None
         );
@@ -255,7 +255,7 @@ internal class GroupLogicUseCase(
             {
                 foreach (PartyQuestion v_PartyQuestion in v_MappingAddEntity.MapBoEntity.PartyQuestions)
                 {
-                    foreach (int v_UserId in v_UserIds)
+                    foreach (Guid v_UserId in v_UserIds)
                     {
                         UserPartyQuestion v_UserPartyQuestion = await p_CacheService.GetAsync<UserPartyQuestion>(
                             RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Code, v_PartyQuestion.IdQuestion, v_UserId), p_CancellationToken);

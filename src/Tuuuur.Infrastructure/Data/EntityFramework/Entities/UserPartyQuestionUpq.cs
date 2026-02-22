@@ -9,7 +9,7 @@ public partial class UserPartyQuestionUpq
 
     public int IdPartyQuestion { get; set; }
 
-    public int IdUser { get; set; }
+    public Guid IdUser { get; set; }
 
     public DateTime DtPresentedAt { get; set; }
 

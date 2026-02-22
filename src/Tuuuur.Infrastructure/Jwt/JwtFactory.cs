@@ -68,7 +68,7 @@ internal class JwtFactory(JwtConfiguration p_JwtConfiguration) : IJwtFactory
         };
     }
 
-    public int? GetUserIdFromToken(string p_Token)
+    public Guid? GetUserIdFromToken(string p_Token)
     {
         if (string.IsNullOrWhiteSpace(p_Token))
             return null;
@@ -112,7 +112,7 @@ internal class JwtFactory(JwtConfiguration p_JwtConfiguration) : IJwtFactory
             if (string.IsNullOrWhiteSpace(v_UserIdClaim))
                 return null;
 
-            return int.TryParse(v_UserIdClaim, out int v_UserId) ? v_UserId : null;
+            return Guid.TryParse(v_UserIdClaim, out Guid v_UserId) ? v_UserId : null;
         }
         catch
         {

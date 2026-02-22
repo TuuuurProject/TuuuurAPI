@@ -79,7 +79,7 @@ internal class StartGroupUseCase(
         v_Party.InProgress = true;
         await p_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
 
-        List<int> v_UserIds = await p_CacheService.SetMembersAsync<int>(
+        List<Guid> v_UserIds = await p_CacheService.SetMembersAsync<Guid>(
             RedisKeys.Party.Users(v_Party.Code),
             CancellationToken.None
         );

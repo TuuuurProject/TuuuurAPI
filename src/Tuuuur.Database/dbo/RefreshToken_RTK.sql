@@ -1,6 +1,6 @@
 CREATE TABLE [dbo].[RefreshToken_RTK] (
     [Id]        INT              IDENTITY (1,1) NOT NULL,
-    [UserId]    INT              NOT NULL,
+    [UserId]    UNIQUEIDENTIFIER NOT NULL,
     [Token]     VARCHAR (500)    NOT NULL,
     [ExpiresAt] DATETIME2 (7)    NOT NULL,
     [CreatedAt] DATETIME2 (7)    CONSTRAINT [DF_RefreshToken_CreatedAt] DEFAULT (GETUTCDATE()) NOT NULL,
