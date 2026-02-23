@@ -57,7 +57,7 @@ public class DeleteUserUseCaseTests
             .ReturnsAsync(v_User);
 
         m_MockUnitOfWork
-            .Setup(p_Uow => p_Uow.UserRepository.DeleteUserAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())) 
+            .Setup(p_Uow => p_Uow.UserRepository.DeleteUserAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())) 
             .Returns(Task.CompletedTask);
         
         m_MockUnitOfWork

@@ -72,7 +72,7 @@ public class GroupLogicUseCaseTests
         m_GroupNotificationServiceMock.Setup(p_G => p_G.NotifyCountdownAsync(It.IsAny<string>(), It.IsAny<int>()))
             .Returns(Task.CompletedTask);
 
-        m_CacheServiceMock.Setup(p_C => p_C.SetMembersAsync<int>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_C => p_C.SetMembersAsync<Guid>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([v_User.Id]);
 
         m_CacheServiceMock.Setup(p_C => p_C.SetAsync(It.IsAny<string>(), It.IsAny<UserPartyQuestion>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
@@ -81,7 +81,7 @@ public class GroupLogicUseCaseTests
         m_CacheServiceMock.Setup(p_C => p_C.SubscribeAndWaitAsync<bool>(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        m_GroupNotificationServiceMock.Setup(p_G => p_G.NotifyPartyQuestionSend(It.IsAny<int>(), It.IsAny<GroupQuestion>()))
+        m_GroupNotificationServiceMock.Setup(p_G => p_G.NotifyPartyQuestionSend(It.IsAny<Guid>(), It.IsAny<GroupQuestion>()))
             .Returns(Task.CompletedTask);
         
         m_GroupNotificationServiceMock.Setup(p_G => p_G.NotifyAllPlayerAnswered(It.IsAny<string>(), It.IsAny<IEnumerable<UserAnswered>>()))
@@ -105,7 +105,7 @@ public class GroupLogicUseCaseTests
         m_CacheServiceMock.Setup(p_C => p_C.SortedSetAddAsync(It.IsAny<string>(), It.IsAny<User>(), It.IsAny<int>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        m_GroupNotificationServiceMock.Setup(p_G => p_G.NotifyPartyQuestionAnswerSend(It.IsAny<int>(), It.IsAny<GroupQuestion>()))
+        m_GroupNotificationServiceMock.Setup(p_G => p_G.NotifyPartyQuestionAnswerSend(It.IsAny<Guid>(), It.IsAny<GroupQuestion>()))
             .Returns(Task.CompletedTask);
 
         m_CacheServiceMock.Setup(p_C => p_C.SetAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))

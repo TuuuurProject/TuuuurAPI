@@ -82,7 +82,7 @@ public class UpdateUserNicknameUseCaseTests
 
         User v_User = BoFactory.CreateUser();
         User v_OtherUser = BoFactory.CreateUser();
-        v_OtherUser.Id = v_User.Id + 1;
+        v_OtherUser.Id = Guid.NewGuid();
         
         UpdateUserNicknameRequest v_Request = new("Nickname");
 

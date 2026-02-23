@@ -83,7 +83,7 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
                 .Include(p_P => p_P.PartyDifficultyPdf)
                     .ThenInclude(p_P => p_P.IdDifficultyNavigation)
                 .Include(p_P => p_P.PartyQuestionPqt)
-                    .ThenInclude(p_P => p_P.UserPartyQuestionUpq)
+                    .ThenInclude(p_P => p_P.UserPartyQuestionUpq.Where(p_UserPartyQuestionUpq => p_UserPartyQuestionUpq.IdUser == p_UserId))
                 .Include(p_P => p_P.PartyUserPus)
                 .Include(p_P => p_P.IdPartyTypeNavigation))
             .OrderByDescending(p_P => p_P.Dt)

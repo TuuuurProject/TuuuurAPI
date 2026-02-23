@@ -25,5 +25,5 @@ public abstract record PartyBase : IBOEntity
     public User User { get; set; }
     public List<PartyDifficulty> PartyDifficulty { get; set; } = [];
     public List<PartyTheme> PartyTheme { get; set; } = [];
-    public List<PartyQuestion> PartyQuestions { get; set; } = [];
+    public virtual List<PartyQuestion> PartyQuestions { get; set; } = [];
 }

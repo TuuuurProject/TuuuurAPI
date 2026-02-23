@@ -47,7 +47,7 @@ public class RedisKeysTests
     public void User_Party_ShouldReturnCorrectKey()
     {
         // Arrange
-        const int v_UserId = 42;
+        Guid v_UserId = Guid.NewGuid();
 
         // Act
         string v_Result = RedisKeys.User.UserParty(v_UserId);
@@ -84,25 +84,25 @@ public class RedisKeysTests
     public void User_Party_WithZeroUserId_ShouldReturnCorrectKey()
     {
         // Arrange
-        int v_UserId = 0;
+        Guid v_UserId = Guid.NewGuid();
 
         // Act
         string v_Result = RedisKeys.User.UserParty(v_UserId);
 
         // Assert
-        v_Result.Should().Be("User:0:Party");
+        v_Result.Should().Be($"User:{v_UserId}:Party");
     }
 
     [Fact]
     public void User_Party_WithNegativeUserId_ShouldReturnCorrectKey()
     {
         // Arrange
-        int v_UserId = -1;
+        Guid v_UserId = Guid.NewGuid();
 
         // Act
         string v_Result = RedisKeys.User.UserParty(v_UserId);
 
         // Assert
-        v_Result.Should().Be("User:-1:Party");
+        v_Result.Should().Be($"User:{v_UserId}:Party");
     }
 }

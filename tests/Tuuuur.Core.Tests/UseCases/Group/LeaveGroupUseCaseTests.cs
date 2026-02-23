@@ -53,7 +53,7 @@ public class LeaveGroupUseCaseTests
         {
             Id = Guid.NewGuid(),
             Code = "123456",
-            IdUserHost = v_User.Id + 1,
+            IdUserHost = Guid.NewGuid(),
             PartyUsers = []
         };
 
@@ -63,8 +63,8 @@ public class LeaveGroupUseCaseTests
             .ReturnsAsync(v_User);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_Party.Code), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_Party);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetMembersAsync<int>(RedisKeys.Party.Users(v_Party.Code), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([v_User.Id, v_User.Id + 1]);
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetMembersAsync<Guid>(RedisKeys.Party.Users(v_Party.Code), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([v_User.Id, Guid.NewGuid()]);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<string>(RedisKeys.User.UserParty(v_User.Id), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_Party.Code);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.SetRemoveAsync(RedisKeys.Party.Users(v_Party.Code), v_User.Id, It.IsAny<CancellationToken>()))

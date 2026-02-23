@@ -34,7 +34,7 @@ namespace Tuuuur.Infrastructure.Tests.Jwt
             // Arrange
             User v_User = new()
             {
-                Id = 1,
+                Id = Guid.NewGuid(),
                 NickName = "test",
                 Email = "test@example.com",
                 IsAdmin = true

@@ -72,7 +72,7 @@ public class UpdatePartyUseCaseTests
 
         
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
-        m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.GetPartyByIdAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party);
+        m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.GetPartyByIdAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party);
         m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.UpdateAsync(It.IsAny<Party>())).Returns(Task.CompletedTask);
         m_UnitOfWorkMock.Setup(p_U => p_U.UserPartyQuestionRepository.UpdateAsync(It.IsAny<UserPartyQuestion>())).Returns(Task.CompletedTask);
         

@@ -219,7 +219,7 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task ForgotPasswordAsync_WithValidRequest_ReturnsOkObjectResultAsync()
         {
             // Arrange
-            Tuuuur.API.Requests.LoginApiRequest v_LoginApiRequest = new()
+            LoginApiRequest v_LoginApiRequest = new()
             {
                 Login = "test@example.com",
             };
@@ -244,7 +244,7 @@ namespace Tuuuur.API.Tests.Controllers
                 Password = "MySuper_Passw0rd12",
                 Code = "657432"
             };
-            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<Tuuuur.Core.Requests.Authentication.ResetPasswordRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<ResetPasswordRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
 
             // Act
             IActionResult v_Result = await m_Controller.ResetPasswordAsync(v_ResetPasswordApiRequest, new ResetPasswordRequestValidator(), new EmptyPresenter());
@@ -265,7 +265,7 @@ namespace Tuuuur.API.Tests.Controllers
                 Password = "MySuper_Passw0rd12",
                 Code = "657432"
             };
-            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<Tuuuur.Core.Requests.Authentication.ResetPasswordRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<ResetPasswordRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
 
             // Act
             IActionResult v_Result = await m_Controller.ResetPasswordAsync(v_ResetPasswordApiRequest, new ResetPasswordRequestValidator(), new EmptyPresenter());
@@ -295,11 +295,11 @@ namespace Tuuuur.API.Tests.Controllers
                     ValidTo = DateTime.UtcNow.AddMinutes(15),
                     RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(90)
                 },
-                User = new User { Id = 1, Email = "test@test.com", NickName = "test" },
+                User = new User { Id = Guid.NewGuid(), Email = "test@test.com", NickName = "test" },
                 IsGoogleUser = false
             };
 
-            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<Tuuuur.Core.Requests.Authentication.RefreshTokenRequest>(), It.IsAny<CancellationToken>()))
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<RefreshTokenRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new JwtAuthenticationResponse(v_UserToken));
 
             // Act
@@ -322,7 +322,7 @@ namespace Tuuuur.API.Tests.Controllers
 
             JwtAuthenticationResponse v_ErrorResponse = new([new ErrorDto(DomainErrors.Authentication.RefreshToken.Invalid, "Invalid refresh token")]);
 
-            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<Tuuuur.Core.Requests.Authentication.RefreshTokenRequest>(), It.IsAny<CancellationToken>()))
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<RefreshTokenRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(v_ErrorResponse);
 
             // Act

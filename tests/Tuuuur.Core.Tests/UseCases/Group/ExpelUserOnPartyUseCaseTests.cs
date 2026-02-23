@@ -1,4 +1,3 @@
-
 using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Requests.Group;
 using Tuuuur.Core.Responses;
@@ -49,7 +48,7 @@ public class ExpelUserOnPartyUseCaseTests
         // Arrange
         User v_User = BoFactory.CreateUser().Generate();
         User v_TargetUser = BoFactory.CreateUser().Generate();
-        v_TargetUser.Id = 23;
+        v_TargetUser.Id = Guid.NewGuid();
         
         GroupParty v_Party = new()
         {
@@ -67,7 +66,7 @@ public class ExpelUserOnPartyUseCaseTests
             .ReturnsAsync(v_TargetUser);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_Party.Code), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_Party);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetMembersAsync<int>(RedisKeys.Party.Users(v_Party.Code), It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetMembersAsync<Guid>(RedisKeys.Party.Users(v_Party.Code), It.IsAny<CancellationToken>()))
             .ReturnsAsync([v_User.Id, v_TargetUser.Id]);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<string>(RedisKeys.User.UserParty(v_User.Id), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_Party.Code);
