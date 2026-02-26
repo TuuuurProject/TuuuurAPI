@@ -301,5 +301,43 @@ namespace Tuuuur.API.Tests.Controllers
             JsonContentResult v_JsonResult = (JsonContentResult)v_Result;
             v_JsonResult.StatusCode.Should().Be(401);
         }
+        
+        [Fact]
+        public async Task CreateInvitedUserAsync_WithValidRequest_ReturnsOkObjectResultAsync()
+        {
+            // Arrange
+            NickNameRequest v_Request = new()
+            {
+                NickName = "SuperTotoDu80"
+            };
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<CreateInvitedUserRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new JwtAuthenticationResponse(new UserToken()));
+
+            // Act
+            IActionResult v_Result = await m_Controller.CreateInvitedUserAsync(v_Request, new NickNameRequestValidator(), new JwtAuthenticationPresenter());
+
+            // Assert
+            v_Result.Should().BeOfType<JsonContentResult>();
+            JsonContentResult v_RequestResult = (JsonContentResult)v_Result;
+            v_RequestResult.StatusCode.Should().Be(200);
+        }
+        
+        [Fact]
+        public async Task CreateInvitedUserAsync_WithInvalidRequest_ReturnsErrorObjectResultAsync()
+        {
+            // Arrange
+            NickNameRequest v_Request = new()
+            {
+                NickName = "BaD!è&@#NiquName"
+            };
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<CreateInvitedUserRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new JwtAuthenticationResponse(new UserToken()));
+
+            // Act
+            IActionResult v_Result = await m_Controller.CreateInvitedUserAsync(v_Request, new NickNameRequestValidator(), new JwtAuthenticationPresenter());
+
+            // Assert
+            v_Result.Should().BeOfType<JsonContentResult>();
+            JsonContentResult v_RequestResult = (JsonContentResult)v_Result;
+            v_RequestResult.StatusCode.Should().Be(400);
+        }
     }
 }
