@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Infrastructure.Data.EntityFramework.Entities;
+using Tuuuur.Infrastructure.Data.Mapping.Converters;
 
 namespace Tuuuur.Infrastructure.Data.Mapping;
 
@@ -10,6 +11,7 @@ internal class InfrastructureProfile : Profile
     {
         CreateMap<UserUsr, User>()
             .ForMember(p_Trg => p_Trg.UserAuth, p_Opt => p_Opt.MapFrom(p_Src => p_Src.UserAuthUat))
+            .ForMember(p_Trg => p_Trg.IsInvitedUser, p_Opt => p_Opt.MapFrom(p_Src => false))
             .ReverseMap();
         CreateMap<UserAuthUat, UserAuth>()
             .ReverseMap()
@@ -110,9 +112,7 @@ internal class InfrastructureProfile : Profile
             })
             .ReverseMap();
 
-        CreateMap<UserPartyQuestionUpq, UserScore>()
-            .ForMember(p_Trg => p_Trg.Score, p_Opt => p_Opt.MapFrom(p_P => p_P.Score))
-            .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.MapFrom(p_P => p_P.IdUserNavigation));
+        CreateMap<UserPartyQuestionUpq, UserScore>().ConvertUsing<UserPartyQuestionToUserScoreConverter>();
 
         CreateMap<PartyQuestionPqt, PartyQuestion>()
             .ForMember(p_Trg => p_Trg.Id, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Id))
@@ -127,7 +127,6 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.IdUser, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUser))
             .ForMember(p_Trg => p_Trg.IdParty, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdParty))
             .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserNavigation))
-            .ForMember(p_Trg => p_Trg.Party, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdPartyNavigation))
             .ReverseMap();
 
 

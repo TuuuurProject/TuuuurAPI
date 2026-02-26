@@ -54,30 +54,6 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
     }
 
     /// <summary>
-    /// Display user info (Admin only)
-    /// </summary>
-    /// <returns></returns>
-    [Authorize(Roles = RolesType.Admin)]
-    [HttpGet("[action]")]
-    [MapToApiVersion("1")]
-    [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public IActionResult AdminOnly()
-    {
-        if (User.Identity?.IsAuthenticated ?? false)
-        {
-            if (!User.IsInRole(RolesType.Admin)) return Forbid();
-
-            m_Logger.LogInformation("User is logged");
-
-            return Ok(new { User = User.Identity.Name, Claims = User.Claims.Select(p_C => new { p_C.Type, p_C.Value }) });
-        }
-
-        m_Logger.LogInformation("User is not authorized");
-        return Unauthorized();
-    }
-
-    /// <summary>
     /// Login an existing user
     /// </summary>
     /// <param name="p_AuthenticateApiRequest"></param>
@@ -292,5 +268,37 @@ public class AuthController(ILogger<AuthController> p_Logger, IMediator p_Mediat
                 new(DomainErrors.Authentication.Invalid, v_Ex.Message)
             });
         }
+    }
+    
+    /// <summary>
+    /// Create invite JWT
+    /// </summary>
+    /// <param name="p_RegisterApiRequest"></param>
+    /// <param name="p_Validator"></param>
+    /// <param name="p_Presenter"></param>
+    /// <param name="p_CancellationToken"></param>
+    /// <returns></returns>
+    [AllowAnonymous]
+    [HttpPost("invited")]
+    [MapToApiVersion("1")]
+    [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> CreateInvitedUserAsync(
+        [FromBody] NickNameRequest p_RegisterApiRequest,
+        [FromServices] NickNameRequestValidator p_Validator,
+        [FromServices] JwtAuthenticationPresenter p_Presenter,
+        CancellationToken p_CancellationToken = default)
+    {
+        ValidationResult v_Result = await p_Validator.ValidateAsync(p_RegisterApiRequest, p_CancellationToken);
+
+        if (!v_Result.IsValid)
+        {
+            m_ValidationPresenter.Handle(v_Result);
+            return m_ValidationPresenter.ContentResult;
+        }
+        
+        p_Presenter.Handle(await m_Mediator.Send(new CreateInvitedUserRequest(p_RegisterApiRequest.NickName), p_CancellationToken));
+
+        return p_Presenter.ContentResult;
     }
 }

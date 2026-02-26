@@ -20,14 +20,9 @@ internal class LeaveGroupUseCase(IUnitOfWork p_UnitOfWork,
 {
     protected override async Task<EmptyResponse> HandleLogic(LeaveGroupPartyRequest p_Request, CancellationToken p_CancellationToken)
     {
-        string v_UserEmail = p_UserRoleService.GetCurrentUserEmail();
+        Guid v_UserId = p_UserRoleService.GetUserId();
 
-        User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_UserEmail, p_CancellationToken);
-
-        if (v_User == null)
-            return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
-
-        string v_PartyCode = await p_CacheService.GetAsync<string>(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken);
+        string v_PartyCode = await p_CacheService.GetAsync<string>(RedisKeys.User.UserParty(v_UserId), p_CancellationToken);
 
         if (v_PartyCode is null)
         {
@@ -36,15 +31,20 @@ internal class LeaveGroupUseCase(IUnitOfWork p_UnitOfWork,
 
         GroupParty v_Party = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_PartyCode), p_CancellationToken);
 
-        List<Guid> v_UserInParty = await p_CacheService.SetMembersAsync<Guid>(RedisKeys.Party.Users(v_Party.Code), p_CancellationToken: p_CancellationToken);
+        List<User> v_UserInParty = await p_CacheService.SetMembersAsync<User>(RedisKeys.Party.Users(v_Party.Code), p_CancellationToken: p_CancellationToken);
 
         // If user is not in the party
         if (v_PartyCode != v_Party.Code)
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found")]);
 
         // If the host user leave the party, destroy the party
-        if (v_Party.IdUserHost == v_User.Id)
+        if (v_Party.IdUserHost == v_UserId)
         {
+            User v_User = await m_UnitOfWork.UserRepository.GetUserByIdAsync(v_UserId, p_CancellationToken);
+
+            if (v_User == null)
+                return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserId}")]);
+            
             // Notify all players via WebSocket that host left (party destroyed)
             await p_GroupNotificationService.NotifyPartyDeletedAsync(
                 v_Party.Code,
@@ -52,9 +52,9 @@ internal class LeaveGroupUseCase(IUnitOfWork p_UnitOfWork,
             );
 
             // Send notification to other users
-            foreach (Guid v_UserIdToNotif in v_UserInParty.Where(p_P => p_P != v_User.Id))
+            foreach (User v_UserIdToNotif in v_UserInParty.Where(p_P => p_P.Id!= v_User.Id))
             {
-                await p_CacheService.RemoveAsync(RedisKeys.User.UserParty(v_UserIdToNotif), p_CancellationToken: p_CancellationToken);
+                await p_CacheService.RemoveAsync(RedisKeys.User.UserParty(v_UserIdToNotif.Id), p_CancellationToken: p_CancellationToken);
             }
 
             await p_CacheService.RemoveAsync(RedisKeys.Party.ByCode(v_Party.Code), p_CancellationToken: p_CancellationToken);
@@ -62,16 +62,17 @@ internal class LeaveGroupUseCase(IUnitOfWork p_UnitOfWork,
         }
         else
         {
+            User v_User = await p_CacheService.GetAsync<User>(RedisKeys.User.ById(v_UserId), p_CancellationToken);
             // Notify all players via WebSocket that a player left
             await p_GroupNotificationService.NotifyPlayerLeftAsync(
                 v_Party.Code,
                 v_User
             );
 
-            await p_CacheService.SetRemoveAsync(RedisKeys.Party.Users(v_Party.Code), v_User.Id, p_CancellationToken: p_CancellationToken);
+            await p_CacheService.SetRemoveAsync(RedisKeys.Party.Users(v_Party.Code), v_UserId, p_CancellationToken: p_CancellationToken);
         }
 
-        await p_CacheService.RemoveAsync(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken: p_CancellationToken);
+        await p_CacheService.RemoveAsync(RedisKeys.User.UserParty(v_UserId), p_CancellationToken: p_CancellationToken);
 
         return new EmptyResponse();
     }

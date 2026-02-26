@@ -6,7 +6,11 @@ public class UserPartyQuestion : IBOEntity
 
     public int IdPartyQuestion { get; set; }
 
-    public Guid IdUser { get; set; }
+    public Guid? IdUser { get; set; }
+    
+    public Guid? IdGuest { get; set; }
+
+    public string GuestNickname { get; set; }
 
     public DateTime DtPresentedAt { get; set; }
 

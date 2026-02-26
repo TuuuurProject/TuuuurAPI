@@ -1,10 +1,12 @@
 ﻿using Asp.Versioning;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tuuuur.API.Presenters;
 using Tuuuur.Core.Requests;
 using Tuuuur.Core.Responses;
 using Tuuuur.Domain.Bo;
+using Tuuuur.Domain.Security;
 
 namespace Tuuuur.API.Controllers;
 
@@ -27,6 +29,7 @@ public class DifficultyController(ILogger<DifficultyController> p_Logger, IMedia
     /// <returns></returns>
     [HttpGet]
     [MapToApiVersion("1")]
+    [Authorize(Roles = RolesType.User)]
     [ProducesResponseType(typeof(GenericEntityListResponse<Difficulty>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>),StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetDifficultiesListAsync(

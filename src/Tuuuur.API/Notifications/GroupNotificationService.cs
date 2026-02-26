@@ -135,12 +135,12 @@ internal class GroupNotificationService(
     private async Task<List<string>> GetPartyUserIdsAsync(string p_Code)
     {
         // Get user IDs from Redis set
-        List<Guid> v_UserIds = await p_CacheService.SetMembersAsync<Guid>(
+        List<User> v_UserIds = await p_CacheService.SetMembersAsync<User>(
             RedisKeys.Party.Users(p_Code),
             CancellationToken.None
         );
 
         // Convert to string array for SignalR
-        return v_UserIds.Select(p_Id => p_Id.ToString()).ToList();
+        return v_UserIds.Select(p_Id => p_Id.Id.ToString()).ToList();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tuuuur.API.Presenters;
 using Tuuuur.API.Requests;
@@ -7,6 +8,7 @@ using Tuuuur.Core.Requests;
 using Tuuuur.Core.Requests.Parties;
 using Tuuuur.Core.Responses;
 using Tuuuur.Domain.Bo;
+using Tuuuur.Domain.Security;
 using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace Tuuuur.API.Controllers;
@@ -27,6 +29,7 @@ public class SoloController(ILogger<SoloController> p_Logger, IMediator p_Mediat
     /// <returns></returns>
     [HttpPost()]
     [MapToApiVersion("1")]
+    [Authorize(Roles = RolesType.User)]
     [ProducesResponseType(typeof(Guid),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
@@ -55,6 +58,7 @@ public class SoloController(ILogger<SoloController> p_Logger, IMediator p_Mediat
     /// <returns></returns>
     [HttpGet("{p_PartyId:guid}")]
     [MapToApiVersion("1")]
+    [Authorize(Roles = RolesType.User)]
     [ProducesResponseType(typeof(Party),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
@@ -78,6 +82,7 @@ public class SoloController(ILogger<SoloController> p_Logger, IMediator p_Mediat
     /// <returns></returns>
     [HttpPost("{p_PartyId:guid}")]
     [MapToApiVersion("1")]
+    [Authorize(Roles = RolesType.User)]
     [ProducesResponseType(typeof(Party),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]

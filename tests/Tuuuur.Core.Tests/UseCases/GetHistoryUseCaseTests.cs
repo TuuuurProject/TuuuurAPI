@@ -32,7 +32,7 @@ public class GetHistoryUseCaseTests
         // Arrange
         User v_User = BoFactory.CreateUser().Generate();
         
-        m_UserRoleService.Setup(p_P => p_P.GetCurrentUserEmail()).Returns(v_User.Email);
+        m_UserRoleService.Setup(p_P => p_P.GetEmail()).Returns(v_User.Email);
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
         m_UnitOfWorkMock.Setup(p_U => p_U.PartyRepository.GetUserHistoryAsync(It.IsAny<Guid>(),It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(new HistoryPage());
 

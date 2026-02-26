@@ -23,6 +23,7 @@ public record User : IBOEntity
     public bool IsNew { get; set; }
     
     public bool IsGoogleUser { get; set; }
+    public bool IsInvitedUser { get; set; } = false;
     
-    public virtual ICollection<UserAuth> UserAuth { get; set; } = new List<UserAuth>();
+    public List<UserAuth> UserAuth { get; set; } = [];
 }

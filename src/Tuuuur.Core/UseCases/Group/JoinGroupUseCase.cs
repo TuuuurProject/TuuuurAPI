@@ -16,36 +16,55 @@ internal class JoinGroupUseCase(IUnitOfWork p_UnitOfWork,
     IUserRoleService p_UserRoleService,
     ICacheService p_CacheService,
     IGroupNotificationService p_GroupNotificationService) :
-    ACreateJoinGroupUseCase<JoinGroupPartyRequest>(p_Logger, p_UnitOfWork, p_UserRoleService, p_CacheService)
+    ADbUseCase<JoinGroupPartyRequest, GenericEntityResponse<GroupParty>>(p_Logger, p_UnitOfWork)
 {
-
-    protected override async Task<GenericEntityResponse<GroupParty>> Process(JoinGroupPartyRequest p_Request, User p_User, CancellationToken p_CancellationToken)
+    protected override async Task<GenericEntityResponse<GroupParty>> HandleLogic(JoinGroupPartyRequest p_Request, CancellationToken p_CancellationToken)
     {
+        Guid v_UserId = p_UserRoleService.GetUserId();
+        string v_PartyCode = await p_CacheService.GetAsync<string>(RedisKeys.User.UserParty(v_UserId), p_CancellationToken) ?? string.Empty;
+        
+        // If user is in party, 
+        if (v_PartyCode != string.Empty)
+        {
+            GroupParty v_ExistingParty = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_PartyCode), p_CancellationToken);
+            List<User> v_UserInExistingParty = await p_CacheService.SetMembersAsync<User>(RedisKeys.Party.Users(v_PartyCode), p_CancellationToken: p_CancellationToken);
+            foreach (User v_LocalUser in v_UserInExistingParty)
+            {
+                v_ExistingParty.PartyUsers.Add(new PartyUser { User =  v_LocalUser, IdUser = v_LocalUser.Id });
+            }
+
+            return new GenericEntityResponse<GroupParty>(v_ExistingParty);
+        }
+        
         GroupParty v_Party = null;
         if (!string.IsNullOrWhiteSpace(p_Request.Code))
         {
-            v_Party = await m_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(p_Request.Code), p_CancellationToken);
+            v_Party = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(p_Request.Code), p_CancellationToken);
         }
 
         if (v_Party == null)
             return new GenericEntityResponse<GroupParty>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found, Key: {p_Request.Code}")]);
 
-        List<Guid> v_UserInParty = await m_CacheService.SetMembersAsync<Guid>(RedisKeys.Party.Users(v_Party.Code), p_CancellationToken: p_CancellationToken);
+        List<User> v_UserInParty = await p_CacheService.SetMembersAsync<User>(RedisKeys.Party.Users(v_Party.Code), p_CancellationToken: p_CancellationToken);
 
-        await m_CacheService.SetAddAsync(RedisKeys.Party.Users(v_Party.Code), p_User.Id, p_CancellationToken: p_CancellationToken);
-        await m_CacheService.SetAsync(RedisKeys.User.UserParty(p_User.Id), v_Party.Code, p_CancellationToken: p_CancellationToken);
+        User v_User = await m_UnitOfWork.UserRepository.GetUserByIdAsync(v_UserId, p_CancellationToken) 
+                      ?? await p_CacheService.GetAsync<User>(RedisKeys.User.ById(v_UserId), p_CancellationToken);
+        await p_CacheService.SetAddAsync(RedisKeys.Party.Users(v_Party.Code), v_User, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAsync(RedisKeys.User.UserParty(v_UserId), v_Party.Code, p_CancellationToken: p_CancellationToken);
 
         await p_GroupNotificationService.NotifyPlayerJoinedAsync(
             v_Party.Code,
-            p_User
+            v_User
         );
+        
+        // Update the user in redis to avoid it to be deleted during party
+        await p_CacheService.SetAsync(RedisKeys.User.ById(v_User.Id), v_User, TimeSpan.FromHours(24), p_CancellationToken: p_CancellationToken);
 
-        foreach (Guid v_UserIdToNotif in v_UserInParty)
+        foreach (User v_UserToNotify in v_UserInParty)
         {
-            User v_UserToNotify = await m_UnitOfWork.UserRepository.GetUserByIdAsync(v_UserIdToNotif, p_CancellationToken);
-            v_Party.PartyUsers.Add(new PartyUser { User = v_UserToNotify, IdUser = v_UserIdToNotif });
+            v_Party.PartyUsers.Add(new PartyUser { User = v_UserToNotify, IdUser = v_UserToNotify.Id });
         }
-        v_Party.PartyUsers.Add(new PartyUser { User = p_User, IdUser = p_User.Id });
+        v_Party.PartyUsers.Add(new PartyUser { User = v_User, IdUser = v_User.Id });
         return new GenericEntityResponse<GroupParty>(v_Party);
     }
 }

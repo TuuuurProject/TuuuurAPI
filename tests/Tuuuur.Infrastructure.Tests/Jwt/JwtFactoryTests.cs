@@ -37,14 +37,14 @@ namespace Tuuuur.Infrastructure.Tests.Jwt
                 Id = Guid.NewGuid(),
                 NickName = "test",
                 Email = "test@example.com",
-                IsAdmin = true
+                IsAdmin = false
             };
 
             Claim[] v_ExpectedClaims = {
                 new(ClaimTypes.NameIdentifier, v_User.NickName),
                 new(ClaimTypes.Email, v_User.Email),
                 new(JwtRegisteredClaimNames.Email, v_User.Email),
-                new(ClaimTypes.Role, RolesType.Admin)
+                new(ClaimTypes.Role, RolesType.User)
             };
             
             RefreshToken v_RefreshToken = new()

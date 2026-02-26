@@ -39,43 +39,12 @@ namespace Tuuuur.API.Tests.Controllers
             m_Controller = new AuthController(m_LoggerMock.Object, m_MediatorMock.Object, new ValidationPresenter());
         }
         [Fact]
-        public void Get_WhenAdminUserIsAuthenticated_ReturnsOkObjectResult()
-        {
-            // Arrange
-            ClaimsPrincipal v_User = new(new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.Name, "John Doe"),
-                new Claim(ClaimTypes.Role, RolesType.Admin)
-            }, "mock"));
-
-            m_Controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext { User = v_User }
-            };
-
-            // Act
-            IActionResult v_Result = m_Controller.AdminOnly();
-
-            // Assert
-            v_Result.Should().BeOfType<OkObjectResult>();
-            v_Result.As<OkObjectResult>().Value.Should().BeEquivalentTo(new
-            {
-                User = "John Doe",
-                Claims = new[]
-                {
-                    new { Type = ClaimTypes.Name, Value = "John Doe" },
-                    new { Type = ClaimTypes.Role, Value = RolesType.Admin }
-                }
-            });
-        }
-        [Fact]
         public void Get_WhenUserIsAuthenticated_ReturnsOkObjectResult()
         {
             // Arrange
             ClaimsPrincipal v_User = new(new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.Name, "John Doe"),
-                new Claim(ClaimTypes.Role, RolesType.Admin)
             }, "mock"));
 
             m_Controller.ControllerContext = new ControllerContext
@@ -94,7 +63,6 @@ namespace Tuuuur.API.Tests.Controllers
                 Claims = new[]
                 {
                     new { Type = ClaimTypes.Name, Value = "John Doe" },
-                    new { Type = ClaimTypes.Role, Value = RolesType.Admin }
                 }
             });
         }

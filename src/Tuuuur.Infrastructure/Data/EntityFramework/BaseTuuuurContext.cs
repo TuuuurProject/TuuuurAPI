@@ -309,11 +309,15 @@ public partial class BaseTuuuurContext : DbContext
 
             entity.ToTable("UserPartyQuestion_UPQ");
 
+            entity.HasIndex(e => new { e.IdGuest, e.IdPartyQuestion }, "IX_UserPartyQuestion_Guest");
+
             entity.HasIndex(e => new { e.IdUser, e.IdPartyQuestion }, "IX_UserPartyQuestion_User");
 
             entity.Property(e => e.AnswersOrder).HasDefaultValueSql("(newid())");
             entity.Property(e => e.DtPresentedAt).HasDefaultValueSql("(sysutcdatetime())");
+            entity.Property(e => e.GuestNickname).HasMaxLength(50);
             entity.Property(e => e.IdAnswer).HasColumnName("Id_Answer");
+            entity.Property(e => e.IdGuest).HasColumnName("Id_Guest");
             entity.Property(e => e.IdPartyQuestion).HasColumnName("Id_Party_Question");
             entity.Property(e => e.IdUser).HasColumnName("Id_User");
 
@@ -328,7 +332,6 @@ public partial class BaseTuuuurContext : DbContext
 
             entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.UserPartyQuestionUpq)
                 .HasForeignKey(d => d.IdUser)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UserPartyQuestion_User");
         });
 

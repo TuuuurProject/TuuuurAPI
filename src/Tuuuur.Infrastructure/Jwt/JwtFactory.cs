@@ -23,7 +23,7 @@ internal class JwtFactory(JwtConfiguration p_JwtConfiguration) : IJwtFactory
         Guard.Against.Null(p_UserInfos);
         Guard.Against.Null(p_UnitOfWork);
 
-        string v_Role = p_UserInfos.IsAdmin ? RolesType.Admin : RolesType.User;
+        const string v_Role = RolesType.User;
         SecurityTokenDescriptor v_TokenDescriptor = new()
         {
             Subject = new ClaimsIdentity([
@@ -65,6 +65,37 @@ internal class JwtFactory(JwtConfiguration p_JwtConfiguration) : IJwtFactory
             ValidFrom = v_Token.ValidFrom,
             RefreshToken = v_RefreshToken,
             RefreshTokenExpiresAt = v_RefreshTokenExpiry
+        };
+    }
+
+    public JwtTokenResponse CreateAnonymousTokenAsync(User p_User)
+    {
+        const string v_Role = RolesType.Invited;
+        SecurityTokenDescriptor v_TokenDescriptor = new()
+        {
+            Subject = new ClaimsIdentity([
+                new Claim(ClaimNames.Id, p_User.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.UniqueName, p_User.NickName),
+                new Claim(JwtRegisteredClaimNames.Email, string.Empty),
+                new Claim(ClaimNames.Role, v_Role)
+            ]),
+
+            Expires = DateTime.UtcNow.AddMinutes(60*24), // 24 hours // TODO : Configurable
+            Issuer = p_JwtConfiguration.Issuer,
+            Audience = p_JwtConfiguration.Audience,
+            SigningCredentials = new SigningCredentials
+            (new SymmetricSecurityKey(Encoding.ASCII.GetBytes
+                    (p_JwtConfiguration.Key)),
+                SecurityAlgorithms.HmacSha512Signature)
+        };
+        JwtSecurityTokenHandler v_TokenHandler = new();
+        SecurityToken v_Token = v_TokenHandler.CreateToken(v_TokenDescriptor);
+        
+        return new JwtTokenResponse
+        {
+            Token = v_TokenHandler.WriteToken(v_Token),
+            ValidTo = v_Token.ValidTo,
+            ValidFrom = v_Token.ValidFrom,
         };
     }
 

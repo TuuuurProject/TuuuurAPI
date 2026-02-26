@@ -81,6 +81,14 @@ public static class RedisKeys
     public static class User
     {
         /// <summary>
+        /// Key pattern for accessing a party by its join code
+        /// Format: Party:{code}
+        /// Example: Party:ABC123
+        /// Value: Party object (JSON serialized)
+        /// </summary>
+        public static string ById(Guid p_Id) => $"User:{p_Id}";
+        
+        /// <summary>
         /// Key pattern for accessing the current party of a user
         /// Format: User:{userId}:Party
         /// Example: User:42:Party

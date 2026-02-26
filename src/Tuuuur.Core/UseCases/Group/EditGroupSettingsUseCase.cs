@@ -21,8 +21,8 @@ internal class EditGroupSettingsUseCase(
 {
     protected override async Task<EmptyResponse> HandleLogic(EditGroupSettingsRequest p_Request, CancellationToken p_CancellationToken)
     {
-        string v_UserEmail = p_UserRoleService.GetCurrentUserEmail();
-
+        string v_UserEmail = p_UserRoleService.GetEmail();
+        
         User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_UserEmail, p_CancellationToken);
 
         if (v_User == null)
@@ -52,13 +52,10 @@ internal class EditGroupSettingsUseCase(
 
         await p_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
         
-        List<Guid> v_UserIds = await p_CacheService.SetMembersAsync<Guid>(
+        List<User> v_Users = await p_CacheService.SetMembersAsync<User>(
             RedisKeys.Party.Users(v_Party.Code),
             CancellationToken.None
         );
-
-        // Get all users in a single database query to avoid DbContext concurrency issues
-        List<User> v_Users = await m_UnitOfWork.UserRepository.GetUsersByIdsAsync(v_UserIds, p_CancellationToken);
 
         v_Party.PartyUsers.AddRange(v_Users.Select(p_P => new PartyUser { User = p_P }));
         

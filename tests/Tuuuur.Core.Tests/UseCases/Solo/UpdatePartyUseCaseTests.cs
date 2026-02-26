@@ -67,7 +67,7 @@ public class UpdatePartyUseCaseTests
             }
         ];
         
-        m_UserRoleService.Setup(p_P => p_P.GetCurrentUserEmail()).Returns(v_User.Email);
+        m_UserRoleService.Setup(p_P => p_P.GetEmail()).Returns(v_User.Email);
         m_CalculService.Setup(p_U => p_U.CalculateScore(It.IsAny<DateTime>(), It.IsAny<DateTime?>())).Returns(753);
 
         
