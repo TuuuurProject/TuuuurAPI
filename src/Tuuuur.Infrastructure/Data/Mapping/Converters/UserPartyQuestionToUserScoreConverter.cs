@@ -4,6 +4,7 @@ using Tuuuur.Infrastructure.Data.EntityFramework.Entities;
 
 namespace Tuuuur.Infrastructure.Data.Mapping.Converters;
 
+[ExcludeFromCodeCoverage]
 public class UserPartyQuestionToUserScoreConverter : ITypeConverter<UserPartyQuestionUpq, UserScore>
 {
     [SuppressMessage("Style", "IDE1006:Styles d'affectation de noms", Justification = "Inherited named")]
