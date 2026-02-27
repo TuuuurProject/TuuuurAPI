@@ -6,7 +6,7 @@ namespace Tuuuur.Domain.Bo;
 public class RefreshToken : IBOEntity
 {
     public int Id { get; init; }
-    public int UserId { get; init; }
+    public Guid UserId { get; init; }
     public string Token { get; init; }
     public DateTime ExpiresAt { get; init; }
     public DateTime CreatedAt { get; init; }

@@ -49,7 +49,7 @@ public static class RedisKeys
         /// <param name="p_QuestionId"></param>
         /// <param name="p_User"></param>
         /// <returns></returns>
-        public static string PartyQuestionUserAnswer(string p_Code, int p_QuestionId, int p_User) => $"Party:{p_Code}:Questions:{p_QuestionId}:Users:{p_User}:Answer";
+        public static string PartyQuestionUserAnswer(string p_Code, int p_QuestionId, Guid p_User) => $"Party:{p_Code}:Questions:{p_QuestionId}:Users:{p_User}:Answer";
 
         /// <summary>
         /// Key pattern for the sorted set of player scores in a party
@@ -81,11 +81,19 @@ public static class RedisKeys
     public static class User
     {
         /// <summary>
+        /// Key pattern for accessing a party by its join code
+        /// Format: Party:{code}
+        /// Example: Party:ABC123
+        /// Value: Party object (JSON serialized)
+        /// </summary>
+        public static string ById(Guid p_Id) => $"User:{p_Id}";
+        
+        /// <summary>
         /// Key pattern for accessing the current party of a user
         /// Format: User:{userId}:Party
         /// Example: User:42:Party
         /// Value: Party GUID
         /// </summary>
-        public static string UserParty(int p_UserId) => $"User:{p_UserId}:Party";
+        public static string UserParty(Guid p_UserId) => $"User:{p_UserId}:Party";
     }
 }

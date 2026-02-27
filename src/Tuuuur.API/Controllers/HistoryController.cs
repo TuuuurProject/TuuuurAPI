@@ -1,12 +1,14 @@
 using Asp.Versioning;
 using FluentValidation.Results;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tuuuur.API.Presenters;
 using Tuuuur.API.Requests;
 using Tuuuur.Core.Requests;
 using Tuuuur.Core.Responses;
 using Tuuuur.Domain.Bo;
+using Tuuuur.Domain.Security;
 
 namespace Tuuuur.API.Controllers;
 
@@ -29,6 +31,7 @@ public class HistoryController(
     /// <returns></returns>
     [HttpGet]
     [MapToApiVersion("1")]
+    [Authorize(Roles = RolesType.User)]
     [ProducesResponseType(typeof(IEnumerable<HistoryPage>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]

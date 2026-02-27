@@ -41,7 +41,7 @@ public class CreateGroupUseCaseTests
         // Arrange
         User v_User = BoFactory.CreateUser().Generate();
 
-        m_UserRoleServiceMock.Setup(p_P => p_P.GetCurrentUserEmail())
+        m_UserRoleServiceMock.Setup(p_P => p_P.GetEmail())
             .Returns(v_User.Email);
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(v_User.Email, It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_User);
@@ -64,14 +64,15 @@ public class CreateGroupUseCaseTests
                 It.IsAny<CancellationToken>()
             ))
             .Returns(Task.CompletedTask);
+        
         m_CacheServiceMock.Setup(p_Cs => p_Cs.SetAddAsync(
                 It.IsAny<string>(),
-                v_User.Id,
+                v_User,
                 It.IsAny<TimeSpan>(),
                 It.IsAny<CancellationToken>()
             ))
             .ReturnsAsync(true);
-
+        
         CreateGroupPartyRequest v_Request = new();
 
         // Act

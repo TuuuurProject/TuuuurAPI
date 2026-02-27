@@ -1,12 +1,14 @@
 ﻿using Asp.Versioning;
 using FluentValidation.Results;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tuuuur.API.Presenters;
 using Tuuuur.API.Requests;
 using Tuuuur.Core.Requests.Group;
 using Tuuuur.Core.Responses;
 using Tuuuur.Domain.Bo;
+using Tuuuur.Domain.Security;
 
 namespace Tuuuur.API.Controllers;
 
@@ -27,6 +29,7 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
     /// <returns></returns>
     [HttpGet("{p_PartyId:guid}")]
     [MapToApiVersion("1")]
+    [Authorize(Roles = RolesType.User)]
     [ProducesResponseType(typeof(Party),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
@@ -46,6 +49,7 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
     /// </summary>
     /// <returns></returns>
     [HttpPost("create")]
+    [Authorize(Roles = RolesType.User)]
     [ProducesResponseType(typeof(PartyBase),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
@@ -63,6 +67,7 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
     /// </summary>
     /// <returns></returns>
     [HttpPost("join")]
+    [Authorize(Roles = RolesType.User + "," + RolesType.Invited)]
     [ProducesResponseType(typeof(PartyBase),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
@@ -81,6 +86,7 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
     /// </summary>
     /// <returns></returns>
     [HttpPost("leave")]
+    [Authorize(Roles = RolesType.User + "," + RolesType.Invited)]
     [ProducesResponseType(typeof(void),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
@@ -98,6 +104,7 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
     /// </summary>
     /// <returns></returns>
     [HttpPost("settings")]
+    [Authorize(Roles = RolesType.User)]
     [ProducesResponseType(typeof(PartyBase),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
@@ -117,11 +124,12 @@ public class GroupController(ILogger<GroupController> p_Logger, IMediator p_Medi
     /// </summary>
     /// <returns></returns>
     [HttpDelete("user/{p_UserId}")]
+    [Authorize(Roles = RolesType.User)]
     [ProducesResponseType(typeof(bool),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ExpelUserOnPartyAsync(
-        [FromRoute] int p_UserId,
+        [FromRoute] Guid p_UserId,
         [FromServices] EmptyPresenter p_Presenter,
         CancellationToken p_CancellationToken)
     {

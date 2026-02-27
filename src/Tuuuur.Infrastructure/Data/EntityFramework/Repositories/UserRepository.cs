@@ -49,17 +49,17 @@ internal class UserRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<U
         await UpdateAsync(v_Mapping.DtoEntity);
     }
 
-    public async Task DeleteUserAsync(int p_UserId, CancellationToken p_CancellationToken = default)
+    public async Task DeleteUserAsync(Guid p_UserId, CancellationToken p_CancellationToken = default)
     {
         await DeleteAsync(p_UserId, p_CancellationToken);
     }
 
-    public async Task<User> GetUserByIdAsync(int p_Id, CancellationToken p_CancellationToken = default)
+    public async Task<User> GetUserByIdAsync(Guid p_Id, CancellationToken p_CancellationToken = default)
     {
         return Mapper.Map<User>(await FindBy(p_U => p_U.Id == p_Id).SingleOrDefaultAsync(p_CancellationToken));
     }
 
-    public async Task<List<User>> GetUsersByIdsAsync(List<int> p_Ids, CancellationToken p_CancellationToken = default)
+    public async Task<List<User>> GetUsersByIdsAsync(List<Guid> p_Ids, CancellationToken p_CancellationToken = default)
     {
         List<UserUsr> v_Users = await FindBy(p_U => p_Ids.Contains(p_U.Id)).ToListAsync(p_CancellationToken);
         return Mapper.Map<List<User>>(v_Users);

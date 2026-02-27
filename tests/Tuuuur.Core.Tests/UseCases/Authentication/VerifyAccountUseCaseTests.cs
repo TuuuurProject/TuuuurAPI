@@ -1,8 +1,5 @@
-using MediatR;
 using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Requests.Authentication;
-using Tuuuur.Core.Requests.Tools;
-using Tuuuur.Core.Responses;
 using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Core.UseCases.Authentication;
 using Tuuuur.Domain.Bo;
@@ -16,16 +13,15 @@ namespace Tuuuur.Core.Tests.UseCases.Authentication;
 public class VerifyAccountUseCaseTests
 {
     private readonly Mock<IUnitOfWork> m_UnitOfWorkMock;
-    private readonly Mock<ILogger<VerifyAccountUseCase>> m_LoggerMock;
     private readonly Mock<IJwtFactory> m_JwtFactoryMock;
     private readonly VerifyAccountUseCase m_UseCase;
 
     public VerifyAccountUseCaseTests()
     {
         m_UnitOfWorkMock = new Mock<IUnitOfWork>();
-        m_LoggerMock = new Mock<ILogger<VerifyAccountUseCase>>();
+        Mock<ILogger<VerifyAccountUseCase>> v_LoggerMock = new();
         m_JwtFactoryMock = new Mock<IJwtFactory>();
-        m_UseCase = new VerifyAccountUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_JwtFactoryMock.Object);
+        m_UseCase = new VerifyAccountUseCase(m_UnitOfWorkMock.Object, v_LoggerMock.Object, m_JwtFactoryMock.Object);
     }
 
     [Fact]
@@ -38,7 +34,7 @@ public class VerifyAccountUseCaseTests
         User v_User = new() { Email = v_Login };
         UserAuth v_UserAuth = new() { User = v_User, Code = v_Code };
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailOrNickNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
-        m_UnitOfWorkMock.Setup(p_U => p_U.UserAuthRepository.GetUserAuthByUserIdAndCodeAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_UserAuth);
+        m_UnitOfWorkMock.Setup(p_U => p_U.UserAuthRepository.GetUserAuthByUserIdAndCodeAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_UserAuth);
         m_UnitOfWorkMock.Setup(p_U => p_U.RefreshTokenRepository.DeleteRefreshTokenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         JwtTokenResponse v_JwtTokenResponse = new();

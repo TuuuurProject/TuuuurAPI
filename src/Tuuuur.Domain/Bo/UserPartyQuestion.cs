@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Tuuuur.Domain.Bo;
 
 public class UserPartyQuestion : IBOEntity
@@ -6,7 +8,13 @@ public class UserPartyQuestion : IBOEntity
 
     public int IdPartyQuestion { get; set; }
 
-    public int IdUser { get; set; }
+    public Guid? IdUser { get; set; }
+    
+    [JsonIgnore]
+    public Guid? IdGuest { get; set; }
+    
+    [JsonIgnore]
+    public string GuestNickname { get; set; }
 
     public DateTime DtPresentedAt { get; set; }
 
@@ -18,11 +26,11 @@ public class UserPartyQuestion : IBOEntity
     
     public int Score { get; set; }
     
-    public virtual Answer Answer { get; set; }
+    public Answer Answer { get; set; }
 
     public virtual PartyQuestion PartyQuestion { get; set; }
     
     public Guid AnswersOrder { get; set; }
 
-    public virtual User User { get; set; }
+    public User User { get; set; }
 }

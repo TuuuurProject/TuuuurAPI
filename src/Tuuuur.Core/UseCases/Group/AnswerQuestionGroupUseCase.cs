@@ -19,13 +19,7 @@ internal class AnswerQuestionGroupUseCase(
 {
     protected override async Task<EmptyResponse> HandleLogic(AnswerQuestionGroupPartyRequest p_Request, CancellationToken p_CancellationToken)
     {
-        string v_UserEmail = p_Request.UserEmail;
-        User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_UserEmail, p_CancellationToken);
-
-        if (v_User == null)
-            return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
-
-        string v_PartieCode = await p_CacheService.GetAsync<string>(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken);
+        string v_PartieCode = await p_CacheService.GetAsync<string>(RedisKeys.User.UserParty(p_Request.UserId), p_CancellationToken);
 
         if (v_PartieCode is null)
         {
@@ -53,14 +47,14 @@ internal class AnswerQuestionGroupUseCase(
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Answer)} was not found, Key: {p_Request.AnswerId}")]);
         }
 
-        UserPartyQuestion v_UserPartyQuestion = await p_CacheService.GetAsync<UserPartyQuestion>(RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Code, v_Question.Id, v_User.Id), p_CancellationToken: p_CancellationToken);
+        UserPartyQuestion v_UserPartyQuestion = await p_CacheService.GetAsync<UserPartyQuestion>(RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Code, v_Question.Id, p_Request.UserId), p_CancellationToken: p_CancellationToken);
         v_UserPartyQuestion.IdAnswer = p_Request.AnswerId;
         v_UserPartyQuestion.DtAnsweredAt = DateTime.Now;
 
-        await p_CacheService.SetAsync(RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Code, v_Question.Id, v_User.Id), v_UserPartyQuestion, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAsync(RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Code, v_Question.Id, p_Request.UserId), v_UserPartyQuestion, p_CancellationToken: p_CancellationToken);
 
         // Add user to the answered set for early round termination
-        await p_CacheService.SetAddAsync(RedisKeys.Party.PartyQuestionAnswered(v_Party.Code, v_Question.Id), v_User.Id, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAddAsync(RedisKeys.Party.PartyQuestionAnswered(v_Party.Code, v_Question.Id), p_Request.UserId, p_CancellationToken: p_CancellationToken);
 
         // Check if all players have answered
         long v_AnsweredCount = await p_CacheService.SetLengthAsync(RedisKeys.Party.PartyQuestionAnswered(v_Party.Code, v_Question.Id), p_CancellationToken);
@@ -75,11 +69,14 @@ internal class AnswerQuestionGroupUseCase(
                 p_CancellationToken
             );
         }
+        
+        List<User> v_UserInParty = await p_CacheService.SetMembersAsync<User>(RedisKeys.Party.Users(v_PartieCode), p_CancellationToken: p_CancellationToken);
+        User v_CurrentUser = v_UserInParty.FirstOrDefault(p_P => p_P.Id == p_Request.UserId);
 
         // Send group that user answer the question
         await p_GroupNotificationService.NotifyUserSendAnswerAsync(
             v_Party.Code,
-            v_User
+            v_CurrentUser
         );
 
         return new EmptyResponse();

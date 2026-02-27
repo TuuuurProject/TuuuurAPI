@@ -11,7 +11,7 @@ public partial class PartyPty
 
     public int IdPartyType { get; set; }
 
-    public int? IdUserHost { get; set; }
+    public Guid? IdUserHost { get; set; }
 
     public bool Active { get; set; }
 

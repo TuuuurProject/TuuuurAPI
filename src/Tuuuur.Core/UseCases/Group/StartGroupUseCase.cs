@@ -79,13 +79,10 @@ internal class StartGroupUseCase(
         v_Party.InProgress = true;
         await p_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
 
-        List<int> v_UserIds = await p_CacheService.SetMembersAsync<int>(
+        List<User> v_Users = await p_CacheService.SetMembersAsync<User>(
             RedisKeys.Party.Users(v_Party.Code),
             CancellationToken.None
         );
-
-        // Get all users in a single database query to avoid DbContext concurrency issues
-        List<User> v_Users = await m_UnitOfWork.UserRepository.GetUsersByIdsAsync(v_UserIds, p_CancellationToken);
 
         // Initialize scores for all users in parallel
         IEnumerable<Task> v_InitScoreTasks = v_Users.Select(async p_User =>

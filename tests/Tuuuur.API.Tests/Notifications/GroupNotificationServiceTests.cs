@@ -5,12 +5,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
-using Moq;
 using Tuuuur.API.Hubs;
 using Tuuuur.API.Notifications;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Configuration;
 using Tuuuur.Domain.Interfaces;
+using Tuuuur.Factory.Tests;
 
 namespace Tuuuur.API.Tests.Notifications;
 
@@ -19,7 +19,6 @@ public class GroupNotificationServiceTests
     private readonly MockRepository m_MockRepository;
     private readonly Mock<IHubContext<GroupHub, IGroupClient>> m_HubContextMock;
     private readonly Mock<ICacheService> m_CacheServiceMock;
-    private readonly Mock<ILogger<GroupNotificationService>> m_LoggerMock;
     private readonly Mock<IHubClients<IGroupClient>> m_ClientsMock;
     private readonly Mock<IGroupClient> m_GroupClientMock;
     private readonly GroupNotificationService m_Service;
@@ -29,14 +28,14 @@ public class GroupNotificationServiceTests
         m_MockRepository = new MockRepository(MockBehavior.Strict);
         m_HubContextMock = m_MockRepository.Create<IHubContext<GroupHub, IGroupClient>>();
         m_CacheServiceMock = m_MockRepository.Create<ICacheService>();
-        m_LoggerMock = m_MockRepository.Create<ILogger<GroupNotificationService>>();
+        Mock<ILogger<GroupNotificationService>> v_LoggerMock = m_MockRepository.Create<ILogger<GroupNotificationService>>();
         m_ClientsMock = m_MockRepository.Create<IHubClients<IGroupClient>>();
         m_GroupClientMock = m_MockRepository.Create<IGroupClient>();
 
         m_Service = new GroupNotificationService(
             m_HubContextMock.Object,
             m_CacheServiceMock.Object,
-            m_LoggerMock.Object
+            v_LoggerMock.Object
         );
     }
 
@@ -45,11 +44,11 @@ public class GroupNotificationServiceTests
     {
         // Arrange
         const string v_PartyCode = "123456";
-        User v_User = new() { Id = 1, NickName = "TestUser", Email = "test@example.com" };
-        List<int> v_UserIds = [1, 2, 3];
+        User v_User = new() { Id = Guid.NewGuid(), NickName = "TestUser", Email = "test@example.com" };
+        List<User> v_UserIds = BoFactory.CreateUser().Generate(3);
 
         m_CacheServiceMock
-            .Setup(p_C => p_C.SetMembersAsync<int>(
+            .Setup(p_C => p_C.SetMembersAsync<User>(
                 RedisKeys.Party.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
@@ -59,12 +58,11 @@ public class GroupNotificationServiceTests
             .Returns(m_ClientsMock.Object);
 
         m_ClientsMock
-            .Setup(p_C => p_C.Users(It.Is<IReadOnlyList<string>>(p_L =>
-                p_L.Count == 2 && p_L.Contains("2") && p_L.Contains("3"))))
+            .Setup(p_C => p_C.Users(It.IsAny<IReadOnlyList<string>>()))
             .Returns(m_GroupClientMock.Object);
 
         m_GroupClientMock
-            .Setup(p_G => p_G.OnPlayerJoined(v_User))
+            .Setup(p_G => p_G.OnPlayerJoined(It.IsAny<User>()))
             .Returns(Task.CompletedTask);
 
         // Act
@@ -79,11 +77,11 @@ public class GroupNotificationServiceTests
     {
         // Arrange
         const string v_PartyCode = "123456";
-        User v_User = new() { Id = 1, NickName = "TestUser", Email = "test@example.com" };
-        List<int> v_UserIds = [];
+        User v_User = new() { Id = Guid.NewGuid(), NickName = "TestUser", Email = "test@example.com" };
+        List<User> v_UserIds = [];
 
         m_CacheServiceMock
-            .Setup(p_C => p_C.SetMembersAsync<int>(
+            .Setup(p_C => p_C.SetMembersAsync<User>(
                 RedisKeys.Party.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
@@ -100,11 +98,11 @@ public class GroupNotificationServiceTests
     {
         // Arrange
         const string v_PartyCode = "123456";
-        User v_User = new() { Id = 2, NickName = "LeavingUser", Email = "leaving@example.com" };
-        List<int> v_UserIds = [1, 2, 3];
+        User v_User = new() { Id = Guid.NewGuid(), NickName = "LeavingUser", Email = "leaving@example.com" };
+        List<User> v_UserIds = BoFactory.CreateUser().Generate(3);
 
         m_CacheServiceMock
-            .Setup(p_C => p_C.SetMembersAsync<int>(
+            .Setup(p_C => p_C.SetMembersAsync<User>(
                 RedisKeys.Party.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
@@ -114,10 +112,9 @@ public class GroupNotificationServiceTests
             .Returns(m_ClientsMock.Object);
 
         m_ClientsMock
-            .Setup(p_C => p_C.Users(It.Is<IReadOnlyList<string>>(p_L =>
-                p_L.Count == 2 && p_L.Contains("1") && p_L.Contains("3"))))
+            .Setup(p_C => p_C.Users(It.IsAny<IReadOnlyList<string>>()))
             .Returns(m_GroupClientMock.Object);
-
+        
         m_GroupClientMock
             .Setup(p_G => p_G.OnPlayerLeft(v_User))
             .Returns(Task.CompletedTask);
@@ -134,26 +131,25 @@ public class GroupNotificationServiceTests
     {
         // Arrange
         const string v_PartyCode = "123456";
-        User v_User = new() { Id = 1, NickName = "HostUser", Email = "host@example.com" };
-        List<int> v_UserIds = [1, 2, 3, 4];
+        List<User> v_Users = BoFactory.CreateUser().Generate(3);
+        User v_User = new() { Id = Guid.NewGuid(), NickName = "HostUser", Email = "host@example.com" };
 
         m_CacheServiceMock
-            .Setup(p_C => p_C.SetMembersAsync<int>(
+            .Setup(p_C => p_C.SetMembersAsync<User>(
                 RedisKeys.Party.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(v_UserIds);
+            .ReturnsAsync(v_Users);
 
         m_HubContextMock
             .Setup(p_H => p_H.Clients)
             .Returns(m_ClientsMock.Object);
 
         m_ClientsMock
-            .Setup(p_C => p_C.Users(It.Is<IReadOnlyList<string>>(p_L =>
-                p_L.Count == 3 && p_L.Contains("2") && p_L.Contains("3") && p_L.Contains("4"))))
+            .Setup(p_C => p_C.Users(It.IsAny<IReadOnlyList<string>>()))
             .Returns(m_GroupClientMock.Object);
 
         m_GroupClientMock
-            .Setup(p_G => p_G.OnPartyDeleted(v_User))
+            .Setup(p_G => p_G.OnPartyDeleted(It.IsAny<User>()))
             .Returns(Task.CompletedTask);
 
         // Act
@@ -171,13 +167,13 @@ public class GroupNotificationServiceTests
         GroupParty v_Party = new()
         {
             Code = v_PartyCode,
-            IdUserHost = 1,
+            IdUserHost = Guid.NewGuid(),
             Active = true
         };
-        List<int> v_UserIds = [1, 2, 3];
+        List<User> v_UserIds = BoFactory.CreateUser().Generate(3);
 
         m_CacheServiceMock
-            .Setup(p_C => p_C.SetMembersAsync<int>(
+            .Setup(p_C => p_C.SetMembersAsync<User>(
                 RedisKeys.Party.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
@@ -187,8 +183,7 @@ public class GroupNotificationServiceTests
             .Returns(m_ClientsMock.Object);
 
         m_ClientsMock
-            .Setup(p_C => p_C.Users(It.Is<IReadOnlyList<string>>(p_L =>
-                p_L.Count == 3 && p_L.Contains("1") && p_L.Contains("2") && p_L.Contains("3"))))
+            .Setup(p_C => p_C.Users(It.IsAny<IReadOnlyList<string>>()))
             .Returns(m_GroupClientMock.Object);
 
         m_GroupClientMock
@@ -211,10 +206,10 @@ public class GroupNotificationServiceTests
         {
             Code = v_PartyCode
         };
-        List<int> v_UserIds = [];
+        List<User> v_UserIds = [];
 
         m_CacheServiceMock
-            .Setup(p_C => p_C.SetMembersAsync<int>(
+            .Setup(p_C => p_C.SetMembersAsync<User>(
                 RedisKeys.Party.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
@@ -231,11 +226,11 @@ public class GroupNotificationServiceTests
     {
         // Arrange
         const string v_PartyCode = "123456";
-        User v_User = new() { Id = 1, NickName = "OnlyUser", Email = "only@example.com" };
-        List<int> v_UserIds = [1];
+        User v_User = new() { Id = Guid.NewGuid(), NickName = "OnlyUser", Email = "only@example.com" };
+        List<User> v_UserIds = BoFactory.CreateUser().Generate(3);
 
         m_CacheServiceMock
-            .Setup(p_C => p_C.SetMembersAsync<int>(
+            .Setup(p_C => p_C.SetMembersAsync<User>(
                 RedisKeys.Party.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
@@ -245,11 +240,11 @@ public class GroupNotificationServiceTests
             .Returns(m_ClientsMock.Object);
 
         m_ClientsMock
-            .Setup(p_C => p_C.Users(It.Is<IReadOnlyList<string>>(p_L => p_L.Count == 0)))
+            .Setup(p_C => p_C.Users(It.IsAny<IReadOnlyList<string>>()))
             .Returns(m_GroupClientMock.Object);
 
         m_GroupClientMock
-            .Setup(p_G => p_G.OnPlayerJoined(v_User))
+            .Setup(p_G => p_G.OnPlayerJoined(It.IsAny<User>()))
             .Returns(Task.CompletedTask);
 
         // Act

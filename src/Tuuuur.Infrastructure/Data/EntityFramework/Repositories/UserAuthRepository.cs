@@ -22,7 +22,7 @@ internal class UserAuthRepository(DbContext p_DbContext, IMapper p_Mapper, ILogg
         return v_Mapping;
     }
 
-    public async Task<UserAuth> GetUserAuthByUserIdAndCodeAsync(int p_UserId, string p_Code, CancellationToken p_CancellationToken = default)
+    public async Task<UserAuth> GetUserAuthByUserIdAndCodeAsync(Guid p_UserId, string p_Code, CancellationToken p_CancellationToken = default)
     {
         await DeleteExpiredUserAuthsAsync(p_CancellationToken);
         UserAuthUat v_Entity = await FindBy(p_P => p_P.UserId == p_UserId && p_P.Code == p_Code).FirstOrDefaultAsync(p_CancellationToken);
@@ -34,7 +34,7 @@ internal class UserAuthRepository(DbContext p_DbContext, IMapper p_Mapper, ILogg
         await DeleteAsync(p_UserAuthId, p_CancellationToken);
     }
 
-    public async Task<long> CountOfUserAuthsByUserIdAsync(int p_UserId,
+    public async Task<long> CountOfUserAuthsByUserIdAsync(Guid p_UserId,
         CancellationToken p_CancellationToken = default)
     {
         await DeleteExpiredUserAuthsAsync(p_CancellationToken);

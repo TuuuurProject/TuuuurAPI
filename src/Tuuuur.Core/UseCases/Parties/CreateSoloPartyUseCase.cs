@@ -19,7 +19,7 @@ internal class CreateSoloPartyUseCase(
 {
     protected override async Task<GuidResponse> HandleLogic(CreateSoloPartyRequest p_Request, CancellationToken p_CancellationToken)
     {
-        string v_UserEmail = p_UserRoleService.GetCurrentUserEmail();
+        string v_UserEmail = p_UserRoleService.GetEmail();
         User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_UserEmail, p_CancellationToken);
         
         if(v_User == null)

@@ -7,5 +7,6 @@ namespace Tuuuur.Domain.Interfaces.Token;
 public interface IJwtFactory
 {
     Task<JwtTokenResponse> CreateTokenAsync(User p_UserInfos, IUnitOfWork p_UnitOfWork, CancellationToken p_CancellationToken = default);
-    int? GetUserIdFromToken(string p_Token);
+    JwtTokenResponse CreateAnonymousTokenAsync(User p_User);
+    Guid? GetUserIdFromToken(string p_Token);
 }

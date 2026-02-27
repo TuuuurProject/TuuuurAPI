@@ -4,7 +4,7 @@ namespace Tuuuur.Domain.Bo;
 
 public record User : IBOEntity
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     public string NickName { get; set; }
 
@@ -23,6 +23,7 @@ public record User : IBOEntity
     public bool IsNew { get; set; }
     
     public bool IsGoogleUser { get; set; }
+    public bool IsInvitedUser { get; set; } = false;
     
-    public virtual ICollection<UserAuth> UserAuth { get; set; } = new List<UserAuth>();
+    public List<UserAuth> UserAuth { get; set; } = [];
 }

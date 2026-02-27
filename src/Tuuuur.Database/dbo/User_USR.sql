@@ -1,5 +1,5 @@
 CREATE TABLE [dbo].[User_USR] (
-    [Id]                INT              IDENTITY (1, 1) NOT NULL,
+    [Id]                UNIQUEIDENTIFIER NOT NULL DEFAULT (NEWID()),
     [NickName]          VARCHAR (50)     NOT NULL,
     [Email]             VARCHAR (250)    NOT NULL,
     [Password]          VARCHAR (250)    NULL,

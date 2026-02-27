@@ -1,7 +1,7 @@
 CREATE TABLE [dbo].[PartyUser_PUS]
 (
     [Id]        INT                 IDENTITY (1,1) NOT NULL,
-    [Id_User]   INT                 NOT NULL,
+    [Id_User]   UNIQUEIDENTIFIER    NOT NULL,
     [Id_Party]  UNIQUEIDENTIFIER    NOT NULL,
     CONSTRAINT [PK_PARTYUSER_PUS] PRIMARY KEY CLUSTERED ([Id]),
     CONSTRAINT [FK_PartyUser_User] FOREIGN KEY ([Id_User]) REFERENCES [dbo].[User_USR]([Id]),

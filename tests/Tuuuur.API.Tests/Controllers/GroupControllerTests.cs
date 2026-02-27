@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using System;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Threading;
@@ -82,7 +83,7 @@ public class GroupControllerTests
         m_MediatorMock.Setup(p_P => p_P.Send(It.IsAny<ExpelUserOnPartyRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
         
         // Act
-        IActionResult v_Result = await m_Controller.ExpelUserOnPartyAsync(1, new EmptyPresenter(), CancellationToken.None);
+        IActionResult v_Result = await m_Controller.ExpelUserOnPartyAsync(Guid.NewGuid(), new EmptyPresenter(), CancellationToken.None);
 
         // Assert
         v_Result.Should().BeOfType<JsonContentResult>();

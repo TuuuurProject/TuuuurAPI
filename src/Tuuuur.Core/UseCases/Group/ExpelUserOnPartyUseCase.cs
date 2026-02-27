@@ -20,7 +20,7 @@ internal class ExpelUserOnPartyUseCase(IUnitOfWork p_UnitOfWork,
 {
     protected override async Task<EmptyResponse> HandleLogic(ExpelUserOnPartyRequest p_Request, CancellationToken p_CancellationToken)
     {
-        string v_UserEmail = p_UserRoleService.GetCurrentUserEmail();
+        string v_UserEmail = p_UserRoleService.GetEmail();
         User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_UserEmail, p_CancellationToken);
 
         if (v_User == null)
@@ -42,16 +42,16 @@ internal class ExpelUserOnPartyUseCase(IUnitOfWork p_UnitOfWork,
         if(v_Party.InProgress)
             return new EmptyResponse([new ErrorDto(DomainErrors.Party.InProgress, $"You can't delete an user when the party is in progress")]);
         
-        List<int> v_UserIds = await p_CacheService.SetMembersAsync<int>(
+        List<User> v_Users = await p_CacheService.SetMembersAsync<User>(
             RedisKeys.Party.Users(v_Party.Code),
             CancellationToken.None
         );
         
         // If the target user is not in the party
-        if(!v_UserIds.Contains(p_Request.UserId))
+        if(v_Users.All(p_P => p_P.Id != p_Request.UserId))
             return new EmptyResponse([new ErrorDto(DomainErrors.Party.User.NotFound, $"Queried object {nameof(User)}, Key: {p_Request.UserId} was not found on object {nameof(PartyBase)}, Key: {v_Party.Code}")]);
         
-        User v_TargetUser = await m_UnitOfWork.UserRepository.GetUserByIdAsync(p_Request.UserId, p_CancellationToken);
+        User v_TargetUser = v_Users.FirstOrDefault(p_P => p_P.Id == p_Request.UserId);
         if (v_TargetUser == null)
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {p_Request.UserId}")]);
         

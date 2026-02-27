@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Infrastructure.Data.EntityFramework.Entities;
+using Tuuuur.Infrastructure.Data.Mapping.Converters;
 
 namespace Tuuuur.Infrastructure.Data.Mapping;
 
@@ -10,6 +11,7 @@ internal class InfrastructureProfile : Profile
     {
         CreateMap<UserUsr, User>()
             .ForMember(p_Trg => p_Trg.UserAuth, p_Opt => p_Opt.MapFrom(p_Src => p_Src.UserAuthUat))
+            .ForMember(p_Trg => p_Trg.IsInvitedUser, p_Opt => p_Opt.MapFrom(p_Src => false))
             .ReverseMap();
         CreateMap<UserAuthUat, UserAuth>()
             .ReverseMap()
@@ -40,10 +42,13 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.PartyDifficulty, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyDifficultyPdf))
             .ForMember(p_Trg => p_Trg.PartyTheme, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyThemePth))
             .ForMember(p_Trg => p_Trg.PartyQuestions, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt))
-            .ForMember(p_Trg => p_Trg.Score, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.Percent, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.Time, p_Opt => p_Opt.Ignore())
             .ReverseMap();
+
+        CreateMap<PartyPty, History>()
+            .IncludeBase<PartyPty, PartyBase>()
+            .ForMember(p_Trg => p_Trg.PartyQuestions, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt));
 
         CreateMap<PartyPty, Party>()
             .IncludeBase<PartyPty, PartyBase>()
@@ -83,7 +88,7 @@ internal class InfrastructureProfile : Profile
                 try
                 {
                     bool v_HasUserId = p_Ctx.Items != null && p_Ctx.Items.ContainsKey($"{nameof(User)}.{nameof(User.Id)}");
-                    int? v_CtxItem = (int?)p_Ctx.Items?[$"{nameof(User)}.{nameof(User.Id)}"];
+                    Guid? v_CtxItem = (Guid?)p_Ctx.Items?[$"{nameof(User)}.{nameof(User.Id)}"];
 
                     if (!v_CtxItem.HasValue)
                     {
@@ -107,28 +112,7 @@ internal class InfrastructureProfile : Profile
             })
             .ReverseMap();
 
-        CreateMap<UserPartyQuestionUpq, UserScore>()
-            .ForMember(p_Trg => p_Trg.Score, p_Opt => p_Opt.MapFrom(p_P => p_P.Score))
-            .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.MapFrom(p_P => p_P.IdUserNavigation));
-
-
-        CreateMap<PartyPty, History>()
-            .ForMember(p_Trg => p_Trg.Id, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Id))
-            .ForMember(p_Trg => p_Trg.Dt, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Dt))
-            .ForMember(p_Trg => p_Trg.IdPartyType, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdPartyType))
-            .ForMember(p_Trg => p_Trg.PartyType, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdPartyTypeNavigation))
-            .ForMember(p_Trg => p_Trg.IdUserHost, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserHost))
-            .ForMember(p_Trg => p_Trg.Active, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Active))
-            .ForMember(p_Trg => p_Trg.Finish, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Finish))
-            .ForMember(p_Trg => p_Trg.Percent, p_Opt => p_Opt.Ignore())
-            .ForMember(p_Trg => p_Trg.PartyQuestions, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt))
-            .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserHostNavigation))
-            .ForMember(p_Trg => p_Trg.PartyDifficulty, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyDifficultyPdf))
-            .ForMember(p_Trg => p_Trg.PartyTheme, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyThemePth))
-            .ForMember(p_Trg => p_Trg.Score, p_Opt => p_Opt.Ignore())
-            .ForMember(p_Trg => p_Trg.NbQuestions, p_Opt => p_Opt.Ignore())
-            .ForMember(p_Trg => p_Trg.Time, p_Opt => p_Opt.Ignore())
-            .ReverseMap();
+        CreateMap<UserPartyQuestionUpq, UserScore>().ConvertUsing<UserPartyQuestionToUserScoreConverter>();
 
         CreateMap<PartyQuestionPqt, PartyQuestion>()
             .ForMember(p_Trg => p_Trg.Id, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Id))
@@ -143,7 +127,6 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.IdUser, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUser))
             .ForMember(p_Trg => p_Trg.IdParty, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdParty))
             .ForMember(p_Trg => p_Trg.User, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdUserNavigation))
-            .ForMember(p_Trg => p_Trg.Party, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdPartyNavigation))
             .ReverseMap();
 
 

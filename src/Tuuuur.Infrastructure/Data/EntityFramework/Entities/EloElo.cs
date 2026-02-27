@@ -5,7 +5,7 @@ namespace Tuuuur.Infrastructure.Data.EntityFramework.Entities;
 
 public partial class EloElo
 {
-    public int IdUser { get; set; }
+    public Guid IdUser { get; set; }
 
     public int IdTheme { get; set; }
 

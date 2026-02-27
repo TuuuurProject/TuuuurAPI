@@ -48,7 +48,7 @@ public class UpdateUserNicknameUseCaseTests
         
         UpdateUserNicknameRequest v_Request = new("Nickname");
 
-        m_MockUserRoleServiceMock.Setup(p_Urs => p_Urs.GetCurrentUserEmail()).Returns(v_User.Email);
+        m_MockUserRoleServiceMock.Setup(p_Urs => p_Urs.GetEmail()).Returns(v_User.Email);
         m_MockUnitOfWork
             .Setup(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())) 
             .ReturnsAsync(v_User);
@@ -82,11 +82,11 @@ public class UpdateUserNicknameUseCaseTests
 
         User v_User = BoFactory.CreateUser();
         User v_OtherUser = BoFactory.CreateUser();
-        v_OtherUser.Id = v_User.Id + 1;
+        v_OtherUser.Id = Guid.NewGuid();
         
         UpdateUserNicknameRequest v_Request = new("Nickname");
 
-        m_MockUserRoleServiceMock.Setup(p_Urs => p_Urs.GetCurrentUserEmail()).Returns(v_User.Email);
+        m_MockUserRoleServiceMock.Setup(p_Urs => p_Urs.GetEmail()).Returns(v_User.Email);
         m_MockUnitOfWork
             .Setup(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())) 
             .ReturnsAsync(v_User);

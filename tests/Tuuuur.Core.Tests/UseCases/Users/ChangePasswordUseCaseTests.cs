@@ -51,7 +51,7 @@ public class ChangePasswordUseCaseTests
         
         ChangePasswordRequest v_Request = new("Mot2Passe","SuperPassword");
 
-        m_MockUserRoleServiceMock.Setup(p_Urs => p_Urs.GetCurrentUserEmail()).Returns(v_User.Email);
+        m_MockUserRoleServiceMock.Setup(p_Urs => p_Urs.GetEmail()).Returns(v_User.Email);
         
         m_MockUnitOfWork
             .Setup(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())) 
@@ -91,7 +91,7 @@ public class ChangePasswordUseCaseTests
         
         ChangePasswordRequest v_Request = new("Mot2Passe","SuperPassword");
 
-        m_MockUserRoleServiceMock.Setup(p_Urs => p_Urs.GetCurrentUserEmail()).Returns(v_User.Email);
+        m_MockUserRoleServiceMock.Setup(p_Urs => p_Urs.GetEmail()).Returns(v_User.Email);
         
         m_MockUnitOfWork
             .Setup(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())) 

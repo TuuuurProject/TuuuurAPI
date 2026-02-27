@@ -19,7 +19,7 @@ internal class ChangePasswordUseCase(
 {
     protected override async Task<GenericEntityResponse<User>> HandleLogic(ChangePasswordRequest p_Request, CancellationToken p_CancellationToken)
     {
-        string v_CurrentUserEmail = p_UserRoleService.GetCurrentUserEmail();
+        string v_CurrentUserEmail = p_UserRoleService.GetEmail();
         User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_CurrentUserEmail, p_CancellationToken);
         if (v_User is null)
             return new GenericEntityResponse<User>([
