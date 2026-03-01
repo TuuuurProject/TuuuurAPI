@@ -11,10 +11,10 @@ public class RedisKeysTests
         string v_Code = "ABC123";
 
         // Act
-        string v_Result = RedisKeys.Party.ByCode(v_Code);
+        string v_Result = RedisKeys.Group.ByCode(v_Code);
 
         // Assert
-        v_Result.Should().Be("Party:ABC123");
+        v_Result.Should().Be("Group:ABC123");
     }
 
     [Fact]
@@ -24,10 +24,10 @@ public class RedisKeysTests
         const string v_PartyCode = "123456";
 
         // Act
-        string v_Result = RedisKeys.Party.Users(v_PartyCode);
+        string v_Result = RedisKeys.Group.Users(v_PartyCode);
 
         // Assert
-        v_Result.Should().Be($"Party:{v_PartyCode}:User");
+        v_Result.Should().Be($"Group:{v_PartyCode}:User");
     }
 
     [Fact]
@@ -37,10 +37,10 @@ public class RedisKeysTests
         const string v_PartyCode = "123456";
 
         // Act
-        string v_Result = RedisKeys.Party.Users(v_PartyCode);
+        string v_Result = RedisKeys.Group.Users(v_PartyCode);
 
         // Assert
-        v_Result.Should().Be($"Party:{v_PartyCode}:User");
+        v_Result.Should().Be($"Group:{v_PartyCode}:User");
     }
 
     [Fact]
@@ -50,10 +50,10 @@ public class RedisKeysTests
         Guid v_UserId = Guid.NewGuid();
 
         // Act
-        string v_Result = RedisKeys.User.UserParty(v_UserId);
+        string v_Result = RedisKeys.User.UserGroup(v_UserId);
 
         // Assert
-        v_Result.Should().Be($"User:{v_UserId}:Party");
+        v_Result.Should().Be($"User:{v_UserId}:Group");
     }
 
     [Theory]
@@ -62,10 +62,10 @@ public class RedisKeysTests
     public void Party_ByCode_WithInvalidCode_ShouldHandleGracefully(string p_Code)
     {
         // Act
-        string v_Result = RedisKeys.Party.ByCode(p_Code);
+        string v_Result = RedisKeys.Group.ByCode(p_Code);
 
         // Assert
-        v_Result.Should().Be($"Party:{p_Code}");
+        v_Result.Should().Be($"Group:{p_Code}");
     }
 
     [Fact]
@@ -74,10 +74,10 @@ public class RedisKeysTests
         // Arrange
         string v_PartyCode = string.Empty;
         // Act
-        string v_Result = RedisKeys.Party.ByCode(v_PartyCode);
+        string v_Result = RedisKeys.Group.ByCode(v_PartyCode);
 
         // Assert
-        v_Result.Should().Be($"Party:{v_PartyCode}");
+        v_Result.Should().Be($"Group:{v_PartyCode}");
     }
 
     [Fact]
@@ -87,10 +87,10 @@ public class RedisKeysTests
         Guid v_UserId = Guid.NewGuid();
 
         // Act
-        string v_Result = RedisKeys.User.UserParty(v_UserId);
+        string v_Result = RedisKeys.User.UserGroup(v_UserId);
 
         // Assert
-        v_Result.Should().Be($"User:{v_UserId}:Party");
+        v_Result.Should().Be($"User:{v_UserId}:Group");
     }
 
     [Fact]
@@ -100,9 +100,9 @@ public class RedisKeysTests
         Guid v_UserId = Guid.NewGuid();
 
         // Act
-        string v_Result = RedisKeys.User.UserParty(v_UserId);
+        string v_Result = RedisKeys.User.UserGroup(v_UserId);
 
         // Assert
-        v_Result.Should().Be($"User:{v_UserId}:Party");
+        v_Result.Should().Be($"User:{v_UserId}:Group");
     }
 }

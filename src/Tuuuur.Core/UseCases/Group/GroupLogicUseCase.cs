@@ -23,14 +23,14 @@ internal class GroupLogicUseCase(
 {
     protected override async Task<EmptyResponse> HandleLogic(GroupLogicRequest p_PartyLogicRequest, CancellationToken p_CancellationToken)
     {
-        GroupParty v_Party = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(p_PartyLogicRequest.PartyCode), p_CancellationToken);
+        GroupParty v_Party = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Group.ByCode(p_PartyLogicRequest.PartyCode), p_CancellationToken);
 
         // Get the index of question to get
-        int v_CurrentIndex = await p_CacheService.GetAsync<int>(RedisKeys.Party.CurrentQuestionIndex(v_Party.Code), p_CancellationToken);
+        int v_CurrentIndex = await p_CacheService.GetAsync<int>(RedisKeys.Group.CurrentQuestionIndex(v_Party.Code), p_CancellationToken);
 
         // Get the question
         Question v_CurrentQuestion = await p_CacheService.SortedSetGetByIndexAsync<Question>(
-            RedisKeys.Party.Questions(v_Party.Code),
+            RedisKeys.Group.Questions(v_Party.Code),
             p_Index: v_CurrentIndex, p_CancellationToken: p_CancellationToken);
 
         Question v_Question = await m_UnitOfWork.QuestionRepository.GetQuestionByIdWithAnswerAsync(v_CurrentQuestion.Id, p_CancellationToken);
@@ -47,12 +47,14 @@ internal class GroupLogicUseCase(
         }
 
         List<User> v_Users = await p_CacheService.SetMembersAsync<User>(
-            RedisKeys.Party.Users(v_Party.Code),
+            RedisKeys.Group.Users(v_Party.Code),
             CancellationToken.None
         );
 
         // Initialize the answered set for this question
-        string v_AnsweredSetKey = RedisKeys.Party.PartyQuestionAnswered(v_Party.Code, v_CurrentQuestion.Id);
+        
+        // TODO theses twe lines are useless no ??
+        string v_AnsweredSetKey = RedisKeys.Group.QuestionAnswered(v_Party.Code, v_CurrentQuestion.Id);
         await p_CacheService.RemoveAsync(v_AnsweredSetKey, p_CancellationToken);
 
         // Update question state for each user in parallel
@@ -69,7 +71,7 @@ internal class GroupLogicUseCase(
             };
 
             await p_CacheService.SetAsync(
-                RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Code, v_LocalQuestion.Id, p_User.Id),
+                RedisKeys.Group.QuestionUserAnswer(v_Party.Code, v_LocalQuestion.Id, p_User.Id),
                 v_UserPartyQuestion,
                 p_CancellationToken: p_CancellationToken
             );
@@ -100,21 +102,21 @@ internal class GroupLogicUseCase(
 
         // Fetch current scores from Redis
         List<(User User, int Score)> v_CurrentScores = await p_CacheService.SortedSetGetAllWithScoresAsync<User>(
-            RedisKeys.Party.Scores(v_Party.Code),
+            RedisKeys.Group.Scores(v_Party.Code),
             p_Descending: true,
             p_CancellationToken: p_CancellationToken
         );
 
         v_Question = await m_UnitOfWork.QuestionRepository.GetQuestionByIdWithAnswerAsync(v_CurrentQuestion.Id, p_CancellationToken);
 
-        List<UserAnswered> v_UserAnswereds = [];
+        List<UserAnswered> v_UserAnswers = [];
 
         // Update scores for all users in parallel
         IEnumerable<Task<UserScore>> v_UpdateScoreTasks = v_Users.Select(async p_User =>
         {
             Question v_LocalQuestion = v_Question.Copy();
             UserPartyQuestion v_UserPartyQuestion = await p_CacheService.GetAsync<UserPartyQuestion>(
-                RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Code, v_LocalQuestion.Id, p_User.Id),
+                RedisKeys.Group.QuestionUserAnswer(v_Party.Code, v_LocalQuestion.Id, p_User.Id),
                 p_CancellationToken: p_CancellationToken
             );
 
@@ -151,13 +153,13 @@ internal class GroupLogicUseCase(
                 int v_TotalScore = v_ExistingScore.Score + v_UserPartyQuestion.Score;
 
                 // Update party user
-                await p_CacheService.SetAsync(RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Code, v_Question.Id, p_User.Id), v_UserPartyQuestion, p_CancellationToken: p_CancellationToken);
+                await p_CacheService.SetAsync(RedisKeys.Group.QuestionUserAnswer(v_Party.Code, v_Question.Id, p_User.Id), v_UserPartyQuestion, p_CancellationToken: p_CancellationToken);
 
                 // Update score directly in Redis
                 if (v_ExistingScore.User != null)
                 {
                     await p_CacheService.SortedSetAddAsync(
-                        RedisKeys.Party.Scores(v_Party.Code),
+                        RedisKeys.Group.Scores(v_Party.Code),
                         v_ExistingScore.User,
                         v_TotalScore,
                         TimeSpan.Zero,
@@ -182,7 +184,7 @@ internal class GroupLogicUseCase(
                     v_GroupQuestion
                 );
                 
-                v_UserAnswereds.Add(new UserAnswered(){ Correct = (bool)v_UserPartyQuestion.Correct , User = v_ExistingScore.User });
+                v_UserAnswers.Add(new UserAnswered(){ Correct = (bool)v_UserPartyQuestion.Correct , User = v_ExistingScore.User });
 
                 return new UserScore
                 {
@@ -197,7 +199,7 @@ internal class GroupLogicUseCase(
         // Update all scores in parallel, get results and order it
         UserScore[] v_AllScores = await Task.WhenAll(v_UpdateScoreTasks);
         
-        await p_GroupNotificationService.NotifyAllPlayerAnswered(v_Party.Code, v_UserAnswereds);
+        await p_GroupNotificationService.NotifyAllPlayerAnswered(v_Party.Code, v_UserAnswers);
         
         List<UserScore> v_ScoresList = v_AllScores
             .Where(p_S => p_S != null)
@@ -223,7 +225,7 @@ internal class GroupLogicUseCase(
         {
             // Start the next question
             await p_CacheService.SetAsync(
-                RedisKeys.Party.CurrentQuestionIndex(v_Party.Code),
+                RedisKeys.Group.CurrentQuestionIndex(v_Party.Code),
                 v_CurrentIndex + 1, p_CancellationToken: p_CancellationToken);
 
             // Loop to others questions
@@ -237,10 +239,10 @@ internal class GroupLogicUseCase(
             );
             
             v_Party.InProgress = false;
-            await p_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
+            await p_CacheService.SetAsync(RedisKeys.Group.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
             
             // Sauvegarder l'ID avant de le réinitialiser
-            List<Question> v_Questions = await p_CacheService.SortedSetRangeByRankAsync<Question>(RedisKeys.Party.Questions(v_Party.Code), p_CancellationToken: p_CancellationToken);
+            List<Question> v_Questions = await p_CacheService.SortedSetRangeByRankAsync<Question>(RedisKeys.Group.Questions(v_Party.Code), p_CancellationToken: p_CancellationToken);
 
             v_Party.Id = Guid.Empty;
             v_Party.Finish = true;
@@ -268,7 +270,7 @@ internal class GroupLogicUseCase(
                     foreach (User v_User in v_Users)
                     {
                         UserPartyQuestion v_UserPartyQuestion = await p_CacheService.GetAsync<UserPartyQuestion>(
-                            RedisKeys.Party.PartyQuestionUserAnswer(v_Party.Code, v_PartyQuestion.IdQuestion, v_User.Id), p_CancellationToken);
+                            RedisKeys.Group.QuestionUserAnswer(v_Party.Code, v_PartyQuestion.IdQuestion, v_User.Id), p_CancellationToken);
                         v_UserPartyQuestion.IdPartyQuestion = v_PartyQuestion.Id;
                         if (!v_ExistingUsers.Contains(v_User.Id))
                         {
@@ -289,7 +291,7 @@ internal class GroupLogicUseCase(
             }
             finally
             {
-                await p_CacheService.RemoveByPatternAsync(RedisKeys.Party.ByCode(v_Party.Code) + ":*", [RedisKeys.Party.Users(v_Party.Code)], p_CancellationToken);
+                await p_CacheService.RemoveByPatternAsync(RedisKeys.Group.ByCode(v_Party.Code) + ":*", [RedisKeys.Group.Users(v_Party.Code)], p_CancellationToken);
             }
         }
 
@@ -306,7 +308,7 @@ internal class GroupLogicUseCase(
         int p_QuestionId,
         CancellationToken p_CancellationToken)
     {
-        string v_Channel = RedisKeys.Party.PartyQuestionAllAnsweredChannel(p_PartyCode, p_QuestionId);
+        string v_Channel = RedisKeys.Group.QuestionAllAnsweredChannel(p_PartyCode, p_QuestionId);
 
         try
         {
@@ -321,7 +323,7 @@ internal class GroupLogicUseCase(
         finally
         {
             // Cleanup the answered set
-            await p_CacheService.RemoveAsync(RedisKeys.Party.PartyQuestionAnswered(p_PartyCode, p_QuestionId), p_CancellationToken);
+            await p_CacheService.RemoveAsync(RedisKeys.Group.QuestionAnswered(p_PartyCode, p_QuestionId), p_CancellationToken);
         }
     }
 }

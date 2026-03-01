@@ -39,6 +39,12 @@ internal partial class GoogleAuthentificationUseCase(
                 IsNew = false,
             };
 
+            // Initialize Elo at 1000 for every theme so ranked matchmaking works from day one
+            IEnumerable<Theme> v_Themes = await m_UnitOfWork.ThemeRepository.GetAllThemesAsync(p_CancellationToken);
+            v_User.Elo = v_Themes
+                .Select(p_Theme => new Elo { IdTheme = p_Theme.Id, Value = 1000 })
+                .ToList();
+
             await m_UnitOfWork.UserRepository.CreateUserAsync(v_User, p_CancellationToken);
             _ = m_UnitOfWork.Save();
 

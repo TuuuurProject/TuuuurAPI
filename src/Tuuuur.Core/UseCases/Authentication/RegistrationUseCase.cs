@@ -57,6 +57,12 @@ internal class RegistrationUseCase(
             p_Request.User.IsNew = true;
             p_Request.User.IsGoogleUser = false;
 
+            // Initialize Elo at 1000 for every theme so ranked matchmaking works from day one
+            IEnumerable<Theme> v_Themes = await m_UnitOfWork.ThemeRepository.GetAllThemesAsync(p_CancellationToken);
+            p_Request.User.Elo = v_Themes
+                .Select(p_Theme => new Elo { IdTheme = p_Theme.Id, Value = 1000 })
+                .ToList();
+
             IMappingAddEntity<User, IEntity> v_UserMap = await m_UnitOfWork.UserRepository.CreateUserAsync(p_Request.User, p_CancellationToken);
             m_UnitOfWork.Save();
 

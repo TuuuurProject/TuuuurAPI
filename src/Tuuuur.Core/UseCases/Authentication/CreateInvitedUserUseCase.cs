@@ -28,7 +28,7 @@ internal class CreateInvitedUserUseCase (
         JwtTokenResponse v_TokenInfos = p_JwtFactory.CreateAnonymousTokenAsync(v_User);
         
         // Store it 24 hours in redis
-        await p_CacheService.SetAsync(RedisKeys.User.ById(v_User.Id), v_User, TimeSpan.FromHours(24), p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAsync(RedisKeys.User.GroupById(v_User.Id), v_User, TimeSpan.FromHours(24), p_CancellationToken: p_CancellationToken);
 
         return new JwtAuthenticationResponse(new UserToken
         {

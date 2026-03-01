@@ -62,15 +62,15 @@ public class ExpelUserOnPartyUseCaseTests
             .Returns(v_User.Email);
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailAsync(v_User.Email, It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_User);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_Party.Code), It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<GroupParty>(RedisKeys.Group.ByCode(v_Party.Code), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_Party);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetMembersAsync<User>(RedisKeys.Party.Users(v_Party.Code), It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetMembersAsync<User>(RedisKeys.Group.Users(v_Party.Code), It.IsAny<CancellationToken>()))
             .ReturnsAsync([v_User, v_TargetUser]);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<string>(RedisKeys.User.UserParty(v_User.Id), It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<string>(RedisKeys.User.UserGroup(v_User.Id), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_Party.Code);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetRemoveAsync(RedisKeys.Party.Users(v_Party.Code), v_TargetUser.Id, It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetRemoveAsync(RedisKeys.Group.Users(v_Party.Code), v_TargetUser.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.RemoveAsync(RedisKeys.User.UserParty(v_TargetUser.Id), It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.RemoveAsync(RedisKeys.User.UserGroup(v_TargetUser.Id), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         m_GroupPartyNotificationServiceMock
             .Setup(p_Ns => p_Ns.NotifyPlayerExpelledAsync(It.IsAny<string>(), It.IsAny<User>()))

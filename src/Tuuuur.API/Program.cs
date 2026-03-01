@@ -24,6 +24,7 @@ using StackExchange.Redis;
 using Tuuuur.API.Hubs;
 using Tuuuur.API.Notifications;
 using Tuuuur.API.Transformers;
+using Tuuuur.API.Workers;
 using Tuuuur.Domain.Interfaces;
 using Tuuuur.Infrastructure.Services;
 
@@ -225,6 +226,9 @@ internal static class Program
         v_Builder.Services.AddSingleton<IConnectionMultiplexer>(await ConnectionMultiplexer.ConnectAsync(v_RedisConnectionString));
         v_Builder.Services.AddSingleton<ICacheService, CacheService>();
 
+        // Matchmaking
+        v_Builder.Services.AddHostedService<MatchmakingWorker>();
+
         WebApplication v_App = v_Builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -246,8 +250,9 @@ internal static class Program
         v_App.UseSerilogRequestLogging();
 
         v_App.UseMiddleware<HandleExceptionMiddleware>();
-        
+
         v_App.MapHub<GroupHub>("group");
+        v_App.MapHub<RankedHub>("ranked");
 
         v_App.MapControllers();
         v_App.MapHealthChecksUI(p_Setup =>

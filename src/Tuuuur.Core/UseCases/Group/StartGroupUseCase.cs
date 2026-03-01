@@ -31,14 +31,14 @@ internal class StartGroupUseCase(
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
         }
 
-        string v_PartyCode = await p_CacheService.GetAsync<string>(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken);
+        string v_PartyCode = await p_CacheService.GetAsync<string>(RedisKeys.User.UserGroup(v_User.Id), p_CancellationToken);
 
         if (v_PartyCode is null)
         {
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found")]);
         }
 
-        GroupParty v_Party = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_PartyCode), p_CancellationToken);
+        GroupParty v_Party = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Group.ByCode(v_PartyCode), p_CancellationToken);
 
         // If user is not in the party and user is not user host
         if (v_PartyCode != v_Party.Code || v_Party.IdUserHost != v_User.Id)
@@ -54,7 +54,7 @@ internal class StartGroupUseCase(
         if (v_Party.NbQuestions is not (5 or 10 or 15 or 20) || v_Party.PartyDifficulty.Count == 0 ||
             v_Party.PartyTheme.Count == 0)
         {
-            return new EmptyResponse([new ErrorDto(DomainErrors.Party.InvalidSettings, $"Party settings are invalid")]);
+            return new EmptyResponse([new ErrorDto(DomainErrors.Party.InvalidSettings, $"Group settings are invalid")]);
         }
 
         IEnumerable<Question> v_Questions = await m_UnitOfWork.QuestionRepository
@@ -66,21 +66,21 @@ internal class StartGroupUseCase(
         for (int v_Index = 0; v_Index < v_Enumerable.Count; v_Index++)
         {
             await p_CacheService.SortedSetAddAsync(
-                RedisKeys.Party.Questions(v_Party.Code),
+                RedisKeys.Group.Questions(v_Party.Code),
                 v_Enumerable[v_Index],
                 p_Score: v_Index, p_CancellationToken: p_CancellationToken);
         }
 
         // Put the question index to 0
         await p_CacheService.SetAsync(
-            RedisKeys.Party.CurrentQuestionIndex(v_Party.Code),
+            RedisKeys.Group.CurrentQuestionIndex(v_Party.Code),
             0, p_CancellationToken: p_CancellationToken);
 
         v_Party.InProgress = true;
-        await p_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAsync(RedisKeys.Group.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
 
         List<User> v_Users = await p_CacheService.SetMembersAsync<User>(
-            RedisKeys.Party.Users(v_Party.Code),
+            RedisKeys.Group.Users(v_Party.Code),
             CancellationToken.None
         );
 
@@ -88,7 +88,7 @@ internal class StartGroupUseCase(
         IEnumerable<Task> v_InitScoreTasks = v_Users.Select(async p_User =>
         {
             await p_CacheService.SortedSetAddAsync(
-                RedisKeys.Party.Scores(v_Party.Code),
+                RedisKeys.Group.Scores(v_Party.Code),
                 p_User,
                 0,
                 TimeSpan.Zero,

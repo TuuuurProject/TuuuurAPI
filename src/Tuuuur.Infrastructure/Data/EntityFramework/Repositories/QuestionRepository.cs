@@ -17,8 +17,8 @@ internal class QuestionRepository(DbContext p_DbContext, IMapper p_Mapper, ILogg
     public async Task<IEnumerable<Question>> GetQuestionsByThemesIdsAndDifficultiesIdsAndNumberOfQuestionsAsync(
         IEnumerable<int> p_ThemesIds, IEnumerable<int> p_DifficultiesIds, int p_NbQuestions, CancellationToken p_CancellationToken = default)
     {
-        List<QuestionQst> v_Query = await FindBy(p_P => 
-            p_P.QuestionThemeQth.Any(p_Theme => p_ThemesIds.Contains(p_Theme.IdTheme)) && 
+        List<QuestionQst> v_Query = await FindBy(p_P =>
+            p_P.QuestionThemeQth.Any(p_Theme => p_ThemesIds.Contains(p_Theme.IdTheme)) &&
             p_DifficultiesIds.Contains(p_P.IdDifficulty))
             .OrderBy(p_P => Guid.NewGuid())
             .Take(p_NbQuestions)
@@ -30,14 +30,22 @@ internal class QuestionRepository(DbContext p_DbContext, IMapper p_Mapper, ILogg
     public async Task<Question> GetQuestionByIdWithAnswerAsync(int p_Id, CancellationToken p_CancellationToken = default)
     {
         QuestionQst v_QuestionQst = await FindBy(
-            p_P => p_P.Id == p_Id, 
+            p_P => p_P.Id == p_Id,
             p_Include: p_Include => p_Include
                 .Include(p_P => p_P.AnswerAns)
                 .Include(p_P => p_P.QuestionThemeQth)
-                .ThenInclude(p_P => p_P.IdThemeNavigation)
-                .Include(p_P => p_P.IdDifficultyNavigation)
-                .Include(p_P => p_P.PartyQuestionPqt))
+                    .ThenInclude(p_P => p_P.IdThemeNavigation)
+                .Include(p_P => p_P.IdDifficultyNavigation))
             .FirstOrDefaultAsync(p_CancellationToken);
         return Mapper.Map<Question>(v_QuestionQst);
+    }
+
+    public async Task<Question> GetRandomQuestionExcludingAsync(List<int> p_ExcludesQuestions, CancellationToken p_CancellationToken = default)
+    {
+        QuestionQst v_Entity = await FindBy(p_P => !p_ExcludesQuestions.Contains(p_P.Id))
+            .OrderBy(p_P => Guid.NewGuid())
+            .FirstOrDefaultAsync(cancellationToken: p_CancellationToken);
+
+        return await GetQuestionByIdWithAnswerAsync(v_Entity.Id, p_CancellationToken);
     }
 }

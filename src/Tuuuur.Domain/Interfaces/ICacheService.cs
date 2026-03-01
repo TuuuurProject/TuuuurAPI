@@ -40,4 +40,19 @@ public interface ICacheService
 
     Task PublishAsync<T>(string p_Channel, T p_Message, CancellationToken p_CancellationToken = default);
     Task<T> SubscribeAndWaitAsync<T>(string p_Channel, TimeSpan p_Timeout, CancellationToken p_CancellationToken = default);
+
+    /// <summary>
+    /// Tries to acquire a distributed lock. Returns true if the lock was acquired (key did not exist).
+    /// </summary>
+    Task<bool> AcquireLockAsync(string p_Key, string p_OwnerId, TimeSpan p_Expiry, CancellationToken p_CancellationToken = default);
+
+    /// <summary>
+    /// Refreshes the expiry of a lock only if this instance still owns it.
+    /// </summary>
+    Task<bool> RefreshLockAsync(string p_Key, string p_OwnerId, TimeSpan p_Expiry, CancellationToken p_CancellationToken = default);
+
+    /// <summary>
+    /// Releases a lock only if this instance still owns it (prevents releasing another owner's lock).
+    /// </summary>
+    Task<bool> ReleaseLockAsync(string p_Key, string p_OwnerId, CancellationToken p_CancellationToken = default);
 }

@@ -31,26 +31,32 @@ public class InfrastructureModule : Module
         p_Builder.RegisterType<UnitOfWork<TuuuurContext>>()
                  .As<IUnitOfWork>()
                  .InstancePerLifetimeScope();
-        
+
         p_Builder.RegisterType<JwtFactory>()
             .As<IJwtFactory>()
             .InstancePerLifetimeScope();
-        
+
         p_Builder.RegisterConfiguration<SmtpEmailConfiguration>();
-        
+
         p_Builder.RegisterType<EmailService>()
             .As<IEmailService>()
             .InstancePerLifetimeScope();
-        
+
         p_Builder.RegisterType<RenderingService>()
             .As<IRenderingService>()
             .InstancePerLifetimeScope();
-        
+
         p_Builder.RegisterType<CalculService>()
             .As<ICalculService>()
             .InstancePerLifetimeScope();
-        
+
         p_Builder.RegisterConfiguration<CalculConfiguration>();
+
+        p_Builder.RegisterType<EloService>()
+            .As<IEloService>()
+            .InstancePerLifetimeScope();
+
+        p_Builder.RegisterConfiguration<EloConfiguration>();
     }
 }
 

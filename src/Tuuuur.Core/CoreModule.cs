@@ -27,7 +27,8 @@ public class CoreModule : Module
     {
         // Add here your services
         p_Builder.RegisterConfiguration<WebsiteConfiguration>();
-        
+        p_Builder.RegisterConfiguration<RankedConfiguration>();
+
         // Generic requests / responses
         p_Builder.RegisterGeneric(typeof(GenericEntityRequest<>)).AsSelf().InstancePerLifetimeScope();
         p_Builder.RegisterGeneric(typeof(GenericEntityResponse<>)).AsSelf().InstancePerLifetimeScope();
