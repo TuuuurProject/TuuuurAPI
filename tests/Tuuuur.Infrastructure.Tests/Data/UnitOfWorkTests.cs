@@ -165,5 +165,18 @@ namespace Tuuuur.Infrastructure.Tests.Data
             // Assert
             m_DbContextMock.Verify(p_M => p_M.Database.RollbackTransaction(), Times.Once);
         }
+
+        [Fact]
+        public void EloRepository_ShouldReturnEloRepositoryInstance()
+        {
+            // Arrange
+            m_UnitOfWork = new UnitOfWork<DbContext>(m_DbContextMock.Object, m_MapperMock.Object, m_LoggerFactoryMock.Object);
+
+            // Act
+            IEloRepository v_EloRepository = m_UnitOfWork.EloRepository;
+
+            // Assert
+            v_EloRepository.Should().BeOfType<EloRepository>();
+        }
     }
 }
