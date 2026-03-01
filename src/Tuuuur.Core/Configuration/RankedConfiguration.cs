@@ -25,5 +25,18 @@ public class RankedConfiguration : IServiceConfiguration
     /// </summary>
     public double MultiplierIncrement { get; set; } = 0.5;
 
+    /// <summary>
+    /// Initial score assigned to each player in the Redis sorted set at the start of a ranked party.
+    /// Default: 5000.
+    /// </summary>
+    public int InitialRankedScore { get; set; } = 5000;
+
+    /// <summary>
+    /// Default Elo value used when a player has no Elo entry for a given theme,
+    /// and as the starting Elo assigned to every theme when a new user registers.
+    /// Default: 1000.
+    /// </summary>
+    public int DefaultElo { get; set; } = 1000;
+
     public string GetSectionName() => SectionName;
 }

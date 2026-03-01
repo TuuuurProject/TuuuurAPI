@@ -252,8 +252,8 @@ internal class RankedLogicUseCase(
                 IEnumerable<Theme> v_ThemesArray = v_Themes as Theme[] ?? v_Themes.ToArray();
                 foreach (Theme v_Theme in v_ThemesArray)
                 {
-                    int v_WinnerCurrentElo = v_Winner.Elo.FirstOrDefault(p_E => p_E.IdTheme == v_Theme.Id)?.Value ?? 1000; // 1_000 is defaut elo value
-                    int v_LoserCurrentElo = v_Looser.Elo.FirstOrDefault(p_E => p_E.IdTheme == v_Theme.Id)?.Value ?? 1000; // 1_000 is defaut elo value
+                    int v_WinnerCurrentElo = v_Winner.Elo.FirstOrDefault(p_E => p_E.IdTheme == v_Theme.Id)?.Value ?? p_RankedConfiguration.DefaultElo;
+                    int v_LoserCurrentElo = v_Looser.Elo.FirstOrDefault(p_E => p_E.IdTheme == v_Theme.Id)?.Value ?? p_RankedConfiguration.DefaultElo;
 
                     (int v_WinnerDelta, int v_LoserDelta) = p_EloService.ComputeEloDelta(v_WinnerCurrentElo, v_LoserCurrentElo);
 

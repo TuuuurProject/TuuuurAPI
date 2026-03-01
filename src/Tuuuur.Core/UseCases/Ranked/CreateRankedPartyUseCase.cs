@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Tuuuur.Core.Configuration;
 using Tuuuur.Core.Requests.Ranked;
 using Tuuuur.Core.Responses;
 using Tuuuur.Domain.Bo;
@@ -23,18 +24,19 @@ internal class CreateRankedPartyUseCase(
     ILogger<CreateRankedPartyUseCase> p_Logger,
     ICacheService p_CacheService,
     IServiceScopeFactory p_ServiceScopeFactory,
-    IRankedNotificationService p_NotificationService)
+    IRankedNotificationService p_NotificationService,
+    RankedConfiguration p_RankedConfiguration)
     : ADbUseCase<CreateRankedPartyRequest, EmptyResponse>(p_Logger, p_UnitOfWork)
 {
     protected override async Task<EmptyResponse> HandleLogic(CreateRankedPartyRequest p_Request, CancellationToken p_CancellationToken)
     {
         User v_Player1 = await m_UnitOfWork.UserRepository.GetUserByIdAsync(p_Request.Player1.Id, p_CancellationToken);
-        if(v_Player1 is null)
-            return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {p_Request.Player1.Id}")]);  
-        
+        if (v_Player1 is null)
+            return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {p_Request.Player1.Id}")]);
+
         User v_Player2 = await m_UnitOfWork.UserRepository.GetUserByIdAsync(p_Request.Player2.Id, p_CancellationToken);
-        if(v_Player2 is null)
-            return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {p_Request.Player2.Id}")]);  
+        if (v_Player2 is null)
+            return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {p_Request.Player2.Id}")]);
 
         Party v_Party = new()
         {
@@ -52,9 +54,9 @@ internal class CreateRankedPartyUseCase(
             ],
             PartyQuestions = []
         };
-        
+
         await p_CacheService.SetAsync(RedisKeys.Ranked.ById(v_Party.Id), v_Party, p_CancellationToken: p_CancellationToken);
-        
+
         await p_CacheService.SetAsync(
             RedisKeys.Ranked.CurrentQuestionIndex(v_Party.Id),
             0, p_CancellationToken: p_CancellationToken);
@@ -62,17 +64,17 @@ internal class CreateRankedPartyUseCase(
         // Store the ranked party ID for each player in Redis so they can retrieve it on reconnect
         await p_CacheService.SetAsync(RedisKeys.User.UserRanked(v_Player1.Id), v_Party.Id, p_CancellationToken: p_CancellationToken);
         await p_CacheService.SetAsync(RedisKeys.User.UserRanked(v_Player2.Id), v_Party.Id, p_CancellationToken: p_CancellationToken);
-        
+
         // Init score for players
-        await p_CacheService.SortedSetAddAsync( RedisKeys.Ranked.Scores(v_Party.Id), v_Player1, 5000, p_CancellationToken: p_CancellationToken);
-        await p_CacheService.SortedSetAddAsync( RedisKeys.Ranked.Scores(v_Party.Id), v_Player2, 5000, p_CancellationToken: p_CancellationToken);
-        
+        await p_CacheService.SortedSetAddAsync(RedisKeys.Ranked.Scores(v_Party.Id), v_Player1, p_RankedConfiguration.InitialRankedScore, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SortedSetAddAsync(RedisKeys.Ranked.Scores(v_Party.Id), v_Player2, p_RankedConfiguration.InitialRankedScore, p_CancellationToken: p_CancellationToken);
+
         m_Logger.LogInformation(
             "Ranked party {PartyId} created for {P1} (elo={E1}) vs {P2} (elo={E2})",
             v_Party.Id, v_Player1.Id, v_Player1.GlobalElo, v_Player2.Id, v_Player2.GlobalElo);
-        
+
         await p_NotificationService.NotifyMatchFoundAsync(v_Player1, v_Player2, v_Party.Id);
-        
+
         // Execute on background thread to not block the client
         // Create a new scope to avoid disposed dependencies
         _ = Task.Run(async () =>

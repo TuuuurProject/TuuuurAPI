@@ -43,14 +43,16 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
                     .Considering()
                     .Properties
                     .Excluding(
-                        nameof(User.Id), 
-                        nameof(User.UserAuth), 
-                        nameof(User.IsInvitedUser), 
-                        nameof(UserUsr.PartyUserPus), 
-                        nameof(UserUsr.UserAuthUat), 
-                        nameof(UserUsr.UserPartyQuestionUpq), 
-                        nameof(UserUsr.PartyPty), 
-                        nameof(UserUsr.EloElo), 
+                        nameof(User.Id),
+                        nameof(User.UserAuth),
+                        nameof(User.IsInvitedUser),
+                        nameof(User.GlobalElo),
+                        nameof(User.Elo),
+                        nameof(UserUsr.PartyUserPus),
+                        nameof(UserUsr.UserAuthUat),
+                        nameof(UserUsr.UserPartyQuestionUpq),
+                        nameof(UserUsr.PartyPty),
+                        nameof(UserUsr.EloElo),
                         nameof(UserUsr.RefreshTokenRtk)).IsEqualTo(v_User);
             }
             finally
@@ -80,14 +82,16 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
                     .Considering()
                     .Properties
                     .Excluding(
-                        nameof(User.Id), 
-                        nameof(User.UserAuth), 
-                        nameof(User.IsInvitedUser), 
-                        nameof(UserUsr.PartyUserPus), 
-                        nameof(UserUsr.UserAuthUat), 
-                        nameof(UserUsr.UserPartyQuestionUpq), 
-                        nameof(UserUsr.PartyPty), 
-                        nameof(UserUsr.EloElo), 
+                        nameof(User.Id),
+                        nameof(User.UserAuth),
+                        nameof(User.IsInvitedUser),
+                        nameof(User.GlobalElo),
+                        nameof(User.Elo),
+                        nameof(UserUsr.PartyUserPus),
+                        nameof(UserUsr.UserAuthUat),
+                        nameof(UserUsr.UserPartyQuestionUpq),
+                        nameof(UserUsr.PartyPty),
+                        nameof(UserUsr.EloElo),
                         nameof(UserUsr.RefreshTokenRtk)).IsEqualTo(v_User);
             }
             finally
@@ -119,14 +123,16 @@ namespace Tuuuur.Infrastructure.Tests.Data.EntityFramework.Repositories
                     .Considering()
                     .Properties
                     .Excluding(
-                        nameof(User.Id), 
-                        nameof(User.UserAuth), 
-                        nameof(User.IsInvitedUser), 
-                        nameof(UserUsr.UserAuthUat), 
-                        nameof(UserUsr.PartyUserPus), 
-                        nameof(UserUsr.UserPartyQuestionUpq), 
-                        nameof(UserUsr.PartyPty), 
-                        nameof(UserUsr.EloElo), 
+                        nameof(User.Id),
+                        nameof(User.UserAuth),
+                        nameof(User.IsInvitedUser),
+                        nameof(User.GlobalElo),
+                        nameof(User.Elo),
+                        nameof(UserUsr.UserAuthUat),
+                        nameof(UserUsr.PartyUserPus),
+                        nameof(UserUsr.UserPartyQuestionUpq),
+                        nameof(UserUsr.PartyPty),
+                        nameof(UserUsr.EloElo),
                         nameof(UserUsr.RefreshTokenRtk)).IsEqualTo(v_User);
             }
             finally

@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
+using Tuuuur.Core.Configuration;
 using Tuuuur.Core.Requests.Authentication;
 using Tuuuur.Core.Requests.Authentication.Google;
 using Tuuuur.Core.Requests.Tools;
@@ -28,7 +29,7 @@ namespace Tuuuur.Core.Tests.UseCases.Authentication
             Mock<ILogger<GoogleAuthentificationUseCase>> v_LoggerMock = new();
             m_JwtFactoryMock = new Mock<IJwtFactory>();
 
-            m_UseCase = new GoogleAuthentificationUseCase(m_UnitOfWorkMock.Object, v_LoggerMock.Object, m_JwtFactoryMock.Object);
+            m_UseCase = new GoogleAuthentificationUseCase(m_UnitOfWorkMock.Object, v_LoggerMock.Object, m_JwtFactoryMock.Object, new RankedConfiguration());
         }
 
         [Fact]
@@ -71,6 +72,9 @@ namespace Tuuuur.Core.Tests.UseCases.Authentication
             m_UnitOfWorkMock.Setup(p_U => p_U.Save())
                 .Returns(1)
                 .Verifiable();
+
+            m_UnitOfWorkMock.Setup(p_U => p_U.ThemeRepository.GetAllThemesAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<Theme>());
 
             JwtTokenResponse v_JwtTokenResponse = new();
             m_JwtFactoryMock.Setup(p_J => p_J.CreateTokenAsync(It.IsAny<User>(), It.IsAny<IUnitOfWork>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_JwtTokenResponse);

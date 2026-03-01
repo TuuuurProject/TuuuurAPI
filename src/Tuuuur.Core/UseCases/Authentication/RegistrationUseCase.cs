@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Data;
+using Tuuuur.Core.Configuration;
 using Tuuuur.Core.Requests.Authentication;
 using Tuuuur.Core.Requests.Tools;
 using Tuuuur.Core.Responses;
@@ -27,7 +28,8 @@ internal class RegistrationUseCase(
     ILogger<RegistrationUseCase> p_Logger,
     IMediator p_Mediator,
     IRenderingService p_RenderingService,
-    IEmailService p_EmailService)
+    IEmailService p_EmailService,
+    RankedConfiguration p_RankedConfiguration)
     : ADbUseCase<RegistrationRequest, EmptyResponse>(p_Logger, p_UnitOfWork)
 {
     protected override async Task<EmptyResponse> HandleLogic(RegistrationRequest p_Request, CancellationToken p_CancellationToken)
@@ -57,10 +59,10 @@ internal class RegistrationUseCase(
             p_Request.User.IsNew = true;
             p_Request.User.IsGoogleUser = false;
 
-            // Initialize Elo at 1000 for every theme so ranked matchmaking works from day one
+            // Initialize Elo for every theme so ranked matchmaking works from day one
             IEnumerable<Theme> v_Themes = await m_UnitOfWork.ThemeRepository.GetAllThemesAsync(p_CancellationToken);
             p_Request.User.Elo = v_Themes
-                .Select(p_Theme => new Elo { IdTheme = p_Theme.Id, Value = 1000 })
+                .Select(p_Theme => new Elo { IdTheme = p_Theme.Id, Value = p_RankedConfiguration.DefaultElo })
                 .ToList();
 
             IMappingAddEntity<User, IEntity> v_UserMap = await m_UnitOfWork.UserRepository.CreateUserAsync(p_Request.User, p_CancellationToken);
