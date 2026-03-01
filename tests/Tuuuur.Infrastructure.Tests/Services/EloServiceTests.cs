@@ -148,4 +148,30 @@ public class EloServiceTests
         v_WinnerDelta.Should().BeGreaterThanOrEqualTo(0);
         v_LoserDelta.Should().BeGreaterThanOrEqualTo(0);
     }
+
+    // ── GetKFactor fallback path ───────────────────────────────────────────────
+
+    [Fact]
+    public void GetKFactor_WhenEloExceedsAllDefinedThresholds_ShouldReturnKOfHighestThreshold()
+    {
+        // Arrange: config with no catch-all (no int.MaxValue threshold).
+        // Any elo above 1000 exhausts all thresholds and hits the fallback return.
+        EloConfiguration v_Config = new()
+        {
+            KFactorThresholds =
+            [
+                new KFactorThreshold { MaxElo = 500, K = 40 },
+                new KFactorThreshold { MaxElo = 1000, K = 20 }
+            ]
+        };
+        EloService v_Service = new(v_Config);
+
+        // Act: elo=2000 exceeds both configured MaxElo values (500 and 1000).
+        // The foreach loop finds no matching threshold, so the fallback return
+        // returns the K of the threshold with the highest MaxElo.
+        int v_K = v_Service.GetKFactor(2000);
+
+        // Assert: highest MaxElo threshold is 1000 → K=20
+        v_K.Should().Be(20);
+    }
 }
