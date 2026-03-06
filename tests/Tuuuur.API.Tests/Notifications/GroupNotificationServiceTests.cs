@@ -49,7 +49,7 @@ public class GroupNotificationServiceTests
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SetMembersAsync<User>(
-                RedisKeys.Party.Users(v_PartyCode),
+                RedisKeys.Group.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
 
@@ -82,7 +82,7 @@ public class GroupNotificationServiceTests
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SetMembersAsync<User>(
-                RedisKeys.Party.Users(v_PartyCode),
+                RedisKeys.Group.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
 
@@ -103,7 +103,7 @@ public class GroupNotificationServiceTests
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SetMembersAsync<User>(
-                RedisKeys.Party.Users(v_PartyCode),
+                RedisKeys.Group.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
 
@@ -136,7 +136,7 @@ public class GroupNotificationServiceTests
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SetMembersAsync<User>(
-                RedisKeys.Party.Users(v_PartyCode),
+                RedisKeys.Group.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_Users);
 
@@ -174,7 +174,7 @@ public class GroupNotificationServiceTests
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SetMembersAsync<User>(
-                RedisKeys.Party.Users(v_PartyCode),
+                RedisKeys.Group.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
 
@@ -210,7 +210,7 @@ public class GroupNotificationServiceTests
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SetMembersAsync<User>(
-                RedisKeys.Party.Users(v_PartyCode),
+                RedisKeys.Group.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
 
@@ -231,7 +231,7 @@ public class GroupNotificationServiceTests
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SetMembersAsync<User>(
-                RedisKeys.Party.Users(v_PartyCode),
+                RedisKeys.Group.Users(v_PartyCode),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_UserIds);
 

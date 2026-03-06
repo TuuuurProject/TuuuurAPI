@@ -9,6 +9,4 @@ public class Answer : IBOEntity
     public string Value { get; set; }
 
     public bool? Valid { get; set; }
-
-    public virtual Question Question { get; set; }
 }

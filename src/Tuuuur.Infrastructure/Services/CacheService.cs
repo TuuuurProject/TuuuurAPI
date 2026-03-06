@@ -242,6 +242,40 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
         await v_Subscriber.PublishAsync(RedisChannel.Literal(p_Channel), JsonSerializer.Serialize(p_Message));
     }
 
+    public async Task<bool> AcquireLockAsync(string p_Key, string p_OwnerId, TimeSpan p_Expiry, CancellationToken p_CancellationToken = default)
+    {
+        if (p_CancellationToken.IsCancellationRequested) return false;
+        return await m_Database.StringSetAsync(p_Key, p_OwnerId, p_Expiry, When.NotExists);
+    }
+
+    // Lua script: only refresh if the current value matches our owner ID
+    private static readonly string m_RefreshLockScript =
+        "if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('PEXPIRE', KEYS[1], ARGV[2]) else return 0 end";
+
+    public async Task<bool> RefreshLockAsync(string p_Key, string p_OwnerId, TimeSpan p_Expiry, CancellationToken p_CancellationToken = default)
+    {
+        if (p_CancellationToken.IsCancellationRequested) return false;
+        RedisResult v_Result = await m_Database.ScriptEvaluateAsync(
+            m_RefreshLockScript,
+            [(RedisKey)p_Key],
+            [p_OwnerId, (long)p_Expiry.TotalMilliseconds]);
+        return (long)v_Result == 1;
+    }
+
+    // Lua script: only delete if the current value matches our owner ID (atomic)
+    private static readonly string m_ReleaseLockScript =
+        "if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('DEL', KEYS[1]) else return 0 end";
+
+    public async Task<bool> ReleaseLockAsync(string p_Key, string p_OwnerId, CancellationToken p_CancellationToken = default)
+    {
+        if (p_CancellationToken.IsCancellationRequested) return false;
+        RedisResult v_Result = await m_Database.ScriptEvaluateAsync(
+            m_ReleaseLockScript,
+            [(RedisKey)p_Key],
+            [p_OwnerId]);
+        return (long)v_Result == 1;
+    }
+
     public async Task<T> SubscribeAndWaitAsync<T>(string p_Channel, TimeSpan p_Timeout, CancellationToken p_CancellationToken = default)
     {
         ISubscriber v_Subscriber = p_Redis.GetSubscriber();

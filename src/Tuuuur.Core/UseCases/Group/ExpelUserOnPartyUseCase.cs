@@ -26,13 +26,13 @@ internal class ExpelUserOnPartyUseCase(IUnitOfWork p_UnitOfWork,
         if (v_User == null)
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
 
-        string v_PartyCode = await p_CacheService.GetAsync<string>(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken);
+        string v_PartyCode = await p_CacheService.GetAsync<string>(RedisKeys.User.UserGroup(v_User.Id), p_CancellationToken);
         if (v_PartyCode is null)
         {
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found")]);
         }
         
-        GroupParty v_Party = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_PartyCode), p_CancellationToken);
+        GroupParty v_Party = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Group.ByCode(v_PartyCode), p_CancellationToken);
         
         // If user is not in the party
         if (v_PartyCode != v_Party.Code || v_Party.IdUserHost != v_User.Id)
@@ -43,7 +43,7 @@ internal class ExpelUserOnPartyUseCase(IUnitOfWork p_UnitOfWork,
             return new EmptyResponse([new ErrorDto(DomainErrors.Party.InProgress, $"You can't delete an user when the party is in progress")]);
         
         List<User> v_Users = await p_CacheService.SetMembersAsync<User>(
-            RedisKeys.Party.Users(v_Party.Code),
+            RedisKeys.Group.Users(v_Party.Code),
             CancellationToken.None
         );
         
@@ -61,8 +61,8 @@ internal class ExpelUserOnPartyUseCase(IUnitOfWork p_UnitOfWork,
             v_TargetUser
         );
 
-        await p_CacheService.SetRemoveAsync(RedisKeys.Party.Users(v_Party.Code), v_TargetUser.Id, p_CancellationToken: p_CancellationToken);
-        await p_CacheService.RemoveAsync(RedisKeys.User.UserParty(v_TargetUser.Id), p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetRemoveAsync(RedisKeys.Group.Users(v_Party.Code), v_TargetUser.Id, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.RemoveAsync(RedisKeys.User.UserGroup(v_TargetUser.Id), p_CancellationToken: p_CancellationToken);
 
         return new EmptyResponse();
     }

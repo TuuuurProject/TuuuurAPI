@@ -136,7 +136,7 @@ internal class GroupNotificationService(
     {
         // Get user IDs from Redis set
         List<User> v_UserIds = await p_CacheService.SetMembersAsync<User>(
-            RedisKeys.Party.Users(p_Code),
+            RedisKeys.Group.Users(p_Code),
             CancellationToken.None
         );
 

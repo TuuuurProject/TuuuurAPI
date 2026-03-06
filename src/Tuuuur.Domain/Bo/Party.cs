@@ -13,7 +13,7 @@ public record Party : PartyBase
     public bool InProgress { get; set; }
     
     /// <summary>
-    /// Users list
+    /// GroupUsers list
     /// </summary>
     public List<PartyUser> PartyUsers { get; set; } = [];
 }

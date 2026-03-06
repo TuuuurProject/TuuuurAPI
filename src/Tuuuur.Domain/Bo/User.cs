@@ -26,4 +26,10 @@ public record User : IBOEntity
     public bool IsInvitedUser { get; set; } = false;
     
     public List<UserAuth> UserAuth { get; set; } = [];
+    
+    public List<Elo> Elo { get; set; } = [];
+    
+    public int GlobalElo => Elo.Count != 0 ? Elo.Sum(p_P => p_P.Value) / Elo.Count : 0;
+    
+    
 }

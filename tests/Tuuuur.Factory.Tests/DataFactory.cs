@@ -103,8 +103,7 @@ public static class BoFactory
             .RuleFor(p_Answer => p_Answer.Id, p_F => p_F.Random.Int(1, 10000))
             .RuleFor(p_Answer => p_Answer.IdQuestion, p_QuestionId ?? new Faker().Random.Int(1, 1000))
             .RuleFor(p_Answer => p_Answer.Value, p_F => p_F.Lorem.Word())
-            .RuleFor(p_Answer => p_Answer.Valid, p_F => p_F.Random.Bool())
-            .RuleFor(p_Answer => p_Answer.Question, _ => null);
+            .RuleFor(p_Answer => p_Answer.Valid, p_F => p_F.Random.Bool());
     }
 
     public static Faker<QuestionTheme> CreateQuestionTheme(int? p_QuestionId = null, int? p_ThemeId = null)

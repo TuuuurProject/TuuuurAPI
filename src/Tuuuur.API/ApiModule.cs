@@ -48,6 +48,10 @@ internal class ApiModule : Module
             .As<IGroupNotificationService>()
             .InstancePerLifetimeScope();
 
+        p_Builder.RegisterType<RankedNotificationService>()
+            .As<IRankedNotificationService>()
+            .SingleInstance();
+
         p_Builder.RegisterType<UserRoleService>()
             .As<IUserRoleService>()
             .InstancePerLifetimeScope();

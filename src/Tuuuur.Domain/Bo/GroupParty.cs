@@ -3,7 +3,7 @@ namespace Tuuuur.Domain.Bo;
 public record GroupParty : PartyBase
 {
     /// <summary>
-    /// Party code
+    /// Group code
     /// </summary>
     public string Code { get; set; }
 
@@ -23,7 +23,7 @@ public record GroupParty : PartyBase
     public bool ScoreEachRound  { get; set; }
     
     /// <summary>
-    /// Users list
+    /// GroupUsers list
     /// </summary>
     public virtual List<PartyUser> PartyUsers { get; set; } = [];
     

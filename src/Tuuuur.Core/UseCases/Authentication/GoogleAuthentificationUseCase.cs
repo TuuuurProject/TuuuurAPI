@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Ardalis.GuardClauses;
+using Tuuuur.Core.Configuration;
 using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Interfaces.Data;
@@ -15,7 +16,8 @@ namespace Tuuuur.Core.UseCases.Authentication;
 internal partial class GoogleAuthentificationUseCase(
     IUnitOfWork p_UnitOfWork,
     ILogger<GoogleAuthentificationUseCase> p_Logger,
-    IJwtFactory p_JwtFactory)
+    IJwtFactory p_JwtFactory,
+    RankedConfiguration p_RankedConfiguration)
     : ADbUseCase<GoogleAuthentificationRequest, JwtAuthenticationResponse>(p_Logger, p_UnitOfWork)
 {
     protected override async Task<JwtAuthenticationResponse> HandleLogic(GoogleAuthentificationRequest p_Request, CancellationToken p_CancellationToken)
@@ -38,6 +40,12 @@ internal partial class GoogleAuthentificationUseCase(
                 IsGoogleUser = true,
                 IsNew = false,
             };
+
+            // Initialize Elo for every theme so ranked matchmaking works from day one
+            IEnumerable<Theme> v_Themes = await m_UnitOfWork.ThemeRepository.GetAllThemesAsync(p_CancellationToken);
+            v_User.Elo = v_Themes
+                .Select(p_Theme => new Elo { IdTheme = p_Theme.Id, Value = p_RankedConfiguration.DefaultElo })
+                .ToList();
 
             await m_UnitOfWork.UserRepository.CreateUserAsync(v_User, p_CancellationToken);
             _ = m_UnitOfWork.Save();

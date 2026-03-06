@@ -58,15 +58,15 @@ public class LeaveGroupUseCaseTests
 
         m_UserRoleServiceMock.Setup(p_U => p_U.GetUserId())
             .Returns(v_User.Id);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_Party.Code), It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<GroupParty>(RedisKeys.Group.ByCode(v_Party.Code), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_Party);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetMembersAsync<User>(RedisKeys.Party.Users(v_Party.Code), It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetMembersAsync<User>(RedisKeys.Group.Users(v_Party.Code), It.IsAny<CancellationToken>()))
             .ReturnsAsync([v_User]);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<string>(RedisKeys.User.UserParty(v_User.Id), It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<string>(RedisKeys.User.UserGroup(v_User.Id), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_Party.Code);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetRemoveAsync(RedisKeys.Party.Users(v_Party.Code), v_User.Id, It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetRemoveAsync(RedisKeys.Group.Users(v_Party.Code), v_User.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.RemoveAsync(RedisKeys.User.UserParty(v_User.Id), It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.RemoveAsync(RedisKeys.User.UserGroup(v_User.Id), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<User>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_User);

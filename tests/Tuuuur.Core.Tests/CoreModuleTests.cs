@@ -15,7 +15,8 @@ namespace Tuuuur.Core.Tests
         {
             m_TypesWanted = new List<Type>
             {
-                typeof(WebsiteConfiguration)
+                typeof(WebsiteConfiguration),
+                typeof(RankedConfiguration)
             };
         }
 

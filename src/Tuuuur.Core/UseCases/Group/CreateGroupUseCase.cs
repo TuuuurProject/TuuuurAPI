@@ -27,13 +27,13 @@ internal class CreateGroupUseCase(IUnitOfWork p_UnitOfWork,
         if (v_User == null)
             return new GenericEntityResponse<GroupParty>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
 
-        string v_PartyCode = await p_CacheService.GetAsync<string>(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken) ?? string.Empty;
+        string v_PartyCode = await p_CacheService.GetAsync<string>(RedisKeys.User.UserGroup(v_User.Id), p_CancellationToken) ?? string.Empty;
         
         // If a party already exist, 
         if (v_PartyCode != string.Empty)
         {
-            GroupParty v_ExistingParty = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_PartyCode), p_CancellationToken);
-            List<User> v_UserInExistingParty = await p_CacheService.SetMembersAsync<User>(RedisKeys.Party.Users(v_PartyCode), p_CancellationToken: p_CancellationToken);
+            GroupParty v_ExistingParty = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Group.ByCode(v_PartyCode), p_CancellationToken);
+            List<User> v_UserInExistingParty = await p_CacheService.SetMembersAsync<User>(RedisKeys.Group.Users(v_PartyCode), p_CancellationToken: p_CancellationToken);
             foreach (User v_LocalUser in v_UserInExistingParty)
             {
                 v_ExistingParty.PartyUsers.Add(new PartyUser { User =  v_LocalUser, IdUser = v_LocalUser.Id });
@@ -58,7 +58,7 @@ internal class CreateGroupUseCase(IUnitOfWork p_UnitOfWork,
             int v_SixDigit = (v_Number % 900000) + 100000;
             string v_GeneratedCode = v_SixDigit.ToString();
 
-            GroupParty v_ExistingParty = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_GeneratedCode), p_CancellationToken);
+            GroupParty v_ExistingParty = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Group.ByCode(v_GeneratedCode), p_CancellationToken);
             if (v_ExistingParty == null)
             {
                 v_Code = v_GeneratedCode;
@@ -78,9 +78,9 @@ internal class CreateGroupUseCase(IUnitOfWork p_UnitOfWork,
             NbQuestions = 10,
         };
         
-        await p_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
-        await p_CacheService.SetAddAsync(RedisKeys.Party.Users(v_Party.Code), v_User, p_CancellationToken: p_CancellationToken);
-        await p_CacheService.SetAsync(RedisKeys.User.UserParty(v_User.Id), v_Party.Code, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAsync(RedisKeys.Group.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAddAsync(RedisKeys.Group.Users(v_Party.Code), v_User, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAsync(RedisKeys.User.UserGroup(v_User.Id), v_Party.Code, p_CancellationToken: p_CancellationToken);
         
         v_Party.PartyUsers.Add(new PartyUser() { IdUser = v_User.Id, User = v_User });
 
