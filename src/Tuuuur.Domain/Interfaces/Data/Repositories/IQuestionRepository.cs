@@ -9,6 +9,10 @@ public interface IQuestionRepository : IGenericRepository
 
     Task<Question> GetQuestionByIdWithAnswerAsync(int p_Id, CancellationToken p_CancellationToken = default);
 
-    Task<Question> GetRandomQuestionExcludingAsync(List<int> p_ExcludesQuestions,
+    /// <summary>Returns a random question not in the exclude list, with optional theme and difficulty filters.</summary>
+    Task<Question> GetRandomQuestionExcludingAsync(
+        List<int> p_ExcludesQuestions,
+        IEnumerable<int>? p_ThemeIds,
+        IEnumerable<int>? p_DifficultyIds,
         CancellationToken p_CancellationToken = default);
 }

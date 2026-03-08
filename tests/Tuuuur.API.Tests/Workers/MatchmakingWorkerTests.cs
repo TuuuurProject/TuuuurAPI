@@ -35,7 +35,7 @@ public class MatchmakingWorkerTests
             {
                 ["MatchmakingWorker:BaseEloTolerance"] = "100",
                 ["MatchmakingWorker:EloExpansionPerMinute"] = "25",
-                ["MatchmakingWorker:MaxEloTolerance"] = "500",
+                ["MatchmakingWorker:MaxEloTolerance"] = "350",
                 ["MatchmakingWorker:LockExpirySeconds"] = "5",
                 ["MatchmakingWorker:TickIntervalMs"] = "50",
                 ["MatchmakingWorker:StandbyIntervalMs"] = "50"
@@ -206,7 +206,7 @@ public class MatchmakingWorkerTests
         int v_LockCallCount = 0;
 
         User v_P1 = new() { Id = Guid.NewGuid(), Elo = [new Domain.Bo.Elo { IdTheme = 1, Value = 1000 }] };
-        User v_P2 = new() { Id = Guid.NewGuid(), Elo = [new Domain.Bo.Elo { IdTheme = 1, Value = 2000 }] }; // diff=1000 > MaxTolerance=500
+        User v_P2 = new() { Id = Guid.NewGuid(), Elo = [new Domain.Bo.Elo { IdTheme = 1, Value = 2000 }] }; // diff=1000 > MaxTolerance=350
 
         m_CacheServiceMock
             .Setup(p_C => p_C.AcquireLockAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))

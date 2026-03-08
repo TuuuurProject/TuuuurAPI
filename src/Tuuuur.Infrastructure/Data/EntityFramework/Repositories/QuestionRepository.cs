@@ -40,9 +40,21 @@ internal class QuestionRepository(DbContext p_DbContext, IMapper p_Mapper, ILogg
         return Mapper.Map<Question>(v_QuestionQst);
     }
 
-    public async Task<Question> GetRandomQuestionExcludingAsync(List<int> p_ExcludesQuestions, CancellationToken p_CancellationToken = default)
+    public async Task<Question> GetRandomQuestionExcludingAsync(
+        List<int> p_ExcludesQuestions,
+        IEnumerable<int>? p_ThemeIds,
+        IEnumerable<int>? p_DifficultyIds,
+        CancellationToken p_CancellationToken = default)
     {
-        QuestionQst v_Entity = await FindBy(p_P => !p_ExcludesQuestions.Contains(p_P.Id))
+        IQueryable<QuestionQst> v_Query = FindBy(p_P => !p_ExcludesQuestions.Contains(p_P.Id));
+
+        if (p_ThemeIds?.Any() == true)
+            v_Query = v_Query.Where(p_P => p_P.QuestionThemeQth.Any(p_Qt => p_ThemeIds.Contains(p_Qt.IdTheme)));
+
+        if (p_DifficultyIds?.Any() == true)
+            v_Query = v_Query.Where(p_P => p_DifficultyIds.Contains(p_P.IdDifficulty));
+
+        QuestionQst v_Entity = await v_Query
             .OrderBy(p_P => Guid.NewGuid())
             .FirstOrDefaultAsync(cancellationToken: p_CancellationToken);
 

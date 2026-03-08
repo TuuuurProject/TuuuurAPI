@@ -27,7 +27,8 @@ namespace Tuuuur.Infrastructure.Tests
                 typeof(SmtpEmailConfiguration),
                 typeof(CalculConfiguration),
                 typeof(IEloService),
-                typeof(EloConfiguration)
+                typeof(EloConfiguration),
+                typeof(RankConfiguration)
             };
         }
 

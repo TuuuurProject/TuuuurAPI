@@ -34,9 +34,9 @@ public class RankedConfiguration : IServiceConfiguration
     /// <summary>
     /// Default Elo value used when a player has no Elo entry for a given theme,
     /// and as the starting Elo assigned to every theme when a new user registers.
-    /// Default: 1000.
+    /// Default: 800 — places new players in Bronze 3 so they experience visible early progression.
     /// </summary>
-    public int DefaultElo { get; set; } = 1000;
+    public int DefaultElo { get; set; } = 800;
 
     public string GetSectionName() => SectionName;
 }

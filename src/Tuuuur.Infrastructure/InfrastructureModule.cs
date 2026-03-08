@@ -57,6 +57,7 @@ public class InfrastructureModule : Module
             .InstancePerLifetimeScope();
 
         p_Builder.RegisterConfiguration<EloConfiguration>();
+        p_Builder.RegisterConfiguration<RankConfiguration>();
     }
 }
 

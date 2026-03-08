@@ -11,7 +11,7 @@ namespace Tuuuur.Infrastructure.Tests.Services
         {
             m_CalculConfiguration = new CalculConfiguration
             {
-                MaxDurationInSeconds = 30,
+                MaxDurationInSeconds = 15,
                 MaxScore = 1000
             };
 

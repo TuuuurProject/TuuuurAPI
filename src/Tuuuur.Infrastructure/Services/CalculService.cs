@@ -8,7 +8,7 @@ public class CalculService(CalculConfiguration p_CalculConfiguration) : ICalculS
     {
         if (p_DtAnsweredAt is null)
             return 0;
-        
+
         double v_ResponseDuration = (p_DtAnsweredAt - p_DtPresentedAt).Value.TotalSeconds;
 
         if (v_ResponseDuration >= p_CalculConfiguration.MaxDurationInSeconds)

@@ -12,14 +12,26 @@ public class EloConfiguration : IServiceConfiguration
     private const string SectionName = "EloConfiguration";
 
     /// <summary>
-    /// K-factor tiers, ordered by ascending MaxElo.
-    /// Default: K=40 up to 1200, K=20 up to 2000, K=10 above.
+    /// Number of games below which the placement K-factor applies.
+    /// Default: 20.
+    /// </summary>
+    public int PlacementGames { get; set; } = 20;
+
+    /// <summary>
+    /// K-factor used during the placement phase (GamesPlayed &lt; PlacementGames).
+    /// Default: 60 — ensures fast early convergence.
+    /// </summary>
+    public int PlacementKFactor { get; set; } = 60;
+
+    /// <summary>
+    /// K-factor tiers, ordered by ascending MaxElo, applied after the placement phase.
+    /// Default: K=40 up to 1500, K=25 up to 2500, K=18 above.
     /// </summary>
     public List<KFactorThreshold> KFactorThresholds { get; set; } =
     [
-        new KFactorThreshold { MaxElo = 1200, K = 40 },
-        new KFactorThreshold { MaxElo = 2000, K = 20 },
-        new KFactorThreshold { MaxElo = int.MaxValue, K = 10 },
+        new KFactorThreshold { MaxElo = 1500, K = 40 },
+        new KFactorThreshold { MaxElo = 2500, K = 25 },
+        new KFactorThreshold { MaxElo = int.MaxValue, K = 18 },
     ];
 
     public string GetSectionName() => SectionName;

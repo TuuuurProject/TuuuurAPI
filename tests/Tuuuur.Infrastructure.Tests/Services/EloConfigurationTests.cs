@@ -28,7 +28,7 @@ public class EloConfigurationTests
     }
 
     [Fact]
-    public void DefaultKFactorThresholds_FirstEntry_ShouldBeK40UpTo1200()
+    public void DefaultKFactorThresholds_FirstEntry_ShouldBeK40UpTo1500()
     {
         // Arrange
         EloConfiguration v_Config = new();
@@ -37,12 +37,12 @@ public class EloConfigurationTests
         KFactorThreshold v_First = v_Config.KFactorThresholds[0];
 
         // Assert
-        v_First.MaxElo.Should().Be(1200);
+        v_First.MaxElo.Should().Be(1500);
         v_First.K.Should().Be(40);
     }
 
     [Fact]
-    public void DefaultKFactorThresholds_SecondEntry_ShouldBeK20UpTo2000()
+    public void DefaultKFactorThresholds_SecondEntry_ShouldBeK25UpTo2500()
     {
         // Arrange
         EloConfiguration v_Config = new();
@@ -51,12 +51,12 @@ public class EloConfigurationTests
         KFactorThreshold v_Second = v_Config.KFactorThresholds[1];
 
         // Assert
-        v_Second.MaxElo.Should().Be(2000);
-        v_Second.K.Should().Be(20);
+        v_Second.MaxElo.Should().Be(2500);
+        v_Second.K.Should().Be(25);
     }
 
     [Fact]
-    public void DefaultKFactorThresholds_ThirdEntry_ShouldBeK10AtMaxValue()
+    public void DefaultKFactorThresholds_ThirdEntry_ShouldBeK18AtMaxValue()
     {
         // Arrange
         EloConfiguration v_Config = new();
@@ -66,7 +66,21 @@ public class EloConfigurationTests
 
         // Assert
         v_Third.MaxElo.Should().Be(int.MaxValue);
-        v_Third.K.Should().Be(10);
+        v_Third.K.Should().Be(18);
+    }
+
+    [Fact]
+    public void DefaultPlacementGames_ShouldBe20()
+    {
+        EloConfiguration v_Config = new();
+        v_Config.PlacementGames.Should().Be(20);
+    }
+
+    [Fact]
+    public void DefaultPlacementKFactor_ShouldBe60()
+    {
+        EloConfiguration v_Config = new();
+        v_Config.PlacementKFactor.Should().Be(60);
     }
 
     [Fact]

@@ -40,12 +40,17 @@ internal class RankedLogicUseCase(
         if (v_Player2 is null)
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_Party.PartyUsers.LastOrDefault()!.IdUser}")]);
 
+        // Determine question pool from the higher-ranked player
+        RankedQuestionPool v_Pool = p_EloService.GetHighestPool(v_Player1.GlobalElo, v_Player2.GlobalElo);
+
         List<(Question Value, int Score)> v_ExistingQuestions =
             await p_CacheService.SortedSetGetAllWithScoresAsync<Question>(RedisKeys.Ranked.Questions(v_Party.Id), p_CancellationToken: p_CancellationToken);
 
-        // Get random question excluding question already send
+        // Get random question from the rank-appropriate pool, excluding already-sent questions
         Question v_CurrentQuestion = await m_UnitOfWork.QuestionRepository.GetRandomQuestionExcludingAsync(
             v_ExistingQuestions.Select(p_P => p_P.Value.Id).ToList(),
+            v_Pool.ThemeIds,
+            v_Pool.DifficultyIds,
             p_CancellationToken);
 
         _ = await p_CacheService.SortedSetAddAsync(RedisKeys.Ranked.Questions(v_Party.Id), v_CurrentQuestion, p_Score: v_CurrentIndex, p_CancellationToken: p_CancellationToken);
@@ -124,16 +129,30 @@ internal class RankedLogicUseCase(
         if (v_Upq2 != null) v_Upq2.Correct = v_P2Correct;
 
         // Delta rule
-        // - One correct, one wrong → winner keeps their score (delta = 0), loser loses winner's score × multiplier
-        // - Both correct or both wrong → no change (delta = 0)
+        // - One correct, one wrong  → wrong player loses winner's score × multiplier
+        // - Both correct            → slower player (lower raw score) loses the score difference × multiplier
+        // - Both wrong              → no change (delta = 0)
 
-        int v_Delta1 = (!v_P1Correct && v_P2Correct)
-            ? -(int)(v_RawScore2 * v_DamageMultiplier) // loser loses winner's score
-            : 0;                                       // winner or draw: no change
+        int v_Delta1;
+        int v_Delta2;
 
-        int v_Delta2 = (!v_P2Correct && v_P1Correct)
-            ? -(int)(v_RawScore1 * v_DamageMultiplier) // loser loses winner's score
-            : 0;                                       // winner or draw: no change
+        if (v_P1Correct && v_P2Correct)
+        {
+            // Both correct: slower player loses |score1 - score2| × multiplier
+            int v_ScoreDiff = (int)(Math.Abs(v_RawScore1 - v_RawScore2) * v_DamageMultiplier);
+            v_Delta1 = v_RawScore1 < v_RawScore2 ? -v_ScoreDiff : 0; // P1 slower → P1 loses
+            v_Delta2 = v_RawScore2 < v_RawScore1 ? -v_ScoreDiff : 0; // P2 slower → P2 loses
+        }
+        else
+        {
+            v_Delta1 = (!v_P1Correct && v_P2Correct)
+                ? -(int)(v_RawScore2 * v_DamageMultiplier) // P1 wrong → P1 loses P2's score × multiplier
+                : 0;                                       // P1 correct or both wrong: no change
+
+            v_Delta2 = (!v_P2Correct && v_P1Correct)
+                ? -(int)(v_RawScore1 * v_DamageMultiplier) // P2 wrong → P2 loses P1's score × multiplier
+                : 0;                                       // P2 correct or both wrong: no change
+        }
 
         // Reshuffle answers copies
         Question v_Q1 = v_CurrentQuestion.Copy();
@@ -254,8 +273,10 @@ internal class RankedLogicUseCase(
                 {
                     int v_WinnerCurrentElo = v_Winner.Elo.FirstOrDefault(p_E => p_E.IdTheme == v_Theme.Id)?.Value ?? p_RankedConfiguration.DefaultElo;
                     int v_LoserCurrentElo = v_Looser.Elo.FirstOrDefault(p_E => p_E.IdTheme == v_Theme.Id)?.Value ?? p_RankedConfiguration.DefaultElo;
+                    int v_WinnerGamesPlayed = v_Winner.Elo.FirstOrDefault(p_E => p_E.IdTheme == v_Theme.Id)?.GamesPlayed ?? 0;
+                    int v_LoserGamesPlayed = v_Looser.Elo.FirstOrDefault(p_E => p_E.IdTheme == v_Theme.Id)?.GamesPlayed ?? 0;
 
-                    (int v_WinnerDelta, int v_LoserDelta) = p_EloService.ComputeEloDelta(v_WinnerCurrentElo, v_LoserCurrentElo);
+                    (int v_WinnerDelta, int v_LoserDelta) = p_EloService.ComputeEloDelta(v_WinnerCurrentElo, v_LoserCurrentElo, v_WinnerGamesPlayed, v_LoserGamesPlayed);
 
                     await m_UnitOfWork.EloRepository.UpdateValueAsync(v_Winner.Id, v_Theme.Id, v_WinnerCurrentElo + v_WinnerDelta, p_CancellationToken);
                     await m_UnitOfWork.EloRepository.UpdateValueAsync(v_Looser.Id, v_Theme.Id, v_LoserCurrentElo - v_LoserDelta, p_CancellationToken);

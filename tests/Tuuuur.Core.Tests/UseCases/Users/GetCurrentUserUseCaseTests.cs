@@ -4,8 +4,10 @@ using Tuuuur.Core.Requests.Users;
 using Tuuuur.Core.Responses;
 using Tuuuur.Core.UseCases.Users;
 using Tuuuur.Domain.Bo;
+using Tuuuur.Domain.Bo.Enum;
 using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Interfaces.Data;
+using Tuuuur.Domain.Interfaces.Services;
 using Tuuuur.Domain.Security;
 using Tuuuur.Factory.Tests;
 
@@ -17,7 +19,8 @@ public class GetCurrentUserUseCaseTests
     private readonly Mock<ILogger<GetCurrentUserUseCase>> m_MockLogger;
     private readonly Mock<IUnitOfWork> m_MockUnitOfWork;
     private readonly Mock<IUserRoleService> m_MockUserRoleServiceMock;
-    
+    private readonly Mock<IEloService> m_MockEloService;
+
 
     public GetCurrentUserUseCaseTests()
     {
@@ -25,6 +28,7 @@ public class GetCurrentUserUseCaseTests
         m_MockUnitOfWork = m_MockRepository.Create<IUnitOfWork>();
         m_MockLogger = m_MockRepository.Create<ILogger<GetCurrentUserUseCase>>();
         m_MockUserRoleServiceMock = m_MockRepository.Create<IUserRoleService>();
+        m_MockEloService = m_MockRepository.Create<IEloService>();
     }
 
     private GetCurrentUserUseCase CreateUseCase()
@@ -32,10 +36,11 @@ public class GetCurrentUserUseCaseTests
         return new GetCurrentUserUseCase(
             m_MockUnitOfWork.Object,
             m_MockLogger.Object,
-            m_MockUserRoleServiceMock.Object
+            m_MockUserRoleServiceMock.Object,
+            m_MockEloService.Object
         );
     }
-    
+
     [Fact]
     public async Task Handle_ExpectedBehaviorAsync()
     {
@@ -44,26 +49,29 @@ public class GetCurrentUserUseCaseTests
         GetCurrentUserUseCase v_UseCase = CreateUseCase();
 
         User v_User = BoFactory.CreateUser();
-        
+
         GetCurrentUserRequest v_Request = new();
 
         m_MockUserRoleServiceMock.Setup(p_Urs => p_Urs.GetEmail()).Returns(v_User.Email);
-        
+
         m_MockUnitOfWork
-            .Setup(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())) 
+            .Setup(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_User);
-        
+
+        Rank v_ExpectedRank = new() { Tier = RankTier.Fer, Division = RankDivision.Three };
+        m_MockEloService.Setup(p_S => p_S.GetRank(It.IsAny<int>())).Returns(v_ExpectedRank);
+
         // Act
         GenericEntityResponse<User> v_Result = await v_UseCase.Handle(v_Request, v_CancellationToken);
 
         // Assert
         m_MockRepository.VerifyAll();
-        
+
         v_Result.Success.Should().BeTrue();
         v_Result.Errors.Should().BeNull();
-        v_Result.Value.Should().BeEquivalentTo(v_User);
+        v_Result.Value.Rank.Should().Be(v_ExpectedRank);
     }
-    
+
     [Fact]
     public async Task Handle_WhenUserNotExist_ExpectedBehaviorAsync()
     {
@@ -72,21 +80,21 @@ public class GetCurrentUserUseCaseTests
         GetCurrentUserUseCase v_UseCase = CreateUseCase();
 
         User v_User = BoFactory.CreateUser();
-        
+
         GetCurrentUserRequest v_Request = new();
 
         m_MockUserRoleServiceMock.Setup(p_Urs => p_Urs.GetEmail()).Returns(v_User.Email);
-        
+
         m_MockUnitOfWork
-            .Setup(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())) 
+            .Setup(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((User)null);
-        
+
         // Act
         GenericEntityResponse<User> v_Result = await v_UseCase.Handle(v_Request, v_CancellationToken);
 
         // Assert
         m_MockRepository.VerifyAll();
-        
+
         v_Result.Success.Should().BeFalse();
         v_Result.Errors.Should().NotBeNull().And.Satisfy(p_P => p_P.Code == DomainErrors.Data.NotFound);
     }

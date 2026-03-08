@@ -167,8 +167,12 @@ public class RankedLogicUseCaseTests
             .Setup(p_U => p_U.UserRepository.GetUserByIdAsync(v_P2Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_P2);
         m_UnitOfWorkMock
-            .Setup(p_U => p_U.QuestionRepository.GetRandomQuestionExcludingAsync(It.IsAny<List<int>>(), It.IsAny<CancellationToken>()))
+            .Setup(p_U => p_U.QuestionRepository.GetRandomQuestionExcludingAsync(It.IsAny<List<int>>(), It.IsAny<IEnumerable<int>>(), It.IsAny<IEnumerable<int>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_Question);
+
+        m_EloServiceMock
+            .Setup(p_E => p_E.GetHighestPool(It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(new RankedQuestionPool([1], [1]));
 
         // Notify countdown will be called then Task.Delay will be cancelled
         m_NotificationServiceMock
@@ -239,8 +243,12 @@ public class RankedLogicUseCaseTests
             .Setup(p_U => p_U.UserRepository.GetUserByIdAsync(p_P2Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(p_P2);
         m_UnitOfWorkMock
-            .Setup(p_U => p_U.QuestionRepository.GetRandomQuestionExcludingAsync(It.IsAny<List<int>>(), It.IsAny<CancellationToken>()))
+            .Setup(p_U => p_U.QuestionRepository.GetRandomQuestionExcludingAsync(It.IsAny<List<int>>(), It.IsAny<IEnumerable<int>>(), It.IsAny<IEnumerable<int>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(p_Question);
+
+        m_EloServiceMock
+            .Setup(p_E => p_E.GetHighestPool(It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(new RankedQuestionPool([1], [1]));
 
         m_NotificationServiceMock
             .Setup(p_N => p_N.NotifyCountdownAsync(It.IsAny<Guid>(), It.IsAny<int>()))
@@ -334,7 +342,7 @@ public class RankedLogicUseCaseTests
     }
 
     [Fact]
-    public async Task Handle_WhenBothPlayersAnswerCorrectly_ShouldNotDeductAnyScore()
+    public async Task Handle_WhenBothPlayersAnswerCorrectlyWithSameScore_ShouldNotDeductAnyScore()
     {
         // Arrange
         Guid v_P1Id = Guid.NewGuid();
@@ -379,12 +387,69 @@ public class RankedLogicUseCaseTests
         // Act
         await m_UseCase.Handle(v_Request, v_Cts.Token);
 
-        // Assert: both correct → delta = 0 for both (draw: no score change)
+        // Assert: both correct with same score (diff=0) → delta = 0 for both
         m_NotificationServiceMock.Verify(
             p_N => p_N.NotifyQuestionAnswerSend(v_P1Id, It.Is<RankedQuestion>(q => q.Score == 0)),
             Times.Once);
         m_NotificationServiceMock.Verify(
             p_N => p_N.NotifyQuestionAnswerSend(v_P2Id, It.Is<RankedQuestion>(q => q.Score == 0)),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_WhenBothPlayersAnswerCorrectlyButP2IsSlower_ShouldDeductDifferenceFromP2()
+    {
+        // Arrange: P1 rawScore=800 (faster), P2 rawScore=600 (slower) → diff=200 → P2 loses 200×1.0=200
+        Guid v_P1Id = Guid.NewGuid();
+        Guid v_P2Id = Guid.NewGuid();
+        Guid v_PartyId = Guid.NewGuid();
+        User v_P1 = new() { Id = v_P1Id, Elo = [] };
+        User v_P2 = new() { Id = v_P2Id, Elo = [] };
+
+        int v_AnswerId = 10;
+        Question v_Question = new() { Id = 1, Label = "Q1", Answer = [new Answer { Id = v_AnswerId, Valid = true, Value = "A" }] };
+        Question v_QuestionWithAnswers = new() { Id = 1, Label = "Q1", Answer = [new Answer { Id = v_AnswerId, Valid = true, Value = "A" }] };
+
+        // Both answered correctly
+        UserPartyQuestion v_Upq1 = new()
+        {
+            IdUser = v_P1Id,
+            IdAnswer = v_AnswerId,
+            DtPresentedAt = DateTime.Now.AddSeconds(-2),
+            DtAnsweredAt = DateTime.Now,
+            AnswersOrder = Guid.NewGuid()
+        };
+        UserPartyQuestion v_Upq2 = new()
+        {
+            IdUser = v_P2Id,
+            IdAnswer = v_AnswerId,
+            DtPresentedAt = DateTime.Now.AddSeconds(-5),
+            DtAnsweredAt = DateTime.Now,
+            AnswersOrder = Guid.NewGuid()
+        };
+
+        SetupRoundMocks(v_PartyId, v_P1Id, v_P2Id, v_P1, v_P2, v_Question, v_QuestionWithAnswers, v_Upq1, v_Upq2);
+
+        // P1 faster (800), P2 slower (600)
+        m_CalculServiceMock
+            .SetupSequence(p_C => p_C.CalculateScore(It.IsAny<DateTime>(), It.IsAny<DateTime?>()))
+            .Returns(800)  // P1
+            .Returns(600); // P2
+
+        using CancellationTokenSource v_Cts = new();
+        v_Cts.CancelAfter(TimeSpan.FromSeconds(4));
+
+        RankedLogicRequest v_Request = new(v_PartyId);
+
+        // Act
+        await m_UseCase.Handle(v_Request, v_Cts.Token);
+
+        // Assert: P1 faster → delta=0 ; P2 slower → delta=-(800-600)*1.0=-200
+        m_NotificationServiceMock.Verify(
+            p_N => p_N.NotifyQuestionAnswerSend(v_P1Id, It.Is<RankedQuestion>(q => q.Score == 0)),
+            Times.Once);
+        m_NotificationServiceMock.Verify(
+            p_N => p_N.NotifyQuestionAnswerSend(v_P2Id, It.Is<RankedQuestion>(q => q.Score == -200)),
             Times.Once);
     }
 
@@ -532,7 +597,7 @@ public class RankedLogicUseCaseTests
             .ReturnsAsync(new List<Theme> { v_Theme });
 
         m_EloServiceMock
-            .Setup(p_E => p_E.ComputeEloDelta(1000, 1000))
+            .Setup(p_E => p_E.ComputeEloDelta(1000, 1000, It.IsAny<int>(), It.IsAny<int>()))
             .Returns((20, 20));
 
         m_UnitOfWorkMock

@@ -14,7 +14,7 @@ public class RankedConfigurationTests
         v_Config.ThresholdRound.Should().Be(5);
         v_Config.MultiplierIncrement.Should().Be(0.5);
         v_Config.InitialRankedScore.Should().Be(5000);
-        v_Config.DefaultElo.Should().Be(1000);
+        v_Config.DefaultElo.Should().Be(800);
     }
 
     [Fact]
