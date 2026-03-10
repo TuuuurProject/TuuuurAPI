@@ -164,7 +164,7 @@ public static class RedisKeys
         /// Example: Group:ABC123
         /// Value: Group object (JSON serialized)
         /// </summary>
-        public static string GroupById(Guid p_Id) => $"Group:{p_Id}";
+        public static string GroupById(Guid p_Id) => $"User:{p_Id}";
 
         /// <summary>
         /// Key pattern for accessing the current Group party of a user
