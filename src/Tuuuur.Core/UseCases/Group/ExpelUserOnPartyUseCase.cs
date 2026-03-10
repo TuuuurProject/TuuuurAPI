@@ -61,7 +61,7 @@ internal class ExpelUserOnPartyUseCase(IUnitOfWork p_UnitOfWork,
             v_TargetUser
         );
 
-        await p_CacheService.SetRemoveAsync(RedisKeys.Group.Users(v_Party.Code), v_TargetUser.Id, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetRemoveAsync(RedisKeys.Group.Users(v_Party.Code), v_TargetUser, p_CancellationToken: p_CancellationToken);
         await p_CacheService.RemoveAsync(RedisKeys.User.UserGroup(v_TargetUser.Id), p_CancellationToken: p_CancellationToken);
 
         return new EmptyResponse();

@@ -69,7 +69,7 @@ internal class LeaveGroupUseCase(IUnitOfWork p_UnitOfWork,
                 v_User
             );
 
-            await p_CacheService.SetRemoveAsync(RedisKeys.Group.Users(v_Party.Code), v_UserId, p_CancellationToken: p_CancellationToken);
+            await p_CacheService.SetRemoveAsync(RedisKeys.Group.Users(v_Party.Code), v_User, p_CancellationToken: p_CancellationToken);
         }
 
         await p_CacheService.RemoveAsync(RedisKeys.User.UserGroup(v_UserId), p_CancellationToken: p_CancellationToken);
