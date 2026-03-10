@@ -29,7 +29,6 @@ public class DifficultyController(ILogger<DifficultyController> p_Logger, IMedia
     /// <returns></returns>
     [HttpGet]
     [MapToApiVersion("1")]
-    [Authorize(Roles = RolesType.User)]
     [ProducesResponseType(typeof(GenericEntityListResponse<Difficulty>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>),StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetDifficultiesListAsync(
