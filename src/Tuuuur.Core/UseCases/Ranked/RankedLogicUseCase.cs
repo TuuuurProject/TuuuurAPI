@@ -277,7 +277,8 @@ internal class RankedLogicUseCase(
 
             // Sauvegarder l'ID avant de le réinitialiser
             List<Question> v_Questions = await p_CacheService.SortedSetRangeByRankAsync<Question>(RedisKeys.Ranked.Questions(v_Party.Id), p_CancellationToken: p_CancellationToken);
-
+            
+            Guid v_OriginalPartyId = v_Party.Id;
             v_Party.Id = Guid.Empty;
             v_Party.Finish = true;
 
@@ -296,7 +297,7 @@ internal class RankedLogicUseCase(
                     foreach (User v_User in new[] { v_Player1, v_Player2 })
                     {
                         UserPartyQuestion v_UserPartyQuestion = await p_CacheService.GetAsync<UserPartyQuestion>(
-                            RedisKeys.Ranked.QuestionUserAnswer(v_Party.Id, v_PartyQuestion.IdQuestion, v_User.Id), p_CancellationToken);
+                            RedisKeys.Ranked.QuestionUserAnswer(v_OriginalPartyId, v_PartyQuestion.IdQuestion, v_User.Id), p_CancellationToken);
                         if (v_UserPartyQuestion != null)
                         {
                             v_UserPartyQuestion.IdPartyQuestion = v_PartyQuestion.Id;
@@ -311,7 +312,9 @@ internal class RankedLogicUseCase(
             }
             finally
             {
-                await p_CacheService.RemoveByPatternAsync(RedisKeys.Ranked.ById(v_Party.Id) + ":*", p_CancellationToken: p_CancellationToken);
+                await p_CacheService.RemoveByPatternAsync(RedisKeys.Ranked.ById(v_OriginalPartyId) + "*", p_CancellationToken: p_CancellationToken);
+                await p_CacheService.RemoveByPatternAsync(RedisKeys.User.UserRanked(v_Player1.Id), p_CancellationToken: p_CancellationToken);
+                await p_CacheService.RemoveByPatternAsync(RedisKeys.User.UserRanked(v_Player2.Id), p_CancellationToken: p_CancellationToken);
             }
         }
 
