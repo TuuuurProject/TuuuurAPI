@@ -17,6 +17,8 @@ public record User : IBOEntity
     
     [JsonIgnore]
     public Guid? ResetPasswordCode { get; set; }
+    
+    public bool IsActive { get; set; }
 
     public bool IsAdmin { get; set; }
 
@@ -30,6 +32,4 @@ public record User : IBOEntity
     public List<Elo> Elo { get; set; } = [];
     
     public int GlobalElo => Elo.Count != 0 ? Elo.Sum(p_P => p_P.Value) / Elo.Count : 0;
-    
-    
 }

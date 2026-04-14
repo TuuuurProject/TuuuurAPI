@@ -12,7 +12,7 @@ CREATE TABLE [dbo].[UserPartyQuestion_UPQ]
     [Correct]           BIT                 NULL,
     [AnswersOrder]      UNIQUEIDENTIFIER    NOT NULL CONSTRAINT [DF_UserPartyQuestion_AnswerOrder] DEFAULT (NEWID()),
     CONSTRAINT [PK_USERPARTYQUESTION_UPQ] PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_UserPartyQuestion_PartyQuestion] FOREIGN KEY ([Id_Party_Question]) REFERENCES [dbo].[PartyQuestion_PQT]([Id]),
+    CONSTRAINT [FK_UserPartyQuestion_PartyQuestion] FOREIGN KEY ([Id_Party_Question]) REFERENCES [dbo].[PartyQuestion_PQT]([Id]) ON DELETE CASCADE,
     CONSTRAINT [FK_UserPartyQuestion_User] FOREIGN KEY ([Id_User]) REFERENCES [dbo].[User_USR]([Id]),
     CONSTRAINT [FK_UserPartyQuestion_Answer] FOREIGN KEY ([Id_Answer]) REFERENCES [dbo].[Answer_ANS]([Id])
 );
