@@ -353,7 +353,6 @@ public partial class BaseTuuuurContext : DbContext
             entity.Property(e => e.Email)
                 .HasMaxLength(250)
                 .IsUnicode(false);
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.IsNew).HasDefaultValue(true);
             entity.Property(e => e.NickName)
                 .HasMaxLength(50)

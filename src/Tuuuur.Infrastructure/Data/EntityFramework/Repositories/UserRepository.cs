@@ -15,7 +15,10 @@ internal class UserRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<U
 {
     public async Task<User> GetUserByEmailAsync(string p_Email, CancellationToken p_CancellationToken = default)
     {
-        return Mapper.Map<User>(await FindBy(p_U => p_U.Email == p_Email).SingleOrDefaultAsync(p_CancellationToken));
+        UserUsr v_UserUsr = await FindBy(p_U => p_U.Email == p_Email).SingleOrDefaultAsync(p_CancellationToken);
+        if(v_UserUsr == null || v_UserUsr.IsDeleted )
+            return null;
+        return Mapper.Map<User>(v_UserUsr);
     }
 
     public async Task<User> GetUserByEmailOrNickNameAsync(string p_Login, CancellationToken p_CancellationToken = default)
@@ -24,12 +27,15 @@ internal class UserRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<U
         {
             return await GetUserByEmailAsync(p_Login, p_CancellationToken);
         }
-        return Mapper.Map<User>(await FindBy(p_U => p_U.NickName == p_Login).SingleOrDefaultAsync(p_CancellationToken));
+        return await GetUserByNickNameAsync(p_Login, p_CancellationToken);
     }
 
     public async Task<User> GetUserByNickNameAsync(string p_NickaName, CancellationToken p_CancellationToken = default)
     {
-        return Mapper.Map<User>(await FindBy(p_U => p_U.NickName == p_NickaName).SingleOrDefaultAsync(p_CancellationToken));
+        UserUsr v_UserUsr = await FindBy(p_U => p_U.NickName == p_NickaName).SingleOrDefaultAsync(p_CancellationToken);
+        if(v_UserUsr == null || v_UserUsr.IsDeleted )
+            return null;
+        return Mapper.Map<User>(v_UserUsr);
     }
 
     public async Task<IMappingAddEntity<User, IEntity>> CreateUserAsync(User p_User, CancellationToken p_CancellationToken = default)
@@ -56,14 +62,16 @@ internal class UserRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<U
 
     public async Task<User> GetUserByIdAsync(Guid p_Id, CancellationToken p_CancellationToken = default)
     {
-        UserUsr v_Entity = await FindBy(p_U => p_U.Id == p_Id,
+        UserUsr v_UserUsr = await FindBy(p_U => p_U.Id == p_Id,
             null,
             p_P => p_P
                 .Include(p_UserUsr => p_UserUsr.EloElo)
                 .ThenInclude(p_EloElo => p_EloElo.IdThemeNavigation)
         ).SingleOrDefaultAsync(p_CancellationToken);
         
-        return Mapper.Map<User>(v_Entity);
+        if(v_UserUsr == null || v_UserUsr.IsDeleted )
+            return null;
+        return Mapper.Map<User>(v_UserUsr);
     }
 
     public async Task<List<User>> GetUsersByIdsAsync(List<Guid> p_Ids, CancellationToken p_CancellationToken = default)

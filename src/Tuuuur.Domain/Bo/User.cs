@@ -18,7 +18,7 @@ public record User : IBOEntity
     [JsonIgnore]
     public Guid? ResetPasswordCode { get; set; }
     
-    public bool IsActive { get; set; }
+    public bool IsDeleted { get; set; }
 
     public bool IsAdmin { get; set; }
 

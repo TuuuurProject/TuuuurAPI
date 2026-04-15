@@ -25,7 +25,7 @@ internal class DeleteUserUseCase(
             ]);
         
         // Reset user data
-        v_User.IsActive = false;
+        v_User.IsDeleted = false;
         v_User.NickName = null;
         v_User.Email = null;
         v_User.Password = null;
