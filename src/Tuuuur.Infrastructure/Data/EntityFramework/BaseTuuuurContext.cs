@@ -339,21 +339,23 @@ public partial class BaseTuuuurContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK_USER_USR");
 
-            entity.ToTable("User_USR", tb => tb.HasTrigger("TR_User_DeleteCascade"));
+            entity.ToTable("User_USR");
 
-            entity.HasIndex(e => new { e.Email, e.IsGoogleUser }, "IX_UserEmail").IsUnique();
+            entity.HasIndex(e => new { e.Email, e.IsGoogleUser }, "IX_UserEmail")
+                .IsUnique()
+                .HasFilter("([Email] IS NOT NULL)");
 
-            entity.HasIndex(e => e.NickName, "IX_UserNickName").IsUnique();
+            entity.HasIndex(e => e.NickName, "IX_UserNickName")
+                .IsUnique()
+                .HasFilter("([NickName] IS NOT NULL)");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.Avatar).IsUnicode(false);
             entity.Property(e => e.Email)
-                .IsRequired()
                 .HasMaxLength(250)
                 .IsUnicode(false);
             entity.Property(e => e.IsNew).HasDefaultValue(true);
             entity.Property(e => e.NickName)
-                .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.Password)

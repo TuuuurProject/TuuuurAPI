@@ -64,7 +64,7 @@ public class LeaveGroupUseCaseTests
             .ReturnsAsync([v_User]);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<string>(RedisKeys.User.UserGroup(v_User.Id), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_Party.Code);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetRemoveAsync(RedisKeys.Group.Users(v_Party.Code), v_User.Id, It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetRemoveAsync(RedisKeys.Group.Users(v_Party.Code), v_User, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.RemoveAsync(RedisKeys.User.UserGroup(v_User.Id), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);

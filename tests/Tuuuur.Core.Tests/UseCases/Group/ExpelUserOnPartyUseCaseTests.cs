@@ -68,7 +68,7 @@ public class ExpelUserOnPartyUseCaseTests
             .ReturnsAsync([v_User, v_TargetUser]);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<string>(RedisKeys.User.UserGroup(v_User.Id), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_Party.Code);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetRemoveAsync(RedisKeys.Group.Users(v_Party.Code), v_TargetUser.Id, It.IsAny<CancellationToken>()))
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetRemoveAsync(RedisKeys.Group.Users(v_Party.Code), v_TargetUser, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.RemoveAsync(RedisKeys.User.UserGroup(v_TargetUser.Id), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);

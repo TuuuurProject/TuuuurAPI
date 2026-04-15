@@ -17,6 +17,8 @@ public partial class UserUsr
 
     public Guid? ResetPasswordCode { get; set; }
 
+    public bool IsDeleted { get; set; }
+
     public bool IsAdmin { get; set; }
 
     public bool IsNew { get; set; }

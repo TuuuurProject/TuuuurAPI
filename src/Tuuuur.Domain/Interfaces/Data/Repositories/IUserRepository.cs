@@ -10,7 +10,6 @@ public interface IUserRepository : IGenericRepository
     Task<User> GetUserByNickNameAsync(string p_NickaName, CancellationToken p_CancellationToken = default);
     Task<IMappingAddEntity<User, IEntity>> CreateUserAsync(User p_User, CancellationToken p_CancellationToken = default);
     Task UpdateUserAsync(User p_User, CancellationToken p_CancellationToken = default);
-    Task DeleteUserAsync(Guid p_UserId, CancellationToken p_CancellationToken = default);
     Task<User> GetUserByIdAsync(Guid p_Id, CancellationToken p_CancellationToken = default);
     Task<List<User>> GetUsersByIdsAsync(List<Guid> p_Ids, CancellationToken p_CancellationToken = default);
     Task DeleteUserNotRegisteredAsync(CancellationToken p_CancellationToken = default);

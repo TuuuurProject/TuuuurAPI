@@ -24,7 +24,14 @@ internal class DeleteUserUseCase(
                     $"Queried object {nameof(User)} was not found, Key: {v_CurrentUserEmail}")
             ]);
         
-        await m_UnitOfWork.UserRepository.DeleteUserAsync(v_User.Id, p_CancellationToken);
+        // Reset user data
+        v_User.IsDeleted = false;
+        v_User.NickName = null;
+        v_User.Email = null;
+        v_User.Password = null;
+        
+        await m_UnitOfWork.UserRepository.UpdateUserAsync(v_User, p_CancellationToken);
+        
         _ = m_UnitOfWork.Save();
         return new EmptyResponse();
     }
