@@ -27,4 +27,8 @@
 		<Folder Include="Token\" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<EmbeddedResource Include="Images/Logo.png" />
+	</ItemGroup>
+
 </Project>
