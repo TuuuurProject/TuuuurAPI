@@ -327,6 +327,7 @@ public partial class BaseTuuuurContext : DbContext
 
             entity.HasOne(d => d.IdPartyQuestionNavigation).WithMany(p => p.UserPartyQuestionUpq)
                 .HasForeignKey(d => d.IdPartyQuestion)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UserPartyQuestion_PartyQuestion");
 
             entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.UserPartyQuestionUpq)
