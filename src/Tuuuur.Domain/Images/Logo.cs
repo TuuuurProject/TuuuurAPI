@@ -9,7 +9,7 @@ public static class Logo
     private const string EmbeddedResourceName = "Tuuuur.Domain.Images.Logo.png";
 
     /// <summary>
-    /// Retourne le contenu de l'image en base64 brut à partir de la ressource embarquée.
+    /// Returns the image content as raw base64 from the embedded resource.
     /// </summary>
     private static string GetBase64()
     {
@@ -32,7 +32,7 @@ public static class Logo
     }
 
     /// <summary>
-    /// Retourne un "data URI" (data:image/png;base64,...)
+    /// Returns a "data URI" (data:image/png;base64,...)
     /// </summary>
     public static string GetDataUri()
     {
