@@ -1,33 +1,34 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 namespace Tuuuur.Domain.Images;
 
 [ExcludeFromCodeCoverage]
 public static class Logo
 {
-    private static readonly string m_RelativePath = Path.Combine("src", "Tuuuur.Domain", "Images", "Logo.png");
+    private const string EmbeddedResourceName = "Tuuuur.Domain.Images.Logo.png";
 
     /// <summary>
-    /// Retourne le chemin absolu vers le logo.
-    /// </summary>
-    public static string GetFullPath()
-    {
-        string v_SolutionRoot = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..");
-        return Path.GetFullPath(Path.Combine(v_SolutionRoot, m_RelativePath));
-    }
-
-    /// <summary>
-    /// Retourne le contenu de l'image en base64 brut.
+    /// Retourne le contenu de l'image en base64 brut à partir de la ressource embarquée.
     /// </summary>
     private static string GetBase64()
     {
-        string v_FullPath = GetFullPath();
+        try
+        {
+            Assembly v_Assembly = typeof(Logo).Assembly;
+            using Stream v_Stream = v_Assembly.GetManifestResourceStream(EmbeddedResourceName);
+            if (v_Stream == null)
+                return string.Empty;
 
-        if (!File.Exists(v_FullPath))
+            using MemoryStream v_MemoryStream = new();
+            v_Stream.CopyTo(v_MemoryStream);
+            byte[] v_Bytes = v_MemoryStream.ToArray();
+            return Convert.ToBase64String(v_Bytes);
+        }
+        catch
+        {
             return string.Empty;
-
-        byte[] v_Bytes = File.ReadAllBytes(v_FullPath);
-        return Convert.ToBase64String(v_Bytes);
+        }
     }
 
     /// <summary>
