@@ -86,4 +86,30 @@ public class RankedHub(IMediator p_Mediator) : Hub<IRankedClient>
             await Clients.Caller.OnError(v_Exception.Message);
         }
     }
+    
+    
+    /// <summary>
+    /// Called by the client to give up ranked party
+    /// </summary>
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "SignalR method name")]
+    public async Task GiveUp()
+    {
+        try
+        {
+            if (Context.User != null)
+            {
+                Guid v_Guid = Guid.TryParse(Context.User.Claims.FirstOrDefault(p_Claim => p_Claim.Type == ClaimNames.Id)
+                    ?.Value ?? string.Empty, out Guid v_UserId) ? v_UserId : Guid.Empty;
+
+                // Create party
+                GiveUpRankedRequest v_Request = new(v_Guid);
+                _ = await p_Mediator.Send(v_Request);
+            }
+        }
+        catch (Exception v_Exception)
+        {
+            await Clients.Caller.OnError(v_Exception.Message);
+        }
+    }
 }

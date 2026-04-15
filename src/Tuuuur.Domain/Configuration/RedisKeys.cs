@@ -151,6 +151,13 @@ public static class RedisKeys
         /// Example: Group:ABC123:GroupQuestions:42:AllAnswered
         /// </summary>
         public static string PartyQuestionAllAnsweredChannel(Guid p_Id, int p_QuestionId) => $"Ranked:{p_Id}:Questions:{p_QuestionId}:AllAnswered";
+        
+        /// <summary>
+        /// Key pattern for save user forfeit
+        /// </summary>
+        /// <param name="p_PartyId"></param>
+        /// <returns></returns>
+        public static string PlayerForfeited(Guid p_PartyId) => $"Ranked:{p_PartyId}:PlayerForfeited";
     }
 
     /// <summary>

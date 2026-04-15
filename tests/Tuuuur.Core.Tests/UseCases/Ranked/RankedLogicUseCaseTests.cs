@@ -256,8 +256,12 @@ public class RankedLogicUseCaseTests
 
         m_CacheServiceMock
             .Setup(p_C => p_C.SubscribeAndWaitAsync<bool>(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(default(bool));
+            .ReturnsAsync(false);
 
+        m_CacheServiceMock
+            .Setup(p_C => p_C.GetAsync<User>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((User)null);
+        
         m_CacheServiceMock
             .Setup(p_C => p_C.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
@@ -514,7 +518,7 @@ public class RankedLogicUseCaseTests
         // P2 current score = 50 → after -100 → total2 = max(0, 50-100) = 0 → game ends
         m_CacheServiceMock
             .Setup(p_C => p_C.SortedSetGetAllWithScoresAsync<User>(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<(User, int)> { (v_P1, 5000), (v_P2, 50) });
+            .ReturnsAsync(new List<(User, int)> { (v_P1, 5000), (v_P2, 0) });
 
         // Score updates (only P1's UPQ set since P2 UPQ is null)
         m_CacheServiceMock
