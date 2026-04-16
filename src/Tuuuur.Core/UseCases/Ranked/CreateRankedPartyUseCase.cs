@@ -82,7 +82,7 @@ internal class CreateRankedPartyUseCase(
             try
             {
                 // Add a small delay to ensure the response is sent before starting the game loop
-                await Task.Delay(500, CancellationToken.None);
+                await Task.Delay(5000, CancellationToken.None);
 
                 // Create a new scope for the background task
                 using IServiceScope v_Scope = p_ServiceScopeFactory.CreateScope();

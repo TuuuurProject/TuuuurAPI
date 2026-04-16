@@ -35,6 +35,14 @@ public interface IRankedNotificationService
     Task NotifyQuestionAnswerSend(Guid p_UserId, RankedQuestion p_Question);
 
     Task NotifyAllPlayerAnswered(Guid p_Id, IEnumerable<UserAnswered> p_UserAnswered);
+    
+    /// <summary>
+    /// Notify the user that the opponent has forfeited
+    /// </summary>
+    /// <param name="p_UserId"></param>
+    /// <param name="p_Player"></param>
+    /// <returns></returns>
+    Task NotifyPlayerForfeited(Guid p_UserId, User p_Player);
 
     Task NotifyPartyScoresAsync(Guid p_Id, IEnumerable<UserScore> p_UserScores);
     Task NotifyUserSendAnswerAsync(Guid p_UserId, User p_User);

@@ -25,12 +25,11 @@ internal class AnswerQuestionRankedUseCase(
         {
             v_PartyId = Guid.Parse(v_GetPartyId);
         }
-        catch (Exception v_Exception)
+        catch (Exception)
         {
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found")]);
         }
-
-
+        
         Party v_Party = await p_CacheService.GetAsync<Party>(RedisKeys.Ranked.ById(v_PartyId), p_CancellationToken);
 
         // If user is not in the party and party is not in progress

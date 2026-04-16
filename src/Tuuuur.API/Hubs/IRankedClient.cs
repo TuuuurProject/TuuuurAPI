@@ -53,6 +53,13 @@ public interface IRankedClient
     /// <param name="p_UserScores"></param>
     /// <returns></returns>
     Task OnPartyFinished(IEnumerable<UserScore> p_UserScores);
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="p_User"></param>
+    /// <returns></returns>
+    Task OnUserForfeited(User p_User); 
 
     /// <summary>
     /// 
@@ -88,6 +95,13 @@ public interface IRankedClient
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "SignalR method name")]
     Task SendAnswer(int p_AnswerId);
+    
+    /// <summary>
+    /// Give up ranked
+    /// </summary>
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "SignalR method name")]
+    Task GiveUp();
     
     /// <summary>
     /// Notified with countdown value before question

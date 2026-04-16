@@ -72,6 +72,11 @@ internal class RankedNotificationService(
         }
     }
 
+    public async Task NotifyPlayerForfeited(Guid p_UserId, User p_Player)
+    {
+        await p_HubContext.Clients.Users(p_UserId.ToString()).OnUserForfeited(p_Player);
+    }
+
     public async Task NotifyPartyScoresAsync(Guid p_Id, IEnumerable<UserScore> p_UserScores)
     {
         List<string> v_UserIds = await GetPartyUserIdsAsync(p_Id);

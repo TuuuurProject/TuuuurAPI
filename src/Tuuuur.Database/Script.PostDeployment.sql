@@ -11,7 +11,7 @@ IF NOT EXISTS (SELECT 1 FROM [ref].[Difficulty_DFT])
                                                                (1, N'Facile'),
                                                                (2, N'Moyen'),
                                                                (3, N'Difficile'),
-                                                               (4, N'Extrême');
+                                                               (4, N'Hardcore');
 
         SET IDENTITY_INSERT [ref].[Difficulty_DFT] OFF;
     END;

@@ -68,6 +68,10 @@ public class JoinSearchOpponentUseCaseTests
         m_CacheServiceMock
             .Setup(p_C => p_C.SortedSetGetAllWithScoresAsync<User>(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<(User, int)> { (v_User, 1000) });
+        
+        m_CacheServiceMock
+            .Setup(p_C => p_C.GetAsync<Guid>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(v_UserId);
 
         JoinSearchOpponentRequest v_Request = new(v_UserId);
 
@@ -108,6 +112,10 @@ public class JoinSearchOpponentUseCaseTests
         m_CacheServiceMock
             .Setup(p_C => p_C.HashSetAsync(It.IsAny<string>(), v_UserId.ToString(), It.IsAny<long>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
+        
+        m_CacheServiceMock
+            .Setup(p_C => p_C.GetAsync<Guid>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Guid.Empty);
 
         JoinSearchOpponentRequest v_Request = new(v_UserId);
 

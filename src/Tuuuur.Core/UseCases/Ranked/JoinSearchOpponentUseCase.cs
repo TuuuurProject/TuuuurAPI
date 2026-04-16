@@ -24,13 +24,15 @@ internal class JoinSearchOpponentUseCase(
         string v_PartyId = await p_CacheService.GetAsync<string>(RedisKeys.User.UserRanked(p_Request.UserId), p_CancellationToken) ?? string.Empty;
 
         List<(User Value, int Score)> v_UserInMatchmaking = await p_CacheService.SortedSetGetAllWithScoresAsync<User>(RedisKeys.Ranked.MatchmakingList(), true, p_CancellationToken);
-
+        Guid v_CurrentPartyId = await p_CacheService.GetAsync<Guid>(RedisKeys.User.UserRanked(p_Request.UserId), p_CancellationToken);
+        
         // If the user is not already in the queue and has no active ranked party, add them
-        if (v_PartyId != string.Empty && v_UserInMatchmaking.Any(p_Tuple => p_Tuple.Value.Id == p_Request.UserId))
+        if (v_PartyId != string.Empty)
         {
-            // TODO : User already in matchmaking or party
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {p_Request.UserId}")]);
         }
+        if(v_UserInMatchmaking.Any(p_Tuple => p_Tuple.Value.Id == p_Request.UserId)  || v_CurrentPartyId != Guid.Empty)
+            return new EmptyResponse([new ErrorDto(DomainErrors.Party.InProgress, $"A party is already in progress")]);
 
         await p_CacheService.SortedSetAddAsync(RedisKeys.Ranked.MatchmakingList(), v_User, v_User.GlobalElo, TimeSpan.FromHours(24), p_CancellationToken);
 
