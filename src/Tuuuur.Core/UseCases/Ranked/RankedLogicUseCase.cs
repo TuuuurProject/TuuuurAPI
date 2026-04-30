@@ -43,18 +43,6 @@ internal class RankedLogicUseCase(
             await m_UnitOfWork.UserRepository.GetUserByIdAsync(v_Party.PartyUsers.LastOrDefault()!.IdUser,
                 p_CancellationToken);
 
-        /*User v_UserForfeited =
-            await p_CacheService.GetAsync<User>(RedisKeys.Ranked.PlayerForfeited(v_Party.Id), p_CancellationToken);
-
-        // ── Check if a player has forfeited at the start
-        if (v_UserForfeited is not null)
-        {
-            Question v_Question = await p_CacheService.SortedSetGetByIndexAsync<Question>(
-                RedisKeys.Ranked.Questions(v_Party.Id),
-                p_Index: v_CurrentIndex, p_CancellationToken: p_CancellationToken);
-            return await HandlePlayerForfeitAsync(v_Party, v_UserForfeited, v_Player1, v_Player2, v_Question, p_CancellationToken);
-        }*/
-
         if (v_Player1 is null)
             return new EmptyResponse([
                 new ErrorDto(DomainErrors.Data.NotFound,
