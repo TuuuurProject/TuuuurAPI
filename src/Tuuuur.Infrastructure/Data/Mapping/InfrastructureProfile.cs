@@ -112,6 +112,66 @@ internal class InfrastructureProfile : Profile
                 }
             })
             .ReverseMap();
+        
+        CreateMap<PartyPty, RankedParty>()
+            .IncludeBase<PartyPty, PartyBase>()
+            .ForMember(p_Trg => p_Trg.PartyUsers, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyUserPus))
+            .ForMember(p_Trg => p_Trg.NbQuestions, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.Count))
+            .ForMember(p_Trg => p_Trg.UserScores, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt.SelectMany(p_PartyQuestionPqt => p_PartyQuestionPqt.UserPartyQuestionUpq)))
+            .ForMember(p_Trg => p_Trg.IsWinner, p_Opt => p_Opt.Ignore())
+            .ForMember(p_Trg => p_Trg.Elo, p_Opt => p_Opt.Ignore())
+            .ForMember(p_Trg => p_Trg.FinalScore, p_Opt => p_Opt.Ignore())
+            .AfterMap((p_Src, p_Dest, p_Ctx) =>
+            {
+                if (p_Dest == null)
+                    return;
+                
+                if (p_Dest?.UserScores != null)
+                {
+                    p_Dest.UserScores = p_Dest.UserScores
+                        .Where(p_UserScore => p_UserScore?.User != null)
+                        .GroupBy(p_UserScore => p_UserScore.User.Id)
+                        .Select(p_Grouping => new UserScore
+                        {
+                            Score = p_Grouping.Sum(p_UserScore => p_UserScore.Score),
+                            User = p_Grouping.First().User
+                        })
+                        .OrderByDescending(p_UserScore => p_UserScore.Score)
+                        .ToList();
+                }
+
+                try
+                {
+                    bool v_HasUserId = p_Ctx.Items != null && p_Ctx.Items.ContainsKey($"{nameof(User)}.{nameof(User.Id)}");
+                    Guid? v_CtxItem = (Guid?)p_Ctx.Items?[$"{nameof(User)}.{nameof(User.Id)}"];
+
+                    if (!v_CtxItem.HasValue)
+                    {
+                        return;
+                    }
+
+                    foreach (PartyQuestionPqt v_PartyQuestionPqt in p_Src.PartyQuestionPqt)
+                    {
+                        if (v_HasUserId)
+                        {
+                            v_PartyQuestionPqt.UserPartyQuestionUpq = v_PartyQuestionPqt.UserPartyQuestionUpq.Where(p_P => p_P.IdUser == v_CtxItem).ToList();
+                        }
+                    }
+                
+                    p_Dest.PartyQuestions = p_Ctx.Mapper.Map<List<PartyQuestion>>(p_Src.PartyQuestionPqt);
+
+                    PartyUser v_CurrentUserParty = p_Dest.PartyUsers.FirstOrDefault(p_P => p_P.IdUser == v_CtxItem);
+                    p_Dest.IsWinner = v_CurrentUserParty?.Winner ?? false;
+                    p_Dest.Elo = v_CurrentUserParty?.Elo ?? 0;
+                    p_Dest.FinalScore = v_CurrentUserParty?.FinalScore ?? 0;
+                    
+                }
+                catch (Exception v_Exception)
+                {
+                    // ignored
+                }
+            })
+            .ReverseMap();
 
         CreateMap<UserPartyQuestionUpq, UserScore>().ConvertUsing<UserPartyQuestionToUserScoreConverter>();
 

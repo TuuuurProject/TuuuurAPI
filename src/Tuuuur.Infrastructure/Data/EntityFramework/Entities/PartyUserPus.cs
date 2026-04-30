@@ -11,6 +11,12 @@ public partial class PartyUserPus
 
     public Guid IdParty { get; set; }
 
+    public int? Elo { get; set; }
+
+    public bool? Winner { get; set; }
+
+    public int? FinalScore { get; set; }
+
     public virtual PartyPty IdPartyNavigation { get; set; }
 
     public virtual UserUsr IdUserNavigation { get; set; }

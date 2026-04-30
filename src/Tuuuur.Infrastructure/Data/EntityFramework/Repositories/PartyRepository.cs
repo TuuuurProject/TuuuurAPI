@@ -33,6 +33,13 @@ internal class PartyRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<
         return Mapper.Map<GroupParty>(v_Entity, p_Options => { p_Options.Items[$"{nameof(User)}.{nameof(User.Id)}"] = p_UserId; });
     }
 
+    public async Task<RankedParty> GetRankedByIdAsync(Guid p_PartyId, Guid p_UserId, CancellationToken p_CancellationToken = default)
+    {
+        PartyPty v_Entity = await FetchPartyByIdAsync(p_PartyId, p_CancellationToken);
+        return Mapper.Map<RankedParty>(v_Entity, p_Options => { p_Options.Items[$"{nameof(User)}.{nameof(User.Id)}"] = p_UserId; });
+        
+    }
+
     private async Task<PartyPty> FetchPartyByIdAsync(Guid p_PartyId, CancellationToken p_CancellationToken)
     {
         return await FindBy(p_P => p_P.Id == p_PartyId,

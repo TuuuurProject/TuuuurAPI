@@ -62,22 +62,9 @@ public class GiveUpRankedUseCaseTests
             .Setup(p_P => p_P.GetAsync<int>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(0);
         m_CacheServiceMock
-            .Setup(p_P => p_P.SortedSetAddAsync(
-                It.IsAny<string>(), 
-                v_User, 
-                0, 
-                It.IsAny<TimeSpan>(), 
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-        m_CacheServiceMock
             .Setup(p_P => p_P.SortedSetGetByIndexAsync<Question>(
                 It.IsAny<string>(), 
                 It.IsAny<long>(), 
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(v_Question);
-        m_UnitOfWorkMock
-            .Setup(p_P => p_P.QuestionRepository.GetQuestionByIdWithAnswerAsync(
-                v_Question.Id, 
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_Question);
         m_CacheServiceMock
@@ -92,9 +79,6 @@ public class GiveUpRankedUseCaseTests
                 v_User, 
                 It.IsAny<TimeSpan>(), 
                 It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-        m_NotificationServiceMock
-            .Setup(p_P => p_P.NotifyPlayerForfeited(v_PartyId, v_User))
             .Returns(Task.CompletedTask);
 
         // Act
