@@ -134,4 +134,29 @@ public class RankedRequestsTests
 
         v_R1.Should().Be(v_R2);
     }
+
+    // ── GetRankedRequest ─────────────────────────────────────────────────────
+
+    [Fact]
+    public void GetRankedRequest_ShouldStorePartyId()
+    {
+        // Arrange
+        Guid v_PartyId = Guid.NewGuid();
+
+        // Act
+        GetRankedRequest v_Request = new(v_PartyId);
+
+        // Assert
+        v_Request.PartyId.Should().Be(v_PartyId);
+    }
+
+    [Fact]
+    public void GetRankedRequest_EqualRecords_ShouldBeEqual()
+    {
+        Guid v_PartyId = Guid.NewGuid();
+        GetRankedRequest v_R1 = new(v_PartyId);
+        GetRankedRequest v_R2 = new(v_PartyId);
+
+        v_R1.Should().Be(v_R2);
+    }
 }

@@ -73,7 +73,7 @@ internal class InfrastructureProfile : Profile
                 ApplyPartyQuestionsAfterMap(p_Src, p_Dest, p_Ctx);
             })
             .ReverseMap();
-        
+
         CreateMap<PartyPty, RankedParty>()
             .IncludeBase<PartyPty, PartyBase>()
             .ForMember(p_Trg => p_Trg.PartyUsers, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyUserPus))
@@ -134,13 +134,13 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.Difficulty, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdDifficultyNavigation))
             .ReverseMap()
             .ForMember(p_Trg => p_Trg.IdDifficultyNavigation, p_Opt => p_Opt.Ignore());
-        
+
         CreateMap<EloElo, Elo>()
             .ForMember(p_Trg => p_Trg.Value, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Value))
             .ForMember(p_Trg => p_Trg.IdTheme, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdTheme))
             .ForMember(p_Trg => p_Trg.Theme, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdThemeNavigation))
             .ReverseMap();
-        
+
     }
 
     private static List<UserScore> ApplyUserScoreNormalization(List<UserScore> p_UserScores)
