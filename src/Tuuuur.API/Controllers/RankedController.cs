@@ -31,7 +31,7 @@ public class RankedController(ILogger<RankedController> p_Logger, IMediator p_Me
     [HttpGet("{p_PartyId:guid}")]
     [MapToApiVersion("1")]
     [Authorize(Roles = RolesType.User)]
-    [ProducesResponseType(typeof(PartyBase),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RankedParty),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetRankedPartyAsync(
