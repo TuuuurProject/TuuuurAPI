@@ -1,0 +1,17 @@
+name: CD - Master (Production)
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  docker-push:
+    uses: ./.github/workflows/cd-docker-push.yml
+    with:
+      environment_name: "Production"
+      image_tag: "prod"
+    secrets:
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+      GCP_REGION: ${{ secrets.GCP_REGION }}

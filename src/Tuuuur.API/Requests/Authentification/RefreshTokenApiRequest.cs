@@ -1,0 +1,16 @@
+namespace Tuuuur.API.Requests.Authentification;
+
+/// <summary>
+/// Request to refresh an access token using a refresh token
+/// </summary>
+public class RefreshTokenApiRequest
+{
+    /// <summary>
+    /// The bearer to refresh
+    /// </summary>
+    public string Bearer {get; init;}
+    /// <summary>
+    /// The refresh token to use for generating a new access token
+    /// </summary>
+    public string RefreshToken { get; init; }
+}

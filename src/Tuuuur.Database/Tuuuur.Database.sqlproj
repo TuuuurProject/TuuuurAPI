@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build">
+    <Sdk Name="Microsoft.Build.Sql" Version="2.0.0-preview.1"/>
+    <PropertyGroup>
+        <Name>Tuuuur.Database</Name>
+        <DSP>Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider</DSP>
+        <ModelCollation>1033, CI</ModelCollation>
+    </PropertyGroup>
+    <ItemGroup>
+      <PreDeploy Include="Script.PreDeployment.sql" />
+    </ItemGroup>
+    <ItemGroup>
+      <PostDeploy Include="Script.PostDeployment.sql" />
+    </ItemGroup>
+</Project>
