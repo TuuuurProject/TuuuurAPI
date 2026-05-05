@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
+using Tuuuur.Core.Configuration;
 using Tuuuur.Core.Requests.Authentication;
 using Tuuuur.Core.Requests.Tools;
 using Tuuuur.Core.Responses;
-using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Core.UseCases.Authentication;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Errors;
@@ -49,7 +49,7 @@ public class RegistrationUseCaseTests
 
         Mock<IMappingAddEntity<User, IEntity>> v_MappingAddEntityMock = new();
         v_MappingAddEntityMock.Setup(p_C => p_C.MapBoEntity).Returns(v_User);
-        
+
         m_UnitOfWorkMock
             .Setup(p_X => p_X.ExecutionStrategy(It.IsAny<Func<Task<EmptyResponse>>>()))
             .Callback((Func<Task<EmptyResponse>> p_Func) => p_Func())
@@ -60,26 +60,30 @@ public class RegistrationUseCaseTests
 
         m_UnitOfWorkMock.Setup(p_Uow => p_Uow.Save());
 
+        m_UnitOfWorkMock.Setup(p_Uow => p_Uow.ThemeRepository.GetAllThemesAsync(It.IsAny<CancellationToken>()))
+                        .ReturnsAsync(new List<Theme>());
+
         m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<GenerateOptRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenericEntityResponse<UserAuth>(new UserAuth()));
 
         m_LoggerMock = new Mock<ILogger<RegistrationUseCase>>();
 
-        m_UseCase = new RegistrationUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_MediatorMock.Object, m_RenderingServiceMock.Object, m_EmailServiceMock.Object);
+        m_UseCase = new RegistrationUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_MediatorMock.Object, m_RenderingServiceMock.Object, m_EmailServiceMock.Object, new RankedConfiguration());
 
         // Act
         EmptyResponse v_Result = await m_UseCase.Handle(v_Request, v_CancellationToken);
 
         // Assert
         m_UnitOfWorkMock.Verify(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(v_User.Email, v_CancellationToken), Times.Once);
+        m_UnitOfWorkMock.Verify(p_Uow => p_Uow.UserRepository.DeleteUserNotRegisteredAsync(v_CancellationToken), Times.Once);
         m_MediatorMock.Verify(p_M => p_M.Send(It.IsAny<HashRequest>(), v_CancellationToken), Times.Once);
         m_UnitOfWorkMock.Verify(p_Uow => p_Uow.UserRepository.CreateUserAsync(v_User, v_CancellationToken), Times.Once);
-        m_UnitOfWorkMock.Verify(p_Uow => p_Uow.Save(), Times.Once);
+        m_UnitOfWorkMock.Verify(p_Uow => p_Uow.Save(), Times.Exactly(2));
         v_Result.Success.Should().BeTrue();
         v_Result.Errors.Should().BeNull();
     }
 
     [Fact]
-    public async void Handle_WhenUserEmailExists_ShouldThrowDuplicateNameExceptionAsync()
+    public async Task Handle_WhenUserEmailExists_ShouldThrowDuplicateNameExceptionAsync()
     {
         // Arrange
         CancellationToken v_CancellationToken = CancellationToken.None;
@@ -103,7 +107,7 @@ public class RegistrationUseCaseTests
         m_UnitOfWorkMock = new Mock<IUnitOfWork>();
         m_UnitOfWorkMock.Setup(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(v_User.Email, v_CancellationToken))
                         .ReturnsAsync(v_ExistingUser);
-        
+
         m_UnitOfWorkMock
             .Setup(p_X => p_X.ExecutionStrategy(It.IsAny<Func<Task<EmptyResponse>>>()))
             .Callback((Func<Task<EmptyResponse>> p_Func) => p_Func())
@@ -112,7 +116,7 @@ public class RegistrationUseCaseTests
         m_LoggerMock = new Mock<ILogger<RegistrationUseCase>>();
         m_MediatorMock = new Mock<IMediator>();
 
-        m_UseCase = new RegistrationUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_MediatorMock.Object, m_RenderingServiceMock.Object, m_EmailServiceMock.Object);
+        m_UseCase = new RegistrationUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_MediatorMock.Object, m_RenderingServiceMock.Object, m_EmailServiceMock.Object, new RankedConfiguration());
 
         // Act
         EmptyResponse v_Result = await m_UseCase.Handle(v_Request, v_CancellationToken);
@@ -123,9 +127,9 @@ public class RegistrationUseCaseTests
         m_UnitOfWorkMock.Verify(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(v_User.Email, v_CancellationToken), Times.Once);
         m_UnitOfWorkMock.Verify(p_Uow => p_Uow.UserRepository.CreateUserAsync(It.IsAny<User>(), v_CancellationToken), Times.Never);
     }
-    
+
     [Fact]
-    public async void Handle_WhenUserNickNameExists_ShouldThrowDuplicateNameExceptionAsync()
+    public async Task Handle_WhenUserNickNameExists_ShouldThrowDuplicateNameExceptionAsync()
     {
         // Arrange
         CancellationToken v_CancellationToken = CancellationToken.None;
@@ -149,19 +153,19 @@ public class RegistrationUseCaseTests
         m_UnitOfWorkMock = new Mock<IUnitOfWork>();
         m_UnitOfWorkMock.Setup(p_Uow => p_Uow.UserRepository.GetUserByNickNameAsync(v_User.NickName, v_CancellationToken))
             .ReturnsAsync(v_ExistingUser);
-        
+
         m_UnitOfWorkMock
             .Setup(p_X => p_X.ExecutionStrategy(It.IsAny<Func<Task<EmptyResponse>>>()))
             .Callback((Func<Task<EmptyResponse>> p_Func) => p_Func())
             .Returns(Task.FromResult(new EmptyResponse([new ErrorDto(DomainErrors.Data.AlreadyExist, string.Empty)])));
-        
+
         m_UnitOfWorkMock.Setup(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(v_User.Email, v_CancellationToken))
             .ReturnsAsync((User)null);
 
         m_LoggerMock = new Mock<ILogger<RegistrationUseCase>>();
         m_MediatorMock = new Mock<IMediator>();
 
-        m_UseCase = new RegistrationUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_MediatorMock.Object, m_RenderingServiceMock.Object, m_EmailServiceMock.Object);
+        m_UseCase = new RegistrationUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_MediatorMock.Object, m_RenderingServiceMock.Object, m_EmailServiceMock.Object, new RankedConfiguration());
 
         // Act
         EmptyResponse v_Result = await m_UseCase.Handle(v_Request, v_CancellationToken);

@@ -2,6 +2,7 @@ using System.Security.Claims;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
 using Tuuuur.Core.Requests.Group;
+using Tuuuur.Domain.Security;
 
 namespace Tuuuur.API.Hubs;
 
@@ -45,10 +46,11 @@ public class GroupHub(IMediator p_Mediator) : Hub<IGroupClient>
         {
             if (Context.User != null)
             {
-                string v_UserEmail = Context.User.Claims.FirstOrDefault(p_C => p_C.Type == ClaimTypes.Email)?.Value;
+                Guid v_Guid = Guid.TryParse(Context.User.Claims.FirstOrDefault(p_Claim => p_Claim.Type == ClaimNames.Id)
+                    ?.Value ?? string.Empty, out Guid v_UserId) ? v_UserId : Guid.Empty;
 
                 // Create party
-                AnswerQuestionGroupPartyRequest v_AnswerQuestionGroupPartyRequest = new(p_AnswerId, v_UserEmail);
+                AnswerQuestionGroupPartyRequest v_AnswerQuestionGroupPartyRequest = new(p_AnswerId, v_Guid);
                 _ = await p_Mediator.Send(v_AnswerQuestionGroupPartyRequest);
             }
         }

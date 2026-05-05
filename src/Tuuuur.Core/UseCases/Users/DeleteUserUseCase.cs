@@ -16,7 +16,7 @@ internal class DeleteUserUseCase(
 {
     protected override async Task<EmptyResponse> HandleLogic(DeleteUserRequest p_Request, CancellationToken p_CancellationToken)
     {
-        string v_CurrentUserEmail = p_UserRoleService.GetCurrentUserEmail();
+        string v_CurrentUserEmail = p_UserRoleService.GetEmail();
         User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_CurrentUserEmail, p_CancellationToken);
         if (v_User is null)
             return new EmptyResponse([
@@ -24,7 +24,14 @@ internal class DeleteUserUseCase(
                     $"Queried object {nameof(User)} was not found, Key: {v_CurrentUserEmail}")
             ]);
         
-        await m_UnitOfWork.UserRepository.DeleteUserAsync(v_User.Id, p_CancellationToken);
+        // Reset user data
+        v_User.IsDeleted = false;
+        v_User.NickName = null;
+        v_User.Email = null;
+        v_User.Password = null;
+        
+        await m_UnitOfWork.UserRepository.UpdateUserAsync(v_User, p_CancellationToken);
+        
         _ = m_UnitOfWork.Save();
         return new EmptyResponse();
     }

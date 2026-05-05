@@ -12,6 +12,7 @@ public interface IUnitOfWork : IDisposable
     IQuestionRepository QuestionRepository { get; }
     IPartyRepository PartyRepository { get; }
     IUserPartyQuestionRepository UserPartyQuestionRepository { get; }
+    IEloRepository EloRepository { get; }
 
     int Save();
 

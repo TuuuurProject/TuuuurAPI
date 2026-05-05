@@ -114,6 +114,12 @@ public static class DomainErrors
             private const string NbQuestionsPrefix = DomainPrefix + "nbquestions.";
             public const string Invalid = NbQuestionsPrefix + GeneralErrors.Invalid;
         }
+        
+        public static class User
+        {
+            private const string UserPrefix = DomainPrefix + "user.";
+            public const string NotFound = UserPrefix + GeneralErrors.NotFound;
+        }
     }
 
     public static class Difficulty
@@ -146,6 +152,8 @@ public static class DomainErrors
         {
             private const string NicknamePrefix = UserPrefix + "nickname.";
             public const string Empty = NicknamePrefix + GeneralErrors.Empty;
+            public const string TooLong = NicknamePrefix + "too-long";
+            public const string Invalid = NicknamePrefix + GeneralErrors.Invalid;
         }
     }
 }
@@ -156,6 +164,7 @@ internal static class GeneralErrors
     public const string Duplicated = "duplicated";
     public const string NotExist = "not-exist";
     public const string Invalid = "invalid";
+    public const string NotFound = "not-found";
 
     public static class InvalidFormat
     {

@@ -39,6 +39,15 @@ internal class GroupNotificationService(
             await p_HubContext.Clients.Users(v_UserIds).OnPlayerLeft(p_User);
         }
     }
+    
+    public async Task NotifyPlayerExpelledAsync(string p_Code, User p_User)
+    {
+        List<string> v_UserIds = await GetPartyUserIdsAsync(p_Code);
+        if (v_UserIds.Count != 0)
+        {
+            await p_HubContext.Clients.Users(v_UserIds).OnPlayerExpelled(p_User);
+        }
+    }
 
     public async Task NotifyPartyDeletedAsync(string p_Code, User p_User)
     {
@@ -68,12 +77,12 @@ internal class GroupNotificationService(
         }
     }
 
-    public async Task NotifyPartyQuestionSend(int p_UserId, GroupQuestion p_Question)
+    public async Task NotifyPartyQuestionSend(Guid p_UserId, GroupQuestion p_Question)
     {
         await p_HubContext.Clients.User(p_UserId.ToString()).OnQuestionSend(p_Question);
     }
     
-    public async Task NotifyPartyQuestionAnswerSend(int p_UserId, GroupQuestion p_Question)
+    public async Task NotifyPartyQuestionAnswerSend(Guid p_UserId, GroupQuestion p_Question)
     {
         await p_HubContext.Clients.Users(p_UserId.ToString()).OnQuestionAnswerSend(p_Question);
     }
@@ -84,6 +93,15 @@ internal class GroupNotificationService(
         if (v_UserIds.Count != 0)
         {
             await p_HubContext.Clients.Users(v_UserIds.Where(p_P => p_P != p_User.Id.ToString())).OnUserAnswer(p_User);
+        }
+    }
+
+    public async Task NotifyAllPlayerAnswered(string p_Code, IEnumerable<UserAnswered> p_UserAnswered)
+    {
+        List<string> v_UserIds = await GetPartyUserIdsAsync(p_Code);
+        if (v_UserIds.Count != 0)
+        {
+            await p_HubContext.Clients.Users(v_UserIds).OnAllPlayerAnswered(p_UserAnswered);
         }
     }
 
@@ -117,12 +135,12 @@ internal class GroupNotificationService(
     private async Task<List<string>> GetPartyUserIdsAsync(string p_Code)
     {
         // Get user IDs from Redis set
-        List<int> v_UserIds = await p_CacheService.SetMembersAsync<int>(
-            RedisKeys.Party.Users(p_Code),
+        List<User> v_UserIds = await p_CacheService.SetMembersAsync<User>(
+            RedisKeys.Group.Users(p_Code),
             CancellationToken.None
         );
 
         // Convert to string array for SignalR
-        return v_UserIds.Select(p_Id => p_Id.ToString()).ToList();
+        return v_UserIds.Select(p_Id => p_Id.Id.ToString()).ToList();
     }
 }

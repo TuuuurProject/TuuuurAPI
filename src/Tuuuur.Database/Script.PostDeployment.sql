@@ -11,7 +11,7 @@ IF NOT EXISTS (SELECT 1 FROM [ref].[Difficulty_DFT])
                                                                (1, N'Facile'),
                                                                (2, N'Moyen'),
                                                                (3, N'Difficile'),
-                                                               (4, N'Extrême');
+                                                               (4, N'Hardcore');
 
         SET IDENTITY_INSERT [ref].[Difficulty_DFT] OFF;
     END;
@@ -54,4 +54,24 @@ IF NOT EXISTS (SELECT 1 FROM [dbo].[Theme_THM])
 
         SET IDENTITY_INSERT [dbo].[Theme_THM] OFF;
     END;
+GO
+
+-- ======================
+-- Elo_ELO – Initialisation
+-- Crée une entrée Elo à 1000 pour chaque combinaison (utilisateur × thème)
+-- qui n'existe pas encore.
+-- • N'écrase JAMAIS une valeur existante (INSERT uniquement, pas d'UPDATE).
+-- • N'ajoute JAMAIS de doublon (WHERE NOT EXISTS sur la clé primaire).
+-- • Idempotent : peut être rejoué autant de fois que nécessaire sans effet de bord.
+-- ======================
+INSERT INTO [dbo].[Elo_ELO] ([Id_User], [Id_Theme], [Value])
+SELECT u.[Id], t.[Id], 1000
+FROM [dbo].[User_USR]  u
+CROSS JOIN [dbo].[Theme_THM] t
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [dbo].[Elo_ELO] e
+    WHERE e.[Id_User] = u.[Id]
+      AND e.[Id_Theme] = t.[Id]
+);
 GO

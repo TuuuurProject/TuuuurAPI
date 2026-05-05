@@ -39,43 +39,12 @@ namespace Tuuuur.API.Tests.Controllers
             m_Controller = new AuthController(m_LoggerMock.Object, m_MediatorMock.Object, new ValidationPresenter());
         }
         [Fact]
-        public void Get_WhenAdminUserIsAuthenticated_ReturnsOkObjectResult()
-        {
-            // Arrange
-            ClaimsPrincipal v_User = new(new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.Name, "John Doe"),
-                new Claim(ClaimTypes.Role, RolesType.Admin)
-            }, "mock"));
-
-            m_Controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext { User = v_User }
-            };
-
-            // Act
-            IActionResult v_Result = m_Controller.AdminOnly();
-
-            // Assert
-            v_Result.Should().BeOfType<OkObjectResult>();
-            v_Result.As<OkObjectResult>().Value.Should().BeEquivalentTo(new
-            {
-                User = "John Doe",
-                Claims = new[]
-                {
-                    new { Type = ClaimTypes.Name, Value = "John Doe" },
-                    new { Type = ClaimTypes.Role, Value = RolesType.Admin }
-                }
-            });
-        }
-        [Fact]
         public void Get_WhenUserIsAuthenticated_ReturnsOkObjectResult()
         {
             // Arrange
             ClaimsPrincipal v_User = new(new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.Name, "John Doe"),
-                new Claim(ClaimTypes.Role, RolesType.Admin)
             }, "mock"));
 
             m_Controller.ControllerContext = new ControllerContext
@@ -94,7 +63,6 @@ namespace Tuuuur.API.Tests.Controllers
                 Claims = new[]
                 {
                     new { Type = ClaimTypes.Name, Value = "John Doe" },
-                    new { Type = ClaimTypes.Role, Value = RolesType.Admin }
                 }
             });
         }
@@ -219,7 +187,7 @@ namespace Tuuuur.API.Tests.Controllers
         public async Task ForgotPasswordAsync_WithValidRequest_ReturnsOkObjectResultAsync()
         {
             // Arrange
-            Tuuuur.API.Requests.LoginApiRequest v_LoginApiRequest = new()
+            LoginApiRequest v_LoginApiRequest = new()
             {
                 Login = "test@example.com",
             };
@@ -244,7 +212,7 @@ namespace Tuuuur.API.Tests.Controllers
                 Password = "MySuper_Passw0rd12",
                 Code = "657432"
             };
-            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<Tuuuur.Core.Requests.Authentication.ResetPasswordRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<ResetPasswordRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
 
             // Act
             IActionResult v_Result = await m_Controller.ResetPasswordAsync(v_ResetPasswordApiRequest, new ResetPasswordRequestValidator(), new EmptyPresenter());
@@ -265,7 +233,7 @@ namespace Tuuuur.API.Tests.Controllers
                 Password = "MySuper_Passw0rd12",
                 Code = "657432"
             };
-            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<Tuuuur.Core.Requests.Authentication.ResetPasswordRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<ResetPasswordRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new EmptyResponse());
 
             // Act
             IActionResult v_Result = await m_Controller.ResetPasswordAsync(v_ResetPasswordApiRequest, new ResetPasswordRequestValidator(), new EmptyPresenter());
@@ -295,11 +263,11 @@ namespace Tuuuur.API.Tests.Controllers
                     ValidTo = DateTime.UtcNow.AddMinutes(15),
                     RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(90)
                 },
-                User = new User { Id = 1, Email = "test@test.com", NickName = "test" },
+                User = new User { Id = Guid.NewGuid(), Email = "test@test.com", NickName = "test" },
                 IsGoogleUser = false
             };
 
-            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<Tuuuur.Core.Requests.Authentication.RefreshTokenRequest>(), It.IsAny<CancellationToken>()))
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<RefreshTokenRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new JwtAuthenticationResponse(v_UserToken));
 
             // Act
@@ -322,7 +290,7 @@ namespace Tuuuur.API.Tests.Controllers
 
             JwtAuthenticationResponse v_ErrorResponse = new([new ErrorDto(DomainErrors.Authentication.RefreshToken.Invalid, "Invalid refresh token")]);
 
-            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<Tuuuur.Core.Requests.Authentication.RefreshTokenRequest>(), It.IsAny<CancellationToken>()))
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<RefreshTokenRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(v_ErrorResponse);
 
             // Act
@@ -332,6 +300,44 @@ namespace Tuuuur.API.Tests.Controllers
             v_Result.Should().BeOfType<JsonContentResult>();
             JsonContentResult v_JsonResult = (JsonContentResult)v_Result;
             v_JsonResult.StatusCode.Should().Be(401);
+        }
+        
+        [Fact]
+        public async Task CreateInvitedUserAsync_WithValidRequest_ReturnsOkObjectResultAsync()
+        {
+            // Arrange
+            NickNameRequest v_Request = new()
+            {
+                NickName = "SuperTotoDu80"
+            };
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<CreateInvitedUserRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new JwtAuthenticationResponse(new UserToken()));
+
+            // Act
+            IActionResult v_Result = await m_Controller.CreateInvitedUserAsync(v_Request, new NickNameRequestValidator(), new JwtAuthenticationPresenter());
+
+            // Assert
+            v_Result.Should().BeOfType<JsonContentResult>();
+            JsonContentResult v_RequestResult = (JsonContentResult)v_Result;
+            v_RequestResult.StatusCode.Should().Be(200);
+        }
+        
+        [Fact]
+        public async Task CreateInvitedUserAsync_WithInvalidRequest_ReturnsErrorObjectResultAsync()
+        {
+            // Arrange
+            NickNameRequest v_Request = new()
+            {
+                NickName = "BaD!è&@#NiquName"
+            };
+            m_MediatorMock.Setup(p_M => p_M.Send(It.IsAny<CreateInvitedUserRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(new JwtAuthenticationResponse(new UserToken()));
+
+            // Act
+            IActionResult v_Result = await m_Controller.CreateInvitedUserAsync(v_Request, new NickNameRequestValidator(), new JwtAuthenticationPresenter());
+
+            // Assert
+            v_Result.Should().BeOfType<JsonContentResult>();
+            JsonContentResult v_RequestResult = (JsonContentResult)v_Result;
+            v_RequestResult.StatusCode.Should().Be(400);
         }
     }
 }

@@ -7,7 +7,7 @@ public partial class UserAuthUat
 {
     public int Id { get; set; }
 
-    public int UserId { get; set; }
+    public Guid UserId { get; set; }
 
     public string Code { get; set; }
 

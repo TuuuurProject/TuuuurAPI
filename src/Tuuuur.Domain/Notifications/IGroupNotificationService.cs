@@ -18,6 +18,14 @@ public interface IGroupNotificationService
     Task NotifyPlayerLeftAsync(string p_Code, User p_User);
 
     /// <summary>
+    /// Notify party members that player is expelled
+    /// </summary>
+    /// <param name="p_Code"></param>
+    /// <param name="p_User"></param>
+    /// <returns></returns>
+    Task NotifyPlayerExpelledAsync(string p_Code, User p_User);
+
+    /// <summary>
     /// Notify party members that the party was deleted
     /// </summary>
     /// <param name="p_Code"></param>
@@ -47,7 +55,7 @@ public interface IGroupNotificationService
     /// <param name="p_UserId"></param>
     /// <param name="p_Question"></param>
     /// <returns></returns>
-    Task NotifyPartyQuestionSend(int p_UserId, GroupQuestion p_Question);
+    Task NotifyPartyQuestionSend(Guid p_UserId, GroupQuestion p_Question);
     
     /// <summary>
     /// Notify user the question with current answer
@@ -55,7 +63,16 @@ public interface IGroupNotificationService
     /// <param name="p_UserId"></param>
     /// <param name="p_Question"></param>
     /// <returns></returns>
-    Task NotifyPartyQuestionAnswerSend(int p_UserId, GroupQuestion p_Question);
+    Task NotifyPartyQuestionAnswerSend(Guid p_UserId, GroupQuestion p_Question);
+
+
+    /// <summary>
+    /// Notify user of all users answers
+    /// </summary>
+    /// <param name="p_Code"></param>
+    /// <param name="p_UserAnswered"></param>
+    /// <returns></returns>
+    Task NotifyAllPlayerAnswered(string p_Code, IEnumerable<UserAnswered> p_UserAnswered);
     
     /// <summary>
     /// Notify user that another user answer the question

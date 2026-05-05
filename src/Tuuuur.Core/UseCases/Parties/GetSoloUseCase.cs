@@ -10,21 +10,21 @@ using Tuuuur.Domain.Security;
 
 namespace Tuuuur.Core.UseCases.Parties;
 
-internal class GetPartyUseCase(
+internal class GetSoloUseCase(
     IUnitOfWork p_UnitOfWork, 
-    ILogger<GetPartyUseCase> p_Logger, 
+    ILogger<GetSoloUseCase> p_Logger, 
     IUserRoleService p_UserRoleService)
-    : ADbUseCase<GetSoloPartyStateRequest, GenericEntityResponse<Party>>(p_Logger,  p_UnitOfWork)
+    : ADbUseCase<GetSoloRequest, GenericEntityResponse<Party>>(p_Logger,  p_UnitOfWork)
 {
-    protected override async Task<GenericEntityResponse<Party>> HandleLogic(GetSoloPartyStateRequest p_Request, CancellationToken p_CancellationToken)
+    protected override async Task<GenericEntityResponse<Party>> HandleLogic(GetSoloRequest p_Request, CancellationToken p_CancellationToken)
     {
-            string v_UserEmail = p_UserRoleService.GetCurrentUserEmail();
+            string v_UserEmail = p_UserRoleService.GetEmail();
             User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_UserEmail, p_CancellationToken);
             
             if(v_User == null)
                 return new GenericEntityResponse<Party>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
 
-            Party v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(p_Request.PartyId, v_User.Id, p_CancellationToken);
+            Party v_Party = await m_UnitOfWork.PartyRepository.GetPartyByIdAsync(p_Request.PartyId, v_User.Id, p_CancellationToken);
             
             // Check if the party type is correct
             // Check if the party contains only 1 player
@@ -57,12 +57,12 @@ internal class GetPartyUseCase(
                 _ = m_UnitOfWork.Save();
             }
             
-            v_Party = await m_UnitOfWork.PartyRepository.GetByIdAsync(p_Request.PartyId, v_User.Id, p_CancellationToken);
+            v_Party = await m_UnitOfWork.PartyRepository.GetPartyByIdAsync(p_Request.PartyId, v_User.Id, p_CancellationToken);
             v_Party.NbQuestions = v_Party.PartyQuestions.Count;
             v_Party.PartyQuestions = v_Party.PartyQuestions.Where(p_P => p_P.UserPartyQuestion is not null).ToList();
             
             v_Party.PartyQuestions
-                .Where(p_Question => p_Question.UserPartyQuestion.IdAnswer == null)
+                .Where(p_Question => !p_Question.UserPartyQuestion.DtAnsweredAt.HasValue)
                 .ToList()
                 .ForEach(p_Question => 
                 {

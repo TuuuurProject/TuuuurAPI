@@ -1,4 +1,3 @@
-using MediatR;
 using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Requests.Authentication;
 using Tuuuur.Core.Responses;
@@ -7,7 +6,6 @@ using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Interfaces.Token;
-using Tuuuur.Domain.Security;
 using Tuuuur.Domain.Token;
 
 namespace Tuuuur.Core.UseCases.Authentication;
@@ -31,7 +29,7 @@ internal class RefreshTokenUseCase(
         }
 
         User v_User = await m_UnitOfWork.UserRepository.GetUserByIdAsync(v_RefreshToken.UserId, p_CancellationToken);
-        int? v_UserToken  = p_JwtFactory.GetUserIdFromToken(p_Request.Bearer);
+        Guid? v_UserToken  = p_JwtFactory.GetUserIdFromToken(p_Request.Bearer);
         
         if (v_User == null || v_User.Id != v_UserToken)
             return new JwtAuthenticationResponse([new ErrorDto(DomainErrors.Data.NotFound, $"User not found")]);

@@ -21,20 +21,20 @@ internal class EditGroupSettingsUseCase(
 {
     protected override async Task<EmptyResponse> HandleLogic(EditGroupSettingsRequest p_Request, CancellationToken p_CancellationToken)
     {
-        string v_UserEmail = p_UserRoleService.GetCurrentUserEmail();
-
+        string v_UserEmail = p_UserRoleService.GetEmail();
+        
         User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_UserEmail, p_CancellationToken);
 
         if (v_User == null)
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_UserEmail}")]);
 
-        string v_PartyCode = await p_CacheService.GetAsync<string>(RedisKeys.User.UserParty(v_User.Id), p_CancellationToken);
+        string v_PartyCode = await p_CacheService.GetAsync<string>(RedisKeys.User.UserGroup(v_User.Id), p_CancellationToken);
 
         if (v_PartyCode is null)
         {
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found")]);
         }
-        GroupParty v_Party = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Party.ByCode(v_PartyCode), p_CancellationToken);
+        GroupParty v_Party = await p_CacheService.GetAsync<GroupParty>(RedisKeys.Group.ByCode(v_PartyCode), p_CancellationToken);
         
         // If user is not in the party
         if (v_PartyCode != v_Party.Code || v_Party.IdUserHost != v_User.Id)
@@ -50,7 +50,14 @@ internal class EditGroupSettingsUseCase(
             .Select(p_Id => new PartyTheme { IdTheme = p_Id, Theme = v_Themes.FirstOrDefault(p_P => p_P.Id == p_Id) }).ToList();
         v_Party.ScoreEachRound = p_Request.ScoreEachRound;
 
-        await p_CacheService.SetAsync(RedisKeys.Party.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAsync(RedisKeys.Group.ByCode(v_Party.Code), v_Party, p_CancellationToken: p_CancellationToken);
+        
+        List<User> v_Users = await p_CacheService.SetMembersAsync<User>(
+            RedisKeys.Group.Users(v_Party.Code),
+            CancellationToken.None
+        );
+
+        v_Party.PartyUsers.AddRange(v_Users.Select(p_P => new PartyUser { User = p_P }));
         
         // Notify all players via WebSocket that party is updated
         await p_GroupNotificationService.NotifyPartyUpdatedAsync(

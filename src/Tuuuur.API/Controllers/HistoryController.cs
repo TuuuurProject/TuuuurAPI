@@ -1,12 +1,14 @@
 using Asp.Versioning;
 using FluentValidation.Results;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tuuuur.API.Presenters;
 using Tuuuur.API.Requests;
 using Tuuuur.Core.Requests;
 using Tuuuur.Core.Responses;
 using Tuuuur.Domain.Bo;
+using Tuuuur.Domain.Security;
 
 namespace Tuuuur.API.Controllers;
 
@@ -24,15 +26,16 @@ public class HistoryController(
     : BaseController(p_Logger, p_Mediator, p_ValidationPresenter)
 {
     /// <summary>
-    /// Get all history
+    /// Get history
     /// </summary>
     /// <returns></returns>
     [HttpGet]
     [MapToApiVersion("1")]
+    [Authorize(Roles = RolesType.User)]
     [ProducesResponseType(typeof(IEnumerable<HistoryPage>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetHistoryListAsync(
+    public async Task<IActionResult> GetHistoryAsync(
         [FromQuery] PaginationRequest p_Query,
         [FromServices] PaginationRequestValidator p_Validator,
         [FromServices] GenericEntityPresenter<HistoryPage> p_Presenter,
@@ -46,26 +49,7 @@ public class HistoryController(
             return m_ValidationPresenter.ContentResult;
         }
         
-        p_Presenter.Handle(await m_Mediator.Send(new GetAllHistoryRequest(p_Query.Page, p_Query.Size), p_CancellationToken));
-
-        return p_Presenter.ContentResult;
-    }
-    
-    /// <summary>
-    /// Get history
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet("{p_PartyId:guid}")]
-    [MapToApiVersion("1")]
-    [ProducesResponseType(typeof(PartyBase),StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetHistoryAsync(
-        [FromRoute] Guid p_PartyId,
-        [FromServices] GenericEntityPresenter<PartyBase> p_Presenter,
-        CancellationToken p_CancellationToken)
-    {
-        p_Presenter.Handle(await m_Mediator.Send(new GetHistoryRequest(p_PartyId), p_CancellationToken));
+        p_Presenter.Handle(await m_Mediator.Send(new GetHistoryRequest(p_Query.Page, p_Query.Size), p_CancellationToken));
 
         return p_Presenter.ContentResult;
     }

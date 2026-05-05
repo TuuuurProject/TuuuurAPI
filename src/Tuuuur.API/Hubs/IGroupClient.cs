@@ -16,6 +16,11 @@ public interface IGroupClient
     /// Notified when a player leaves the party
     /// </summary>
     Task OnPlayerLeft(User p_User);
+    
+    /// <summary>
+    /// Notified when a player is expelled
+    /// </summary>
+    Task OnPlayerExpelled(User p_User);
 
     /// <summary>
     /// Notified when the party is deleted
@@ -66,6 +71,13 @@ public interface IGroupClient
     /// <returns></returns>
     Task OnUserAnswer(User p_User);
 
+    /// <summary>
+    /// Notified when score is updated
+    /// </summary>
+    /// <param name="p_UserAnswered"></param>
+    /// <returns></returns>
+    Task OnAllPlayerAnswered(IEnumerable<UserAnswered> p_UserAnswered);
+    
     /// <summary>
     /// Notified when score is updated
     /// </summary>

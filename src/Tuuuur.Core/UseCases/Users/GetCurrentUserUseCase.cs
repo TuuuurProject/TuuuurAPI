@@ -16,7 +16,7 @@ internal class GetCurrentUserUseCase(
 {
     protected override async Task<GenericEntityResponse<User>> HandleLogic(GetCurrentUserRequest p_Request, CancellationToken p_CancellationToken)
     {
-        string v_CurrentUserEmail = p_UserRoleService.GetCurrentUserEmail();
+        string v_CurrentUserEmail = p_UserRoleService.GetEmail();
         User v_User = await m_UnitOfWork.UserRepository.GetUserByEmailAsync(v_CurrentUserEmail, p_CancellationToken);
         return v_User is null 
             ? new GenericEntityResponse<User>([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(User)} was not found, Key: {v_CurrentUserEmail}")]) 

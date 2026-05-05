@@ -50,14 +50,14 @@ public class DeleteUserUseCaseTests
         
         DeleteUserRequest v_Request = new();
 
-        m_MockUserRoleServiceMock.Setup(p_Urs => p_Urs.GetCurrentUserEmail()).Returns(v_User.Email);
+        m_MockUserRoleServiceMock.Setup(p_Urs => p_Urs.GetEmail()).Returns(v_User.Email);
         
         m_MockUnitOfWork
             .Setup(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())) 
             .ReturnsAsync(v_User);
 
         m_MockUnitOfWork
-            .Setup(p_Uow => p_Uow.UserRepository.DeleteUserAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())) 
+            .Setup(p_Uow => p_Uow.UserRepository.UpdateUserAsync(It.IsAny<User>(), It.IsAny<CancellationToken>())) 
             .Returns(Task.CompletedTask);
         
         m_MockUnitOfWork
@@ -85,7 +85,7 @@ public class DeleteUserUseCaseTests
         
         DeleteUserRequest v_Request = new();
 
-        m_MockUserRoleServiceMock.Setup(p_Urs => p_Urs.GetCurrentUserEmail()).Returns(v_User.Email);
+        m_MockUserRoleServiceMock.Setup(p_Urs => p_Urs.GetEmail()).Returns(v_User.Email);
         
         m_MockUnitOfWork
             .Setup(p_Uow => p_Uow.UserRepository.GetUserByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())) 

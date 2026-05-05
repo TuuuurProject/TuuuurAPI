@@ -43,6 +43,7 @@ public class MeController(ILogger<MeController> p_Logger, IMediator p_Mediator, 
     /// <returns></returns>
     [HttpGet]
     [MapToApiVersion("1")]
+    [Authorize(Roles = RolesType.User)]
     [ProducesResponseType(typeof(User),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
@@ -65,6 +66,7 @@ public class MeController(ILogger<MeController> p_Logger, IMediator p_Mediator, 
     /// <returns></returns>
     [HttpPut("avatar")]
     [MapToApiVersion("1")]
+    [Authorize(Roles = RolesType.User)]
     [ProducesResponseType(typeof(GenericEntityListResponse<User>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>),StatusCodes.Status500InternalServerError)]
@@ -96,6 +98,7 @@ public class MeController(ILogger<MeController> p_Logger, IMediator p_Mediator, 
     /// <returns></returns>
     [HttpPut("change-password")]
     [MapToApiVersion("1")]
+    [Authorize(Roles = RolesType.User)]
     [ProducesResponseType(typeof(User),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
@@ -128,6 +131,7 @@ public class MeController(ILogger<MeController> p_Logger, IMediator p_Mediator, 
     /// <returns></returns>
     [HttpPut("nickname")]
     [MapToApiVersion("1")]
+    [Authorize(Roles = RolesType.User)]
     [ProducesResponseType(typeof(GenericEntityListResponse<User>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>),StatusCodes.Status500InternalServerError)]
@@ -157,6 +161,7 @@ public class MeController(ILogger<MeController> p_Logger, IMediator p_Mediator, 
     /// <returns></returns>
     [HttpDelete("")]
     [MapToApiVersion("1")]
+    [Authorize(Roles = RolesType.User)]
     [ProducesResponseType(typeof(User),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]

@@ -52,12 +52,12 @@ public class StartGroupUseCaseTests
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<string>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party.Code);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.GetAsync<GroupParty>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Party);
         m_UnitOfWorkMock.Setup(p_U => p_U.QuestionRepository.GetQuestionsByThemesIdsAndDifficultiesIdsAndNumberOfQuestionsAsync(It.IsAny<IEnumerable<int>>(), It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_Questions);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.SortedSetAddAsync(It.IsAny<string>(), It.IsAny<Question>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.SortedSetAddAsync(It.IsAny<string>(), It.IsAny<Question>(), It.IsAny<int>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.SetAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         m_CacheServiceMock.Setup(p_Cs => p_Cs.SetAsync(It.IsAny<string>(), It.IsAny<GroupParty>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetMembersAsync<int>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([v_User.Id]);
-        m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUsersByIdsAsync(It.IsAny<List<int>>(), It.IsAny<CancellationToken>())).ReturnsAsync([v_User]);
-        m_CacheServiceMock.Setup(p_Cs => p_Cs.SortedSetAddAsync(It.IsAny<string>(), It.IsAny<User>(), It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.SetMembersAsync<User>(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([v_User]);
+        m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUsersByIdsAsync(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>())).ReturnsAsync([v_User]);
+        m_CacheServiceMock.Setup(p_Cs => p_Cs.SortedSetAddAsync(It.IsAny<string>(), It.IsAny<User>(), It.IsAny<int>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
         m_GroupPartyNotificationServiceMock.Setup(p_Ns => p_Ns.NotifyPartyStartedAsync(It.IsAny<string>(), It.IsAny<GroupParty>())).Returns(Task.CompletedTask);
 
         Mock<IServiceScope> v_ServiceScopeMock = m_MockRepository.Create<IServiceScope>();

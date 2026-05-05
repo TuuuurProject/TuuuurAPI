@@ -16,10 +16,8 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
         if (p_CancellationToken.IsCancellationRequested) return;
         string v_Json = JsonSerializer.Serialize(p_Value);
 
-        if (p_Expiration != TimeSpan.Zero)
-            await m_Database.StringSetAsync(p_Key, v_Json, p_Expiration);
-        else
-            await m_Database.StringSetAsync(p_Key, v_Json);
+        TimeSpan v_Expiration = p_Expiration == TimeSpan.Zero ? TimeSpan.FromHours(24) : p_Expiration;
+        await m_Database.StringSetAsync(p_Key, v_Json, v_Expiration);
     }
 
     public async Task<T> GetAsync<T>(string p_Key, CancellationToken p_CancellationToken = default)
@@ -45,10 +43,12 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
         return await m_Database.StringIncrementAsync(p_Key, p_Value);
     }
 
-    public async Task HashSetAsync<T>(string p_MasterKey, string p_FieldKey, T p_Value, CancellationToken p_CancellationToken = default)
+    public async Task HashSetAsync<T>(string p_MasterKey, string p_FieldKey, T p_Value, TimeSpan p_Expiration = default, CancellationToken p_CancellationToken = default)
     {
         if (p_CancellationToken.IsCancellationRequested) return;
         await m_Database.HashSetAsync(p_MasterKey, p_FieldKey, JsonSerializer.Serialize(p_Value));
+        TimeSpan v_Expiration = p_Expiration == TimeSpan.Zero ? TimeSpan.FromHours(24) : p_Expiration;
+        await m_Database.KeyExpireAsync(p_MasterKey, v_Expiration);
     }
 
     public async Task<T> HashGetAsync<T>(string p_MasterKey, string p_FieldKey, CancellationToken p_CancellationToken = default)
@@ -74,9 +74,12 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
         return await m_Database.HashDeleteAsync(p_MasterKey, p_FieldKey);
     }
 
-    public async Task<long> ListRightPushAsync<T>(string p_Key, T p_Value, CancellationToken p_CancellationToken = default)
+    public async Task<long> ListRightPushAsync<T>(string p_Key, T p_Value, TimeSpan p_Expiration = default, CancellationToken p_CancellationToken = default)
     {
-        return await m_Database.ListRightPushAsync(p_Key, JsonSerializer.Serialize(p_Value));
+        long v_Result = await m_Database.ListRightPushAsync(p_Key, JsonSerializer.Serialize(p_Value));
+        TimeSpan v_Expiration = p_Expiration == TimeSpan.Zero ? TimeSpan.FromHours(24) : p_Expiration;
+        await m_Database.KeyExpireAsync(p_Key, v_Expiration);
+        return v_Result;
     }
 
     public async Task<T> ListLeftPopAsync<T>(string p_Key, CancellationToken p_CancellationToken = default)
@@ -91,16 +94,22 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
         return v_Values.Select(v => JsonSerializer.Deserialize<T>(v.ToString())!).ToList();
     }
 
-    public async Task<bool> SetAddAsync<T>(string p_Key, T p_Value, CancellationToken p_CancellationToken = default)
+    public async Task<bool> SetAddAsync<T>(string p_Key, T p_Value, TimeSpan p_Expiration = default, CancellationToken p_CancellationToken = default)
     {
-        return await m_Database.SetAddAsync(p_Key, JsonSerializer.Serialize(p_Value));
+        bool v_Result = await m_Database.SetAddAsync(p_Key, JsonSerializer.Serialize(p_Value));
+        TimeSpan v_Expiration = p_Expiration == TimeSpan.Zero ? TimeSpan.FromHours(24) : p_Expiration;
+        await m_Database.KeyExpireAsync(p_Key, v_Expiration);
+        return v_Result;
     }
 
-    public async Task<long> SetAddRangeAsync<T>(string p_Key, IEnumerable<T> p_Values, CancellationToken p_CancellationToken = default)
+    public async Task<long> SetAddRangeAsync<T>(string p_Key, IEnumerable<T> p_Values, TimeSpan p_Expiration = default, CancellationToken p_CancellationToken = default)
     {
         if (p_CancellationToken.IsCancellationRequested) return 0;
         RedisValue[] v_RedisValues = p_Values.Select(p_Value => (RedisValue)JsonSerializer.Serialize(p_Value)).ToArray();
-        return await m_Database.SetAddAsync(p_Key, v_RedisValues);
+        long v_Result = await m_Database.SetAddAsync(p_Key, v_RedisValues);
+        TimeSpan v_Expiration = p_Expiration == TimeSpan.Zero ? TimeSpan.FromHours(24) : p_Expiration;
+        await m_Database.KeyExpireAsync(p_Key, v_Expiration);
+        return v_Result;
     }
 
     public async Task<bool> SetRemoveAsync<T>(string p_Key, T p_Value, CancellationToken p_CancellationToken = default)
@@ -124,9 +133,12 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
         return await m_Database.SetLengthAsync(p_Key);
     }
 
-    public async Task<bool> SortedSetAddAsync<T>(string p_Key, T p_Value, int p_Score, CancellationToken p_CancellationToken = default)
+    public async Task<bool> SortedSetAddAsync<T>(string p_Key, T p_Value, int p_Score, TimeSpan p_Expiration = default, CancellationToken p_CancellationToken = default)
     {
-        return await m_Database.SortedSetAddAsync(p_Key, JsonSerializer.Serialize(p_Value), p_Score);
+        bool v_Result = await m_Database.SortedSetAddAsync(p_Key, JsonSerializer.Serialize(p_Value), p_Score);
+        TimeSpan v_Expiration = p_Expiration == TimeSpan.Zero ? TimeSpan.FromHours(24) : p_Expiration;
+        await m_Database.KeyExpireAsync(p_Key, v_Expiration);
+        return v_Result;
     }
 
     public async Task<List<T>> SortedSetRangeByRankAsync<T>(string p_Key, long p_Start = 0, long p_Stop = -1, bool p_Descending = false, CancellationToken p_CancellationToken = default)
@@ -162,10 +174,12 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
         return await SortedSetRangeByRankWithScoresAsync<T>(p_Key, 0, -1, p_Descending, p_CancellationToken);
     }
 
-    public async Task<string> StreamAddAsync<T>(string p_Key, T p_Value, CancellationToken p_CancellationToken = default)
+    public async Task<string> StreamAddAsync<T>(string p_Key, T p_Value, TimeSpan p_Expiration = default, CancellationToken p_CancellationToken = default)
     {
         NameValueEntry[] v_Entry = [new NameValueEntry("payload", JsonSerializer.Serialize(p_Value))];
         RedisValue v_Id = await m_Database.StreamAddAsync(p_Key, v_Entry);
+        TimeSpan v_Expiration = p_Expiration == TimeSpan.Zero ? TimeSpan.FromHours(24) : p_Expiration;
+        await m_Database.KeyExpireAsync(p_Key, v_Expiration);
         return v_Id.ToString();
     }
 
@@ -186,50 +200,80 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
 
     public async Task RemoveByPatternAsync(string p_Pattern, IEnumerable<string> p_KeysToKeep = null, CancellationToken p_CancellationToken = default)
     {
-        HashSet<string> v_KeysToKeepSet = p_KeysToKeep == null
-            ? []
-            : [.. p_KeysToKeep];
-
+        HashSet<string> v_KeysToKeepSet = p_KeysToKeep == null ? [] : [.. p_KeysToKeep];
         EndPoint[] v_Endpoints = p_Redis.GetEndPoints();
 
         foreach (EndPoint v_Endpoint in v_Endpoints)
         {
+            if (p_CancellationToken.IsCancellationRequested) return;
             IServer v_Server = p_Redis.GetServer(v_Endpoint);
             if (v_Server.IsReplica) continue;
 
-            IEnumerable<RedisKey> v_Keys = v_Server.Keys(database: m_Database.Database, pattern: p_Pattern);
+            await DeleteKeysForServerAsync(v_Server, p_Pattern, v_KeysToKeepSet, p_CancellationToken);
+        }
+    }
 
-            List<RedisKey> v_KeysBatch = [];
-            const int v_BatchSize = 1000;
+    private async Task DeleteKeysForServerAsync(IServer p_Server, string p_Pattern, HashSet<string> p_KeysToKeep, CancellationToken p_CancellationToken)
+    {
+        IEnumerable<RedisKey> v_Keys = p_Server.Keys(database: m_Database.Database, pattern: p_Pattern);
+        List<RedisKey> v_KeysBatch = [];
+        const int v_BatchSize = 1000;
 
-            foreach (RedisKey v_Key in v_Keys)
+        foreach (RedisKey v_Key in v_Keys)
+        {
+            if (p_CancellationToken.IsCancellationRequested) return;
+            if (p_KeysToKeep.Contains((string)v_Key!)) continue;
+
+            v_KeysBatch.Add(v_Key);
+            if (v_KeysBatch.Count >= v_BatchSize)
             {
-                if (p_CancellationToken.IsCancellationRequested) return;
-                if (v_KeysToKeepSet.Contains((string)v_Key!))
-                    continue;
-
-                v_KeysBatch.Add(v_Key);
-
-                if (v_KeysBatch.Count < v_BatchSize)
-                {
-                    continue;
-                }
-
                 await m_Database.KeyDeleteAsync(v_KeysBatch.ToArray());
                 v_KeysBatch.Clear();
             }
-
-            if (v_KeysBatch.Count > 0)
-            {
-                await m_Database.KeyDeleteAsync(v_KeysBatch.ToArray());
-            }
         }
+
+        if (v_KeysBatch.Count > 0)
+            await m_Database.KeyDeleteAsync(v_KeysBatch.ToArray());
     }
 
     public async Task PublishAsync<T>(string p_Channel, T p_Message, CancellationToken p_CancellationToken = default)
     {
         ISubscriber v_Subscriber = p_Redis.GetSubscriber();
-        await v_Subscriber.PublishAsync(p_Channel, JsonSerializer.Serialize(p_Message));
+        await v_Subscriber.PublishAsync(RedisChannel.Literal(p_Channel), JsonSerializer.Serialize(p_Message));
+    }
+
+    public async Task<bool> AcquireLockAsync(string p_Key, string p_OwnerId, TimeSpan p_Expiry, CancellationToken p_CancellationToken = default)
+    {
+        if (p_CancellationToken.IsCancellationRequested) return false;
+        return await m_Database.StringSetAsync(p_Key, p_OwnerId, p_Expiry, When.NotExists);
+    }
+
+    // Lua script: only refresh if the current value matches our owner ID
+    private static readonly string m_RefreshLockScript =
+        "if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('PEXPIRE', KEYS[1], ARGV[2]) else return 0 end";
+
+    public async Task<bool> RefreshLockAsync(string p_Key, string p_OwnerId, TimeSpan p_Expiry, CancellationToken p_CancellationToken = default)
+    {
+        if (p_CancellationToken.IsCancellationRequested) return false;
+        RedisResult v_Result = await m_Database.ScriptEvaluateAsync(
+            m_RefreshLockScript,
+            [(RedisKey)p_Key],
+            [p_OwnerId, (long)p_Expiry.TotalMilliseconds]);
+        return (long)v_Result == 1;
+    }
+
+    // Lua script: only delete if the current value matches our owner ID (atomic)
+    private static readonly string m_ReleaseLockScript =
+        "if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('DEL', KEYS[1]) else return 0 end";
+
+    public async Task<bool> ReleaseLockAsync(string p_Key, string p_OwnerId, CancellationToken p_CancellationToken = default)
+    {
+        if (p_CancellationToken.IsCancellationRequested) return false;
+        RedisResult v_Result = await m_Database.ScriptEvaluateAsync(
+            m_ReleaseLockScript,
+            [(RedisKey)p_Key],
+            [p_OwnerId]);
+        return (long)v_Result == 1;
     }
 
     public async Task<T> SubscribeAndWaitAsync<T>(string p_Channel, TimeSpan p_Timeout, CancellationToken p_CancellationToken = default)
@@ -240,7 +284,7 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
         using CancellationTokenSource v_TimeoutCts = new(p_Timeout);
         using CancellationTokenSource v_LinkedCts = CancellationTokenSource.CreateLinkedTokenSource(p_CancellationToken, v_TimeoutCts.Token);
 
-        await v_Subscriber.SubscribeAsync(p_Channel, (p_Ch, p_Msg) =>
+        await v_Subscriber.SubscribeAsync(RedisChannel.Literal(p_Channel), (p_Ch, p_Msg) =>
         {
             if (!p_Msg.IsNullOrEmpty)
             {
@@ -257,7 +301,7 @@ public class CacheService(IConnectionMultiplexer p_Redis) : ICacheService
         }
         finally
         {
-            await v_Subscriber.UnsubscribeAsync(p_Channel);
+            await v_Subscriber.UnsubscribeAsync(RedisChannel.Literal(p_Channel));
         }
     }
 }

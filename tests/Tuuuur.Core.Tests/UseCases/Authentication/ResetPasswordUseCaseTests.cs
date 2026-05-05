@@ -3,22 +3,15 @@ using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Requests.Authentication;
 using Tuuuur.Core.Requests.Tools;
 using Tuuuur.Core.Responses;
-using Tuuuur.Core.Responses.Authentication;
 using Tuuuur.Core.UseCases.Authentication;
 using Tuuuur.Domain.Bo;
-using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Interfaces.Data;
-using Tuuuur.Domain.Interfaces.Data.Entities;
-using Tuuuur.Domain.Interfaces.Emails;
-using Tuuuur.Domain.Interfaces.Token;
-using Tuuuur.Domain.Token;
 
 namespace Tuuuur.Core.Tests.UseCases.Authentication;
 
 public class ResetPasswordUseCaseTests
 {
     private readonly Mock<IUnitOfWork> m_UnitOfWorkMock;
-    private readonly Mock<ILogger<ResetPasswordUseCase>> m_LoggerMock;
     private readonly Mock<IMediator> m_MediatorMock;
 
     private readonly ResetPasswordUseCase m_UseCase;
@@ -26,10 +19,10 @@ public class ResetPasswordUseCaseTests
     public ResetPasswordUseCaseTests()
     {
         m_UnitOfWorkMock = new Mock<IUnitOfWork>();
-        m_LoggerMock = new Mock<ILogger<ResetPasswordUseCase>>();
+        Mock<ILogger<ResetPasswordUseCase>> v_LoggerMock = new();
         m_MediatorMock = new Mock<IMediator>();
 
-        m_UseCase = new ResetPasswordUseCase(m_UnitOfWorkMock.Object, m_LoggerMock.Object, m_MediatorMock.Object);
+        m_UseCase = new ResetPasswordUseCase(m_UnitOfWorkMock.Object, v_LoggerMock.Object, m_MediatorMock.Object);
     }
 
     [Fact]
@@ -43,7 +36,7 @@ public class ResetPasswordUseCaseTests
         User v_User = new() { Email = v_Email };
         UserAuth v_UserAuth = new();
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.GetUserByEmailOrNickNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_User);
-        m_UnitOfWorkMock.Setup(p_U => p_U.UserAuthRepository.GetUserAuthByUserIdAndCodeAsync(It.IsAny<int>(),It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_UserAuth);
+        m_UnitOfWorkMock.Setup(p_U => p_U.UserAuthRepository.GetUserAuthByUserIdAndCodeAsync(It.IsAny<Guid>(),It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(v_UserAuth);
         m_UnitOfWorkMock.Setup(p_U => p_U.UserRepository.UpdateUserAsync(It.IsAny<User>(), It.IsAny<CancellationToken>())).Verifiable();
         m_UnitOfWorkMock.Setup(p_U => p_U.UserAuthRepository.DeleteUserAuthAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).Verifiable();
         m_UnitOfWorkMock.Setup(p_U => p_U.Save());

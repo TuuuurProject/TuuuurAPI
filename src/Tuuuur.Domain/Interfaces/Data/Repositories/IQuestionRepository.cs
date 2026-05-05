@@ -8,4 +8,7 @@ public interface IQuestionRepository : IGenericRepository
         IEnumerable<int> p_DifficultiesIds, int p_NbQuestions, CancellationToken p_CancellationToken = default);
 
     Task<Question> GetQuestionByIdWithAnswerAsync(int p_Id, CancellationToken p_CancellationToken = default);
+
+    Task<Question> GetRandomQuestionExcludingAsync(List<int> p_ExcludesQuestions,
+        CancellationToken p_CancellationToken = default);
 }

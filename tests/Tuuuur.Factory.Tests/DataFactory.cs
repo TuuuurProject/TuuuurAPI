@@ -30,7 +30,7 @@ public static class EfFactory
         return new Faker<DifficultyDft>()
             .RuleFor(p_O => p_O.Label, p_F => p_F.Random.Word());
     }
-    public static Faker<UserAuthUat> CreateUserAuth(int v_UserId)
+    public static Faker<UserAuthUat> CreateUserAuth(Guid v_UserId)
     {
         return new Faker<UserAuthUat>()
             .RuleFor(p_O => p_O.UserId, v_UserId)
@@ -53,7 +53,7 @@ public static class BoFactory
             .RuleFor(p_O => p_O.IsNew, p_F => p_F.PickRandom(true, false))
             .RuleFor(p_O => p_O.IsAdmin, p_F => p_F.PickRandom(true, false));
     }
-    public static Faker<UserAuth> CreateUserAuth(int p_UserId)
+    public static Faker<UserAuth> CreateUserAuth(Guid p_UserId)
     {
         return new Faker<UserAuth>()
             .RuleFor(p_O => p_O.UserId, p_UserId)
@@ -66,7 +66,7 @@ public static class BoFactory
             .RuleFor(p_Party => p_Party.Id, _ => Guid.NewGuid())
             .RuleFor(p_Party => p_Party.Dt, p_F => p_F.Date.Recent(30))
             .RuleFor(p_Party => p_Party.IdPartyType, p_F => p_F.Random.Int(1, 10))
-            .RuleFor(p_Party => p_Party.IdUserHost, p_F => p_F.Random.Int(1, 1000))
+            .RuleFor(p_Party => p_Party.IdUserHost, p_F => Guid.NewGuid())
             .RuleFor(p_Party => p_Party.Active, p_F => p_F.Random.Bool())
             .RuleFor(p_Party => p_Party.PartyQuestions, _ => [])
             .RuleFor(p_Party => p_Party.PartyUsers, p_Faker => new Faker<PartyUser>().Generate(5));
@@ -79,7 +79,7 @@ public static class BoFactory
             .RuleFor(p_Party => p_Party.Dt, p_F => p_F.Date.Recent(30))
             .RuleFor(p_Party => p_Party.Code, p_F => p_F.Random.AlphaNumeric(6))
             .RuleFor(p_Party => p_Party.IdPartyType, p_F => p_F.Random.Int(1, 10))
-            .RuleFor(p_Party => p_Party.IdUserHost, p_F => p_F.Random.Int(1, 1000))
+            .RuleFor(p_Party => p_Party.IdUserHost, p_F => Guid.NewGuid())
             .RuleFor(p_Party => p_Party.Active, p_F => p_F.Random.Bool())
             .RuleFor(p_Party => p_Party.PartyQuestions, _ => [])
             .RuleFor(p_Party => p_Party.PartyUsers, p_Faker => new Faker<PartyUser>().Generate(5));
@@ -103,17 +103,14 @@ public static class BoFactory
             .RuleFor(p_Answer => p_Answer.Id, p_F => p_F.Random.Int(1, 10000))
             .RuleFor(p_Answer => p_Answer.IdQuestion, p_QuestionId ?? new Faker().Random.Int(1, 1000))
             .RuleFor(p_Answer => p_Answer.Value, p_F => p_F.Lorem.Word())
-            .RuleFor(p_Answer => p_Answer.Valid, p_F => p_F.Random.Bool())
-            .RuleFor(p_Answer => p_Answer.Question, _ => null);
+            .RuleFor(p_Answer => p_Answer.Valid, p_F => p_F.Random.Bool());
     }
 
     public static Faker<QuestionTheme> CreateQuestionTheme(int? p_QuestionId = null, int? p_ThemeId = null)
     {
         return new Faker<QuestionTheme>()
             .RuleFor(p_Qt => p_Qt.Id, p_F => p_F.Random.Int(1, 10000))
-            .RuleFor(p_Qt => p_Qt.IdQuestion, p_QuestionId ?? new Faker().Random.Int(1, 1000))
             .RuleFor(p_Qt => p_Qt.IdTheme, p_ThemeId ?? new Faker().Random.Int(1, 100))
-            .RuleFor(p_Qt => p_Qt.Question, _ => null)
             .RuleFor(p_Qt => p_Qt.Theme, _ => null);
     }
 
@@ -122,19 +119,17 @@ public static class BoFactory
         return new Faker<PartyQuestion>()
             .RuleFor(p_Pq => p_Pq.Id, p_F => p_F.Random.Int(1, 10000))
             .RuleFor(p_Pq => p_Pq.IdQuestion, p_QuestionId ?? new Faker().Random.Int(1, 1000))
-            .RuleFor(p_Pq => p_Pq.IdParty, p_PartyId ?? Guid.NewGuid())
             .RuleFor(p_Pq => p_Pq.Order, p_F => p_F.Random.Int(0, 50))
-            .RuleFor(p_Pq => p_Pq.Party, _ => null)
             .RuleFor(p_Pq => p_Pq.Question, _ => null)
             .RuleFor(p_Pq => p_Pq.UserPartyQuestion, _ => null);
     }
 
-    public static Faker<UserPartyQuestion> CreateUserPartyQuestion(int? p_PartyQuestionId = null, int? p_UserId = null)
+    public static Faker<UserPartyQuestion> CreateUserPartyQuestion(int? p_PartyQuestionId = null, Guid? p_UserId = null)
     {
         return new Faker<UserPartyQuestion>()
             .RuleFor(p_Upq => p_Upq.Id, p_F => p_F.Random.Int(1, 10000))
             .RuleFor(p_Upq => p_Upq.IdPartyQuestion, p_PartyQuestionId ?? new Faker().Random.Int(1, 10000))
-            .RuleFor(p_Upq => p_Upq.IdUser, p_UserId ?? new Faker().Random.Int(1, 1000))
+            .RuleFor(p_Upq => p_Upq.IdUser, p_UserId ?? Guid.NewGuid())
             .RuleFor(p_Upq => p_Upq.DtPresentedAt, p_F => p_F.Date.Recent(1))
             .RuleFor(p_Upq => p_Upq.DtAnsweredAt, (p_F, p_Upq) => p_F.Date.Between(p_Upq.DtPresentedAt, p_Upq.DtPresentedAt.AddSeconds(15)))
             .RuleFor(p_Upq => p_Upq.IdAnswer, p_F => p_F.Random.Int(1, 10000))

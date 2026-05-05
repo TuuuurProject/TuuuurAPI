@@ -4,7 +4,7 @@ namespace Tuuuur.Domain.Bo;
 
 public record User : IBOEntity
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     public string NickName { get; set; }
 
@@ -17,13 +17,19 @@ public record User : IBOEntity
     
     [JsonIgnore]
     public Guid? ResetPasswordCode { get; set; }
+    
+    public bool IsDeleted { get; set; }
 
     public bool IsAdmin { get; set; }
 
     public bool IsNew { get; set; }
     
-    [JsonIgnore]
     public bool IsGoogleUser { get; set; }
+    public bool IsInvitedUser { get; set; } = false;
     
-    public virtual ICollection<UserAuth> UserAuth { get; set; } = new List<UserAuth>();
+    public List<UserAuth> UserAuth { get; set; } = [];
+    
+    public List<Elo> Elo { get; set; } = [];
+    
+    public int GlobalElo => Elo.Count != 0 ? Elo.Sum(p_P => p_P.Value) / Elo.Count : 0;
 }

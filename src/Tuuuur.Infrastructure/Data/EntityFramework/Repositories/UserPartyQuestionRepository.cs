@@ -22,10 +22,24 @@ internal class UserPartyQuestionRepository(DbContext p_DbContext, IMapper p_Mapp
         await AddAsync(v_Mapping.DtoEntity, p_CancellationToken);
         return v_Mapping;
     }
+    
+    
 
     public async Task UpdateAsync(UserPartyQuestion p_UserPartyQuestion)
     {
         UserPartyQuestionUpq v_Entity = Mapper.Map<UserPartyQuestionUpq>(p_UserPartyQuestion);
         await UpdateAsync(v_Entity);
+    }
+
+    public async Task<IEnumerable<UserPartyQuestion>> GetUserScoresByProjectIdAsync(Guid p_ProjectId, CancellationToken p_CancellationToken = default)
+    {
+        List<UserPartyQuestionUpq> v_UserPartyQuestionUpqs = await FindBy(
+            p_Query => p_Query.IdPartyQuestionNavigation.IdParty == p_ProjectId,
+            null, 
+            p_UserPartyQuestionUpqs => p_UserPartyQuestionUpqs
+                .Include(p_UserPartyQuestionUpq => p_UserPartyQuestionUpq.IdUserNavigation))
+            .ToListAsync(p_CancellationToken);
+        
+        return Mapper.Map<IEnumerable<UserPartyQuestion>>(v_UserPartyQuestionUpqs);
     }
 }

@@ -5,7 +5,7 @@ namespace Tuuuur.Infrastructure.Data.EntityFramework.Entities;
 
 public partial class UserUsr
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     public string NickName { get; set; }
 
@@ -16,6 +16,8 @@ public partial class UserUsr
     public string Avatar { get; set; }
 
     public Guid? ResetPasswordCode { get; set; }
+
+    public bool IsDeleted { get; set; }
 
     public bool IsAdmin { get; set; }
 

@@ -1,4 +1,3 @@
-using MediatR;
 using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Requests.Authentication;
 using Tuuuur.Core.Responses.Authentication;
@@ -8,7 +7,6 @@ using Tuuuur.Domain.Errors;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Interfaces.Data.Repositories;
 using Tuuuur.Domain.Interfaces.Token;
-using Tuuuur.Domain.Security;
 using Tuuuur.Domain.Token;
 
 namespace Tuuuur.Core.Tests.UseCases.Authentication;
@@ -42,7 +40,7 @@ public class RefreshTokenUseCaseTests
         // Arrange
         const string v_RefreshTokenString = "valid-refresh-token";
         const string v_BearerToken = "valid-bearer-token";
-        User v_User = new() { Id = 1, Email = "test@test.com", NickName = "test", IsGoogleUser = false };
+        User v_User = new() { Id = Guid.NewGuid(), Email = "test@test.com", NickName = "test", IsGoogleUser = false };
         RefreshToken v_RefreshToken = new()
         {
             UserId = v_User.Id,
@@ -99,7 +97,7 @@ public class RefreshTokenUseCaseTests
         m_RefreshTokenRepositoryMock.Setup(p_R => p_R.GetRefreshTokenByTokenAsync(v_RefreshTokenString, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RefreshToken)null);
         m_JwtFactoryMock.Setup(p_J => p_J.GetUserIdFromToken(v_BearerToken))
-            .Returns(1);
+            .Returns(Guid.NewGuid());
 
         RefreshTokenRequest v_Request = new(v_BearerToken, v_RefreshTokenString);
 
@@ -123,7 +121,7 @@ public class RefreshTokenUseCaseTests
         const string v_BearerToken = "some-bearer-token";
         RefreshToken v_RefreshToken = new()
         {
-            UserId = 1,
+            UserId = Guid.NewGuid(),
             Token = v_RefreshTokenString,
             ExpiresAt = DateTime.UtcNow.AddDays(-1),
             CreatedAt = DateTime.UtcNow.AddDays(-91)
@@ -132,7 +130,7 @@ public class RefreshTokenUseCaseTests
         m_RefreshTokenRepositoryMock.Setup(p_R => p_R.GetRefreshTokenByTokenAsync(v_RefreshTokenString, It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_RefreshToken);
         m_JwtFactoryMock.Setup(p_J => p_J.GetUserIdFromToken(v_BearerToken))
-            .Returns(1);
+            .Returns(Guid.NewGuid());
 
         RefreshTokenRequest v_Request = new(v_BearerToken, v_RefreshTokenString);
 
@@ -156,7 +154,7 @@ public class RefreshTokenUseCaseTests
         const string v_BearerToken = "some-bearer-token";
         RefreshToken v_RefreshToken = new()
         {
-            UserId = 999,
+            UserId = Guid.NewGuid(),
             Token = v_RefreshTokenString,
             ExpiresAt = DateTime.UtcNow.AddDays(30),
             CreatedAt = DateTime.UtcNow.AddDays(-1)
@@ -164,10 +162,10 @@ public class RefreshTokenUseCaseTests
 
         m_RefreshTokenRepositoryMock.Setup(p_R => p_R.GetRefreshTokenByTokenAsync(v_RefreshTokenString, It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_RefreshToken);
-        m_UserRepositoryMock.Setup(p_U => p_U.GetUserByIdAsync(999, It.IsAny<CancellationToken>()))
+        m_UserRepositoryMock.Setup(p_U => p_U.GetUserByIdAsync(v_RefreshToken.UserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((User)null);
         m_JwtFactoryMock.Setup(p_J => p_J.GetUserIdFromToken(v_BearerToken))
-            .Returns(999);
+            .Returns(v_RefreshToken.UserId);
 
         RefreshTokenRequest v_Request = new(v_BearerToken, v_RefreshTokenString);
 

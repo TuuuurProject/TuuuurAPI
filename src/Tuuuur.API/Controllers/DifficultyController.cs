@@ -1,10 +1,12 @@
 ﻿using Asp.Versioning;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tuuuur.API.Presenters;
 using Tuuuur.Core.Requests;
 using Tuuuur.Core.Responses;
 using Tuuuur.Domain.Bo;
+using Tuuuur.Domain.Security;
 
 namespace Tuuuur.API.Controllers;
 

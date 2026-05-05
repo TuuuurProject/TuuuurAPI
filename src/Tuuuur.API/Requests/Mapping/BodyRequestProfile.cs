@@ -20,9 +20,12 @@ namespace Tuuuur.API.Requests.Mapping
                 .ForMember(p_Trg => p_Trg.Avatar, p_Opt => p_Opt.Ignore())
                 .ForMember(p_Trg => p_Trg.ResetPasswordCode, p_Opt => p_Opt.Ignore())
                 .ForMember(p_Trg => p_Trg.IsNew, p_Opt => p_Opt.Ignore())
+                .ForMember(p_Trg => p_Trg.Elo, p_Opt => p_Opt.Ignore())
+                .ForMember(p_Trg => p_Trg.IsDeleted, p_Opt => p_Opt.Ignore())
                 .ForMember(p_Trg => p_Trg.IsAdmin, p_Opt => p_Opt.Ignore())
                 .ForMember(p_Trg => p_Trg.UserAuth, p_Opt => p_Opt.Ignore())
                 .ForMember(p_Trg => p_Trg.IsGoogleUser, p_Opt => p_Opt.Ignore())
+                .ForMember(p_Trg => p_Trg.IsInvitedUser, p_Opt => p_Opt.MapFrom(p_P => false))
                 .ReverseMap();
         }
     }
