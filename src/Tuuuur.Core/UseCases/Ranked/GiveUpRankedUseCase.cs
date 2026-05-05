@@ -40,23 +40,13 @@ internal class GiveUpRankedUseCase(
         Party v_Party = await p_CacheService.GetAsync<Party>(RedisKeys.Ranked.ById(v_PartyId), p_CancellationToken);
         if (v_Party is null || v_PartyId != v_Party.Id)
             return new EmptyResponse([new ErrorDto(DomainErrors.Data.NotFound, $"Queried object {nameof(Party)} was not found")]);
-
-        // Set quitting user's score to 0 to trigger end game logic in RankedLogicUseCase
-        await p_CacheService.SortedSetAddAsync(
-            RedisKeys.Ranked.Scores(v_PartyId),
-            v_QuittingUser,
-            0,
-            p_CancellationToken: p_CancellationToken);
-        
         
         // Get the index of question to get
         int v_CurrentIndex = await p_CacheService.GetAsync<int>(RedisKeys.Ranked.CurrentQuestionIndex(v_Party.Id), p_CancellationToken);
         
-        Question v_CurrentQuestion = await p_CacheService.SortedSetGetByIndexAsync<Question>(
+        Question v_Question = await p_CacheService.SortedSetGetByIndexAsync<Question>(
             RedisKeys.Ranked.Questions(v_Party.Id),
             p_Index: v_CurrentIndex, p_CancellationToken: p_CancellationToken);
-
-        Question v_Question = await m_UnitOfWork.QuestionRepository.GetQuestionByIdWithAnswerAsync(v_CurrentQuestion.Id, p_CancellationToken);
         
         await p_CacheService.PublishAsync(
             RedisKeys.Ranked.PartyQuestionAllAnsweredChannel(v_Party.Id, v_Question.Id),
@@ -65,8 +55,13 @@ internal class GiveUpRankedUseCase(
         );
         
         await p_CacheService.SetAsync(RedisKeys.Ranked.PlayerForfeited(v_PartyId), v_QuittingUser, p_CancellationToken: p_CancellationToken);
-        
-        await p_RankedNotificationService.NotifyPlayerForfeited(v_Party.Id, v_QuittingUser);
+
+        User v_OtherUser = v_Party.PartyUsers.FirstOrDefault(p_P => p_P.IdUser != v_QuittingUser.Id)?.User;
+
+        if (v_OtherUser != null)
+        {
+            await p_RankedNotificationService.NotifyPlayerForfeited(v_OtherUser.Id, v_QuittingUser);
+        }
 
         return new EmptyResponse();
     }

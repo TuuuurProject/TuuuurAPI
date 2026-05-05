@@ -1,6 +1,6 @@
 namespace Tuuuur.Domain.Bo;
 
-public record GroupParty : PartyBase
+public record   GroupParty : PartyBase
 {
     /// <summary>
     /// Group code
