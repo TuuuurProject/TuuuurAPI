@@ -36,7 +36,7 @@ public class RankedConfiguration : IServiceConfiguration
     /// and as the starting Elo assigned to every theme when a new user registers.
     /// Default: 1000.
     /// </summary>
-    public int DefaultElo { get; set; } = 1000;
+    public int DefaultElo { get; set; }
 
     public string GetSectionName() => SectionName;
 }

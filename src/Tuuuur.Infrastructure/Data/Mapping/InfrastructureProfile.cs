@@ -137,6 +137,7 @@ internal class InfrastructureProfile : Profile
 
         CreateMap<EloElo, Elo>()
             .ForMember(p_Trg => p_Trg.Value, p_Opt => p_Opt.MapFrom(p_Src => p_Src.Value))
+            .ForMember(p_Trg => p_Trg.GamesPlayed, p_Opt => p_Opt.MapFrom(p_Src => p_Src.GamesPlayed))
             .ForMember(p_Trg => p_Trg.IdTheme, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdTheme))
             .ForMember(p_Trg => p_Trg.Theme, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdThemeNavigation))
             .ReverseMap();

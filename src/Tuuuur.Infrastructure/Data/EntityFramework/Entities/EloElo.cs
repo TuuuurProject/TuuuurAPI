@@ -11,6 +11,8 @@ public partial class EloElo
 
     public int Value { get; set; }
 
+    public int GamesPlayed { get; set; }
+
     public virtual ThemeThm IdThemeNavigation { get; set; }
 
     public virtual UserUsr IdUserNavigation { get; set; }

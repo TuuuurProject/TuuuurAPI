@@ -28,6 +28,7 @@ internal class EloRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<El
         if (v_Entity is null) return;
 
         v_Entity.Value = p_NewValue;
+        v_Entity.GamesPlayed += 1;
         await UpdateAsync(v_Entity);
     }
 }

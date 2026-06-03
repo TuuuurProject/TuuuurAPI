@@ -83,7 +83,7 @@ public partial class BaseTuuuurContext : DbContext
 
             entity.Property(e => e.IdUser).HasColumnName("Id_User");
             entity.Property(e => e.IdTheme).HasColumnName("Id_Theme");
-            entity.Property(e => e.Value).HasDefaultValue(1000);
+            entity.Property(e => e.Value).HasDefaultValue(800);
 
             entity.HasOne(d => d.IdThemeNavigation).WithMany(p => p.EloElo)
                 .HasForeignKey(d => d.IdTheme)
