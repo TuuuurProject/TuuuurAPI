@@ -22,6 +22,7 @@ internal class RankedLogicUseCase(
     IEloService p_EloService,
     ICacheService p_CacheService,
     IMediator p_Mediator,
+    IRankService p_RankService,
     RankedConfiguration p_RankedConfiguration)
     : ADbUseCase<RankedLogicRequest, EmptyResponse>(p_Logger, p_UnitOfWork)
 {
@@ -59,10 +60,20 @@ internal class RankedLogicUseCase(
             await p_CacheService.SortedSetGetAllWithScoresAsync<Question>(RedisKeys.Ranked.Questions(v_Party.Id),
                 p_CancellationToken: p_CancellationToken);
 
-        // Get random question excluding question already send
-        Question v_CurrentQuestion = await m_UnitOfWork.QuestionRepository.GetRandomQuestionExcludingAsync(
-            v_ExistingQuestions.Select(p_P => p_P.Value.Id).ToList(),
-            p_CancellationToken);
+        // Determine the question pool based on the average Tier of both players
+        int v_AverageTier = p_RankService.GetAverageTier(v_Player1.GlobalElo, v_Player2.GlobalElo);
+        RankPoolConfiguration v_Pool = p_RankService.GetPoolForTier(v_AverageTier);
+
+        // Get random question filtered by the pool's difficulty/theme constraints
+        Question v_CurrentQuestion = v_Pool is not null
+            ? await m_UnitOfWork.QuestionRepository.GetRandomQuestionExcludingWithFiltersAsync(
+                v_ExistingQuestions.Select(p_P => p_P.Value.Id).ToList(),
+                v_Pool.DifficultyIds,
+                v_Pool.ThemeIds ?? [],
+                p_CancellationToken)
+            : await m_UnitOfWork.QuestionRepository.GetRandomQuestionExcludingAsync(
+                v_ExistingQuestions.Select(p_P => p_P.Value.Id).ToList(),
+                p_CancellationToken);
 
         _ = await p_CacheService.SortedSetAddAsync(RedisKeys.Ranked.Questions(v_Party.Id), v_CurrentQuestion,
             p_Score: v_CurrentIndex, p_CancellationToken: p_CancellationToken);

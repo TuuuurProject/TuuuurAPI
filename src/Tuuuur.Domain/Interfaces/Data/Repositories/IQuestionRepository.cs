@@ -1,4 +1,4 @@
-﻿using Tuuuur.Domain.Bo;
+using Tuuuur.Domain.Bo;
 
 namespace Tuuuur.Domain.Interfaces.Data.Repositories;
 
@@ -10,5 +10,11 @@ public interface IQuestionRepository : IGenericRepository
     Task<Question> GetQuestionByIdWithAnswerAsync(int p_Id, CancellationToken p_CancellationToken = default);
 
     Task<Question> GetRandomQuestionExcludingAsync(List<int> p_ExcludesQuestions,
+        CancellationToken p_CancellationToken = default);
+    
+    Task<Question> GetRandomQuestionExcludingWithFiltersAsync(
+        List<int> p_ExcludesQuestions,
+        List<int> p_DifficultyIds,
+        List<int> p_ThemeIds,
         CancellationToken p_CancellationToken = default);
 }

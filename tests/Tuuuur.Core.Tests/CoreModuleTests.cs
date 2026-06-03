@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Core;
 using MediatR;
 using Tuuuur.Core.Configuration;
@@ -16,7 +16,8 @@ namespace Tuuuur.Core.Tests
             m_TypesWanted = new List<Type>
             {
                 typeof(WebsiteConfiguration),
-                typeof(RankedConfiguration)
+                typeof(RankedConfiguration),
+                typeof(Tuuuur.Domain.Configuration.RankConfiguration)
             };
         }
 
