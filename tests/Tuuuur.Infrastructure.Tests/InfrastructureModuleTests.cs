@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Core;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Interfaces.Emails;
@@ -27,7 +27,8 @@ namespace Tuuuur.Infrastructure.Tests
                 typeof(SmtpEmailConfiguration),
                 typeof(CalculConfiguration),
                 typeof(IEloService),
-                typeof(EloConfiguration)
+                typeof(EloConfiguration),
+                typeof(IRankService)
             };
         }
 

@@ -11,8 +11,8 @@ public class EloServiceTests
     [Theory]
     [InlineData(0, 40)]
     [InlineData(800, 40)]
-    [InlineData(1200, 40)]
-    public void GetKFactor_WhenEloUpTo1200_ShouldReturn40(int p_Elo, int p_ExpectedK)
+    [InlineData(1500, 40)]
+    public void GetKFactor_WhenEloUpTo1500_ShouldReturn40(int p_Elo, int p_ExpectedK)
     {
         // Arrange
         EloService v_Service = new(m_DefaultConfig);
@@ -25,10 +25,10 @@ public class EloServiceTests
     }
 
     [Theory]
-    [InlineData(1201, 20)]
-    [InlineData(1600, 20)]
-    [InlineData(2000, 20)]
-    public void GetKFactor_WhenEloBetween1201And2000_ShouldReturn20(int p_Elo, int p_ExpectedK)
+    [InlineData(1501, 25)]
+    [InlineData(2000, 25)]
+    [InlineData(2500, 25)]
+    public void GetKFactor_WhenEloBetween1501And2500_ShouldReturn25(int p_Elo, int p_ExpectedK)
     {
         // Arrange
         EloService v_Service = new(m_DefaultConfig);
@@ -41,10 +41,10 @@ public class EloServiceTests
     }
 
     [Theory]
-    [InlineData(2001, 10)]
-    [InlineData(3000, 10)]
-    [InlineData(int.MaxValue, 10)]
-    public void GetKFactor_WhenEloAbove2000_ShouldReturn10(int p_Elo, int p_ExpectedK)
+    [InlineData(2501, 18)]
+    [InlineData(3000, 18)]
+    [InlineData(int.MaxValue, 18)]
+    public void GetKFactor_WhenEloAbove2500_ShouldReturn18(int p_Elo, int p_ExpectedK)
     {
         // Arrange
         EloService v_Service = new(m_DefaultConfig);
@@ -100,8 +100,8 @@ public class EloServiceTests
         // Arrange
         EloService v_Service = new(m_DefaultConfig);
 
-        // act: underdog wins (elo 800 beats elo 1300 — different K-factors: winner K=40, loser K=20)
-        (int v_WinnerDelta, int v_LoserDelta) = v_Service.ComputeEloDelta(800, 1300);
+        // act: underdog wins (elo 1400 beats elo 1600 — different K-factors: winner K=40, loser K=25)
+        (int v_WinnerDelta, int v_LoserDelta) = v_Service.ComputeEloDelta(1400, 1600);
 
         // Assert: underdog gains more; favourite loses less
         v_WinnerDelta.Should().BeGreaterThan(v_LoserDelta);

@@ -1,6 +1,5 @@
-﻿
+
 using AutoMapper;
-using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Tuuuur.Domain.Bo;
@@ -47,5 +46,37 @@ internal class QuestionRepository(DbContext p_DbContext, IMapper p_Mapper, ILogg
             .FirstOrDefaultAsync(cancellationToken: p_CancellationToken);
 
         return await GetQuestionByIdWithAnswerAsync(v_Entity.Id, p_CancellationToken);
+    }
+    
+    public async Task<Question> GetRandomQuestionExcludingWithFiltersAsync(
+        List<int> p_ExcludesQuestions,
+        List<int> p_DifficultyIds,
+        List<int> p_ThemeIds,
+        CancellationToken p_CancellationToken = default)
+    {
+        bool v_FilterByTheme = p_ThemeIds is { Count: > 0 };
+
+        IQueryable<QuestionQst> v_Query = FindBy(p_P =>
+            !p_ExcludesQuestions.Contains(p_P.Id) &&
+            p_DifficultyIds.Contains(p_P.IdDifficulty) &&
+            (!v_FilterByTheme || p_P.QuestionThemeQth.Any(p_Qt => p_ThemeIds!.Contains(p_Qt.IdTheme)))
+        ).OrderBy(p_P => Guid.NewGuid());
+
+        QuestionQst v_Entity = await v_Query.FirstOrDefaultAsync(cancellationToken: p_CancellationToken);
+
+        // Fallback: if no question matches the pool filters (e.g. pool exhausted),
+        // fall back to any unseen question regardless of difficulty/theme.
+        if (v_Entity is not null)
+        {
+            return await GetQuestionByIdWithAnswerAsync(v_Entity.Id, p_CancellationToken);
+        }
+
+        p_Logger.LogWarning(
+            "No question found for DifficultyIds=[{Difficulties}] ThemeIds=[{Themes}] — falling back to unfiltered selection.",
+            string.Join(",", p_DifficultyIds),
+            p_ThemeIds is null ? "any" : string.Join(",", p_ThemeIds));
+
+        return await GetRandomQuestionExcludingAsync(p_ExcludesQuestions, p_CancellationToken);
+
     }
 }
