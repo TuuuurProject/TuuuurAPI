@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Tuuuur.Domain.Bo;
 
 namespace Tuuuur.Domain.Configuration;
@@ -6,6 +7,7 @@ namespace Tuuuur.Domain.Configuration;
 /// Configuration for the Tier/Division/Pool ranking system.
 /// Bound from the <c>RankConfiguration</c> section of <c>appsettings.json</c>.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class RankConfiguration : IServiceConfiguration
 {
     private const string SectionName = "RankConfiguration";
