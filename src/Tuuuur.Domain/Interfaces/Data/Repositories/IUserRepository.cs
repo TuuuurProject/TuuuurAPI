@@ -8,6 +8,7 @@ public interface IUserRepository : IGenericRepository
     Task<User> GetUserByEmailAsync(string p_Email, CancellationToken p_CancellationToken = default);
     Task<User> GetUserByEmailOrNickNameAsync(string p_Login, CancellationToken p_CancellationToken = default);
     Task<User> GetUserByNickNameAsync(string p_NickaName, CancellationToken p_CancellationToken = default);
+    Task<RankingPage> GetRankingPageAsync(Guid? p_UserId, int p_Page, int p_Size, CancellationToken p_CancellationToken = default);
     Task<IMappingAddEntity<User, IEntity>> CreateUserAsync(User p_User, CancellationToken p_CancellationToken = default);
     Task UpdateUserAsync(User p_User, CancellationToken p_CancellationToken = default);
     Task<User> GetUserByIdAsync(Guid p_Id, CancellationToken p_CancellationToken = default);

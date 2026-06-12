@@ -22,6 +22,7 @@ public class RankedLogicUseCaseTests
     private readonly Mock<ICalculService> m_CalculServiceMock;
     private readonly Mock<IEloService> m_EloServiceMock;
     private readonly Mock<IMediator> m_MediatorMock;
+    private readonly Mock<IRankService> m_RankServiceMock;
     private readonly RankedConfiguration m_Config;
     private readonly RankedLogicUseCase m_UseCase;
 
@@ -35,6 +36,7 @@ public class RankedLogicUseCaseTests
         m_CalculServiceMock = m_MockRepository.Create<ICalculService>();
         m_EloServiceMock = m_MockRepository.Create<IEloService>();
         m_MediatorMock = m_MockRepository.Create<IMediator>();
+        m_RankServiceMock = m_MockRepository.Create<IRankService>();
         m_Config = new RankedConfiguration
         {
             ThresholdRound = 5,
@@ -51,6 +53,7 @@ public class RankedLogicUseCaseTests
             m_EloServiceMock.Object,
             m_CacheServiceMock.Object,
             m_MediatorMock.Object,
+            m_RankServiceMock.Object,
             m_Config);
     }
 
@@ -170,6 +173,14 @@ public class RankedLogicUseCaseTests
             .Setup(p_U => p_U.QuestionRepository.GetRandomQuestionExcludingAsync(It.IsAny<List<int>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_Question);
 
+        m_RankServiceMock
+            .Setup(p_R => p_R.GetAverageTier(It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(1);
+
+        m_RankServiceMock
+            .Setup(p_R => p_R.GetPoolForTier(It.IsAny<int>()))
+            .Returns((RankPoolConfiguration)null);
+
         // Notify countdown will be called then Task.Delay will be cancelled
         m_NotificationServiceMock
             .Setup(p_N => p_N.NotifyCountdownAsync(v_Party.Id, It.IsAny<int>()))
@@ -282,6 +293,14 @@ public class RankedLogicUseCaseTests
         m_NotificationServiceMock
             .Setup(p_N => p_N.NotifyAllPlayerAnswered(It.IsAny<Guid>(), It.IsAny<IEnumerable<UserAnswered>>()))
             .Returns(Task.CompletedTask);
+
+        m_RankServiceMock
+            .Setup(p_R => p_R.GetAverageTier(It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(1);
+
+        m_RankServiceMock
+            .Setup(p_R => p_R.GetPoolForTier(It.IsAny<int>()))
+            .Returns((RankPoolConfiguration)null);
     }
 
     [Fact]

@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Tuuuur.Core.Configuration;
 using Tuuuur.Core.Requests;
 using Tuuuur.Core.Responses;
@@ -28,6 +28,7 @@ public class CoreModule : Module
         // Add here your services
         p_Builder.RegisterConfiguration<WebsiteConfiguration>();
         p_Builder.RegisterConfiguration<RankedConfiguration>();
+        p_Builder.RegisterConfiguration<RankConfiguration>();
 
         // Generic requests / responses
         p_Builder.RegisterGeneric(typeof(GenericEntityRequest<>)).AsSelf().InstancePerLifetimeScope();

@@ -32,4 +32,5 @@ public record User : IBOEntity
     public List<Elo> Elo { get; set; } = [];
     
     public int GlobalElo => Elo.Count != 0 ? Elo.Sum(p_P => p_P.Value) / Elo.Count : 0;
+    public int? UserRanking { get; set; }
 }
