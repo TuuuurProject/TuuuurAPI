@@ -12,6 +12,7 @@ internal class InfrastructureProfile : Profile
         CreateMap<UserUsr, User>()
             .ForMember(p_Trg => p_Trg.UserAuth, p_Opt => p_Opt.MapFrom(p_Src => p_Src.UserAuthUat))
             .ForMember(p_Trg => p_Trg.IsInvitedUser, p_Opt => p_Opt.MapFrom(p_Src => false))
+            .ForMember(p_Trg => p_Trg.UserRanking, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.Elo, p_Opt => p_Opt.MapFrom(p_Src => p_Src.EloElo))
             .ReverseMap();
         CreateMap<UserAuthUat, UserAuth>()

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Identity.Data;
 using Tuuuur.API.Requests.Authentification;
 using Tuuuur.Domain.Bo;
@@ -25,6 +25,7 @@ namespace Tuuuur.API.Requests.Mapping
                 .ForMember(p_Trg => p_Trg.IsAdmin, p_Opt => p_Opt.Ignore())
                 .ForMember(p_Trg => p_Trg.UserAuth, p_Opt => p_Opt.Ignore())
                 .ForMember(p_Trg => p_Trg.IsGoogleUser, p_Opt => p_Opt.Ignore())
+                .ForMember(p_Trg => p_Trg.UserRanking, p_Opt => p_Opt.Ignore())
                 .ForMember(p_Trg => p_Trg.IsInvitedUser, p_Opt => p_Opt.MapFrom(p_P => false))
                 .ReverseMap();
         }
