@@ -23,7 +23,6 @@ namespace Tuuuur.API.Controllers;
 public class RankedController(ILogger<RankedController> p_Logger, IMediator p_Mediator, ValidationPresenter p_ValidationPresenter)
     : BaseController(p_Logger, p_Mediator, p_ValidationPresenter)
 {
-    
     /// <summary>
     /// Fetch ranked party
     /// </summary>
@@ -41,6 +40,35 @@ public class RankedController(ILogger<RankedController> p_Logger, IMediator p_Me
     {
         p_Presenter.Handle(await m_Mediator.Send(new GetRankedRequest(p_PartyId), p_CancellationToken));
 
+        return p_Presenter.ContentResult;
+    }
+    
+    
+    /// <summary>
+    /// Fetch overall ranked classement
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("ranking")]
+    [MapToApiVersion("1")]
+    [Authorize(Roles = RolesType.User)]
+    [ProducesResponseType(typeof(RankingPage),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(IEnumerable<ErrorDto>), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GeRankingAsync(
+        [FromQuery] PaginationRequest p_Query,
+        [FromServices] PaginationRequestValidator p_Validator,
+        [FromServices] GenericEntityPresenter<RankingPage> p_Presenter,
+        CancellationToken p_CancellationToken)
+    {
+        ValidationResult v_Result = await p_Validator.ValidateAsync(p_Query, p_CancellationToken);
+
+        if (!v_Result.IsValid)
+        {
+            m_ValidationPresenter.Handle(v_Result);
+            return m_ValidationPresenter.ContentResult;
+        }
+        
+        p_Presenter.Handle(await m_Mediator.Send(new GetRankingRequest(p_Query.Page, p_Query.Size), p_CancellationToken));
         return p_Presenter.ContentResult;
     }
 }

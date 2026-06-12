@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Tuuuur.Domain.Configuration;
 using Tuuuur.Domain.Interfaces.Data;
 using Tuuuur.Domain.Interfaces.Emails;
@@ -57,6 +57,10 @@ public class InfrastructureModule : Module
             .InstancePerLifetimeScope();
 
         p_Builder.RegisterConfiguration<EloConfiguration>();
+
+        p_Builder.RegisterType<RankService>()
+            .As<IRankService>()
+            .InstancePerLifetimeScope();
     }
 }
 
