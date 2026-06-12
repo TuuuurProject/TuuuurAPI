@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Tuuuur.Domain.Bo;
 using Tuuuur.Infrastructure.Data.EntityFramework.Entities;
 using Tuuuur.Infrastructure.Data.Mapping.Converters;
@@ -28,7 +28,7 @@ internal class InfrastructureProfile : Profile
             .ForMember(p_Trg => p_Trg.IdDifficulty, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdDifficulty))
             .ForMember(p_Trg => p_Trg.Answer, p_Opt => p_Opt.MapFrom(p_Src => p_Src.AnswerAns))
             .ForMember(p_Trg => p_Trg.Difficulty, p_Opt => p_Opt.MapFrom(p_Src => p_Src.IdDifficultyNavigation))
-            .ForMember(p_Trg => p_Trg.PartyQuestion, p_Opt => p_Opt.MapFrom(p_Src => p_Src.PartyQuestionPqt))
+            .ForMember(p_Trg => p_Trg.PartyQuestion, p_Opt => p_Opt.Ignore())
             .ForMember(p_Trg => p_Trg.QuestionTheme, p_Opt => p_Opt.MapFrom(p_Src => p_Src.QuestionThemeQth))
             .ReverseMap();
 
@@ -173,14 +173,17 @@ internal class InfrastructureProfile : Profile
                 return;
             }
 
-            foreach (PartyQuestionPqt v_PartyQuestionPqt in p_Src.PartyQuestionPqt)
+            p_Dest.PartyQuestions = p_Src.PartyQuestionPqt.Select(p_Pqt => new PartyQuestion
             {
-                v_PartyQuestionPqt.UserPartyQuestionUpq = v_PartyQuestionPqt.UserPartyQuestionUpq
+                Id = p_Pqt.Id,
+                IdQuestion = p_Pqt.IdQuestion,
+                Order = p_Pqt.Order,
+                Question = p_Ctx.Mapper.Map<Question>(p_Pqt.IdQuestionNavigation),
+                UserPartyQuestion = p_Pqt.UserPartyQuestionUpq
                     .Where(p_P => p_P.IdUser == v_UserId)
-                    .ToList();
-            }
-
-            p_Dest.PartyQuestions = p_Ctx.Mapper.Map<List<PartyQuestion>>(p_Src.PartyQuestionPqt);
+                    .Select(p_P => p_Ctx.Mapper.Map<UserPartyQuestion>(p_P))
+                    .FirstOrDefault()
+            }).ToList();
         }
         catch (Exception)
         {
