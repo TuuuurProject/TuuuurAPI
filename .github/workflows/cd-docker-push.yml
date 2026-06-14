@@ -64,11 +64,12 @@ jobs:
           context: .
           file: ./src/Tuuuur.API/dockerfile
           push: true
+          provenance: false
           tags: |
             ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/tuuuur/api:${{ inputs.image_tag }}
             ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/tuuuur/api:${{ inputs.image_tag }}-${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ github.ref_name }}-api
+          cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-api
 
       - name: Build and push Database Docker image to GCP Artifact Registry (${{ inputs.environment_name }})
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
@@ -80,11 +81,12 @@ jobs:
           context: .
           file: ./src/Tuuuur.Database/dockerfile
           push: true
+          provenance: false
           tags: |
             ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/tuuuur/database:${{ inputs.image_tag }}
             ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/tuuuur/database:${{ inputs.image_tag }}-${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ github.ref_name }}-database
+          cache-to: type=gha,mode=max,scope=${{ github.ref_name }}-database
 
       - name: Save Git SHA to Secret Manager (API)
         env:
