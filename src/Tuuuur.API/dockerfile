@@ -10,7 +10,7 @@ COPY ["src/Tuuuur.Domain/Tuuuur.Domain.csproj", "src/Tuuuur.Domain/"]
 COPY ["/src/Tuuuur.RazorTemplate/Tuuuur.RazorTemplate.csproj", "src/Tuuuur.RazorTemplate/"]
 COPY ["src/Tuuuur.Infrastructure/Tuuuur.Infrastructure.csproj", "src/Tuuuur.Infrastructure/"]
 RUN dotnet restore "src/Tuuuur.API/Tuuuur.API.csproj"
-COPY . .
+COPY ["src/", "src/"]
 RUN dotnet publish "src/Tuuuur.API/Tuuuur.API.csproj" -c Release -o /app/publish
 
 FROM base AS final
@@ -18,6 +18,5 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 ENV DOTNET_RUNNING_IN_CONTAINER=true
-ENV ASPNETCORE_ENVIRONMENT=Development
 
 ENTRYPOINT ["dotnet", "Tuuuur.API.dll"]
