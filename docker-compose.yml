@@ -69,6 +69,7 @@ services:
       tuuuur_redis:
         condition: service_healthy
     environment:
+      - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__Tuuuur=Server=tuuuur_sqlserver,1433;Initial Catalog=Tuuuur-dev;Persist Security Info=False;User ID=sa;Password=YourStrong!Passw0rd;MultipleActiveResultSets=False;Encrypt=False;TrustServerCertificate=True;Connection Timeout=30
       - ConnectionStrings__Redis=tuuuur_redis:6379,password=YourStrong!RedisPass
       - JwtSettings__Key=${JWT_KEY}
