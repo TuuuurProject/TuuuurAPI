@@ -26,7 +26,7 @@ namespace Tuuuur.API.Workers;
 ///   The worker iterates pairs in ascending Elo order and matches the first two
 ///   players whose Elo difference is within the tolerance window.
 ///   Tolerance starts at <see cref="BaseEloTolerance"/> and grows by
-///   <see cref="EloExpansionPerMinute"/> for every minute spent in the queue,
+///   <see cref="EloExpansionStep"/> for every interval spent in the queue,
 ///   capped at <see cref="MaxEloTolerance"/>.
 /// </summary>
 public class MatchmakingWorker(
@@ -42,8 +42,11 @@ public class MatchmakingWorker(
     /// <summary>Base Elo difference a freshly queued player accepts.</summary>
     private int BaseEloTolerance => p_Configuration.GetValue("MatchmakingWorker:BaseEloTolerance", 150);
 
-    /// <summary>Additional Elo tolerance gained per minute in queue.</summary>
-    private int EloExpansionPerMinute => p_Configuration.GetValue("MatchmakingWorker:EloExpansionPerMinute", 75);
+    /// <summary>Additional Elo tolerance gained per step.</summary>
+    private int EloExpansionStep => p_Configuration.GetValue("MatchmakingWorker:EloExpansionStep", 25);
+
+    /// <summary>Interval in seconds for each Elo expansion step.</summary>
+    private int EloExpansionIntervalSeconds => p_Configuration.GetValue("MatchmakingWorker:EloExpansionIntervalSeconds", 5);
 
     /// <summary>Maximum Elo tolerance regardless of wait time.</summary>
     private int MaxEloTolerance => p_Configuration.GetValue("MatchmakingWorker:MaxEloTolerance", 750);
@@ -251,7 +254,8 @@ public class MatchmakingWorker(
         }
 
         TimeSpan v_WaitTime = DateTime.UtcNow - new DateTime(v_Ticks, DateTimeKind.Utc);
-        int v_Expansion = (int)(v_WaitTime.TotalMinutes * EloExpansionPerMinute);
+        int v_Intervals = (int)(v_WaitTime.TotalSeconds / EloExpansionIntervalSeconds);
+        int v_Expansion = v_Intervals * EloExpansionStep;
         return Math.Min(BaseEloTolerance + v_Expansion, MaxEloTolerance);
     }
 }

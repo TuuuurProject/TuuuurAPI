@@ -34,7 +34,8 @@ public class MatchmakingWorkerTests
             .AddInMemoryCollection(new Dictionary<string, string>
             {
                 ["MatchmakingWorker:BaseEloTolerance"] = "100",
-                ["MatchmakingWorker:EloExpansionPerMinute"] = "25",
+                ["MatchmakingWorker:EloExpansionStep"] = "25",
+                ["MatchmakingWorker:EloExpansionIntervalSeconds"] = "5",
                 ["MatchmakingWorker:MaxEloTolerance"] = "500",
                 ["MatchmakingWorker:LockExpirySeconds"] = "5",
                 ["MatchmakingWorker:TickIntervalMs"] = "50",
