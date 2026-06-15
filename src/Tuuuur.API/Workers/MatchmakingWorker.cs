@@ -40,13 +40,13 @@ public class MatchmakingWorker(
     // ── Configuration (overridable via appsettings.json "MatchmakingWorker" section) ──
 
     /// <summary>Base Elo difference a freshly queued player accepts.</summary>
-    private int BaseEloTolerance => p_Configuration.GetValue("MatchmakingWorker:BaseEloTolerance", 100);
+    private int BaseEloTolerance => p_Configuration.GetValue("MatchmakingWorker:BaseEloTolerance", 150);
 
     /// <summary>Additional Elo tolerance gained per minute in queue.</summary>
-    private int EloExpansionPerMinute => p_Configuration.GetValue("MatchmakingWorker:EloExpansionPerMinute", 25);
+    private int EloExpansionPerMinute => p_Configuration.GetValue("MatchmakingWorker:EloExpansionPerMinute", 75);
 
     /// <summary>Maximum Elo tolerance regardless of wait time.</summary>
-    private int MaxEloTolerance => p_Configuration.GetValue("MatchmakingWorker:MaxEloTolerance", 500);
+    private int MaxEloTolerance => p_Configuration.GetValue("MatchmakingWorker:MaxEloTolerance", 750);
 
     /// <summary>How long it takes for the lock to expire if the leader crashes (seconds).</summary>
     private int LockExpirySeconds => p_Configuration.GetValue("MatchmakingWorker:LockExpirySeconds", 15);
