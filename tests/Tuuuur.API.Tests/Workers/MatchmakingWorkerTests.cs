@@ -45,9 +45,8 @@ public class MatchmakingWorkerTests
     }
 
     private MatchmakingWorker CreateWorker() =>
-        new MatchmakingWorker(
+        new(
             m_CacheServiceMock.Object,
-            m_NotificationServiceMock.Object,
             m_ScopeFactoryMock.Object,
             m_Configuration,
             m_LoggerMock.Object);
