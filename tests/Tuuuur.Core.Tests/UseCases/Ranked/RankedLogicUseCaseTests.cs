@@ -57,6 +57,17 @@ public class RankedLogicUseCaseTests
             m_Config);
     }
 
+    
+    private void SetupConnectionMocks(Guid p_P1Id, Guid p_P2Id, bool p_P1Connected = true, bool p_P2Connected = true)
+    {
+        m_CacheServiceMock
+            .Setup(p_C => p_C.GetAsync<bool>(It.Is<string>(s => s.Contains(p_P1Id.ToString()) && s.Contains("Connected")), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(p_P1Connected);
+        m_CacheServiceMock
+            .Setup(p_C => p_C.GetAsync<bool>(It.Is<string>(s => s.Contains(p_P2Id.ToString()) && s.Contains("Connected")), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(p_P2Connected);
+    }
+
     private Party CreateParty(Guid p_P1Id, Guid p_P2Id)
     {
         return new Party
@@ -169,6 +180,7 @@ public class RankedLogicUseCaseTests
         m_UnitOfWorkMock
             .Setup(p_U => p_U.UserRepository.GetUserByIdAsync(v_P2Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_P2);
+        SetupConnectionMocks(v_P1Id, v_P2Id);
         m_UnitOfWorkMock
             .Setup(p_U => p_U.QuestionRepository.GetRandomQuestionExcludingAsync(It.IsAny<List<int>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(v_Question);
@@ -218,6 +230,7 @@ public class RankedLogicUseCaseTests
         UserPartyQuestion p_Upq2,
         int p_CurrentIndex = 0)
     {
+        SetupConnectionMocks(p_P1Id, p_P2Id);
         m_CacheServiceMock
             .Setup(p_C => p_C.GetAsync<Party>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Party
