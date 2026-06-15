@@ -44,7 +44,8 @@ internal abstract class AUseCase<TRequest, TResponse>(ILogger p_Logger) : IReque
         return Task.FromResult((TResponse)Activator.CreateInstance(
             typeof(TResponse),
             new List<ErrorDto> { new(DomainErrors.UnknowError, v_ErrorDescription, p_Exception) },
-            v_ErrorDescription
+            v_ErrorDescription,
+            p_Exception
         ));
     }
 }
