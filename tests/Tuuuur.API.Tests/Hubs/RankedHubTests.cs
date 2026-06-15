@@ -1,10 +1,10 @@
 using System.Security.Claims;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Tuuuur.API.Hubs;
 using Tuuuur.Core.Requests.Ranked;
 using Tuuuur.Core.Responses;
+using Tuuuur.Domain.Interfaces;
 using Tuuuur.Domain.Security;
 
 namespace Tuuuur.API.Tests.Hubs;
@@ -13,6 +13,7 @@ public class RankedHubTests
 {
     private readonly MockRepository m_MockRepository;
     private readonly Mock<IMediator> m_MediatorMock;
+    private readonly Mock<ICacheService> m_CacheServiceMock;
     private readonly Mock<IHubCallerClients<IRankedClient>> m_ClientsMock;
     private readonly Mock<IRankedClient> m_CallerMock;
     private readonly Mock<HubCallerContext> m_ContextMock;
@@ -22,11 +23,12 @@ public class RankedHubTests
     {
         m_MockRepository = new MockRepository(MockBehavior.Strict);
         m_MediatorMock = m_MockRepository.Create<IMediator>();
+        m_CacheServiceMock = m_MockRepository.Create<ICacheService>();
         m_ClientsMock = m_MockRepository.Create<IHubCallerClients<IRankedClient>>();
         m_CallerMock = m_MockRepository.Create<IRankedClient>();
         m_ContextMock = m_MockRepository.Create<HubCallerContext>();
 
-        m_Hub = new RankedHub(m_MediatorMock.Object)
+        m_Hub = new RankedHub(m_MediatorMock.Object, m_CacheServiceMock.Object)
         {
             Clients = m_ClientsMock.Object,
             Context = m_ContextMock.Object
