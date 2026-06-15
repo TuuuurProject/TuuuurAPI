@@ -1,8 +1,4 @@
 using MediatR;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Requests.Ranked;
 using Tuuuur.Core.Responses;
 using Tuuuur.Domain.Bo;
@@ -31,7 +27,6 @@ namespace Tuuuur.API.Workers;
 /// </summary>
 public class MatchmakingWorker(
     ICacheService p_CacheService,
-    IRankedNotificationService p_NotificationService,
     IServiceScopeFactory p_ScopeFactory,
     IConfiguration p_Configuration,
     ILogger<MatchmakingWorker> p_Logger)
