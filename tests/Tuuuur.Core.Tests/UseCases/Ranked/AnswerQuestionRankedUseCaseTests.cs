@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Tuuuur.Core.Configuration;
 using Tuuuur.Core.Requests.Ranked;
 using Tuuuur.Core.Responses;
 using Tuuuur.Core.UseCases.Ranked;
@@ -29,6 +30,7 @@ public class AnswerQuestionRankedUseCaseTests
             m_UnitOfWorkMock.Object,
             m_CacheServiceMock.Object,
             m_NotificationServiceMock.Object,
+            new RankedConfiguration(),
             v_LoggerMock.Object);
     }
 

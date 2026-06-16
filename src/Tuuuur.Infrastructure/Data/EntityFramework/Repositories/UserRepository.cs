@@ -20,7 +20,7 @@ internal class UserRepository(DbContext p_DbContext, IMapper p_Mapper, ILogger<U
         long v_TotalCount = await CountAsync(p_CancellationToken: p_CancellationToken);
 
         // Get all users ordered by ELO to calculate ranking
-        List<UserUsr> v_AllUsersList = await FindBy(null,
+        List<UserUsr> v_AllUsersList = await FindBy(p_P => !p_P.IsDeleted,
                 p_Include: p_Includes => p_Includes
                     .Include(p_P => p_P.EloElo))
             .OrderByDescending(p_P => p_P.EloElo.Count != 0 ? p_P.EloElo.Sum(p_P => p_P.Value) / p_P.EloElo.Count : 0)

@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using Tuuuur.API.Hubs;
 using Tuuuur.Core.Requests.Ranked;
 using Tuuuur.Core.Responses;
@@ -27,8 +28,9 @@ public class RankedHubTests
         m_ClientsMock = m_MockRepository.Create<IHubCallerClients<IRankedClient>>();
         m_CallerMock = m_MockRepository.Create<IRankedClient>();
         m_ContextMock = m_MockRepository.Create<HubCallerContext>();
+        Mock<ILogger<RankedHub>> v_LoggerMock = new();
 
-        m_Hub = new RankedHub(m_MediatorMock.Object, m_CacheServiceMock.Object)
+        m_Hub = new RankedHub(m_MediatorMock.Object, m_CacheServiceMock.Object, v_LoggerMock.Object)
         {
             Clients = m_ClientsMock.Object,
             Context = m_ContextMock.Object

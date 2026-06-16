@@ -210,7 +210,14 @@ internal static class Program
         });
 
         // Add SignalR
-        v_Builder.Services.AddSignalR()
+        v_Builder.Services.AddSignalR(p_Options =>
+            {
+                // Send a ping every 5 seconds so the server detects dead connections quickly.
+                // If the client misses 2 consecutive pings (~12 s), it is considered disconnected
+                // and OnDisconnectedAsync fires — covering hard browser closes, crashes, and network loss.
+                p_Options.KeepAliveInterval = TimeSpan.FromSeconds(5);
+                p_Options.ClientTimeoutInterval = TimeSpan.FromSeconds(12);
+            })
             .AddJsonProtocol(p_Options =>
             {
                 p_Options.PayloadSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;

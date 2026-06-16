@@ -55,19 +55,19 @@ internal class CreateRankedPartyUseCase(
             PartyQuestions = []
         };
 
-        await p_CacheService.SetAsync(RedisKeys.Ranked.ById(v_Party.Id), v_Party, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAsync(RedisKeys.Ranked.ById(v_Party.Id), v_Party, p_RankedConfiguration.PartyTtl, p_CancellationToken);
 
         await p_CacheService.SetAsync(
             RedisKeys.Ranked.CurrentQuestionIndex(v_Party.Id),
-            0, p_CancellationToken: p_CancellationToken);
+            0, p_RankedConfiguration.PartyTtl, p_CancellationToken);
 
         // Store the ranked party ID for each player in Redis so they can retrieve it on reconnect
-        await p_CacheService.SetAsync(RedisKeys.User.UserRanked(v_Player1.Id), v_Party.Id, p_CancellationToken: p_CancellationToken);
-        await p_CacheService.SetAsync(RedisKeys.User.UserRanked(v_Player2.Id), v_Party.Id, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAsync(RedisKeys.User.UserRanked(v_Player1.Id), v_Party.Id, p_RankedConfiguration.PartyTtl, p_CancellationToken);
+        await p_CacheService.SetAsync(RedisKeys.User.UserRanked(v_Player2.Id), v_Party.Id, p_RankedConfiguration.PartyTtl, p_CancellationToken);
 
         // Init score for players
-        await p_CacheService.SortedSetAddAsync(RedisKeys.Ranked.Scores(v_Party.Id), v_Player1, p_RankedConfiguration.InitialRankedScore, p_CancellationToken: p_CancellationToken);
-        await p_CacheService.SortedSetAddAsync(RedisKeys.Ranked.Scores(v_Party.Id), v_Player2, p_RankedConfiguration.InitialRankedScore, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SortedSetAddAsync(RedisKeys.Ranked.Scores(v_Party.Id), v_Player1, p_RankedConfiguration.InitialRankedScore, p_RankedConfiguration.PartyTtl, p_CancellationToken);
+        await p_CacheService.SortedSetAddAsync(RedisKeys.Ranked.Scores(v_Party.Id), v_Player2, p_RankedConfiguration.InitialRankedScore, p_RankedConfiguration.PartyTtl, p_CancellationToken);
 
         m_Logger.LogInformation(
             "Ranked party {PartyId} created for {P1} (elo={E1}) vs {P2} (elo={E2})",
