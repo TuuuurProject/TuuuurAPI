@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using Tuuuur.Core.Requests.Ranked;
+using Tuuuur.Domain.Bo;
 using Tuuuur.Domain.Configuration;
 using Tuuuur.Domain.Interfaces;
 using Tuuuur.Domain.Security;
@@ -8,7 +10,7 @@ namespace Tuuuur.API.Hubs;
 /// <summary>
 /// SignalR notification hub for INotificationClient
 /// </summary>
-public class RankedHub(IMediator p_Mediator, ICacheService p_CacheService) : Hub<IRankedClient>
+public class RankedHub(IMediator p_Mediator, ICacheService p_CacheService, ILogger<RankedHub> p_Logger) : Hub<IRankedClient>
 {
     /// <summary>
     /// Called by the client to join opponent searching
@@ -123,6 +125,8 @@ public class RankedHub(IMediator p_Mediator, ICacheService p_CacheService) : Hub
     }
     /// <summary>
     /// Called when a connection with the hub is terminated.
+    /// Automatically triggers a forfeit if the disconnected user was in an active ranked party.
+    /// This covers browser closes, tab crashes, and network loss — anything that drops the WebSocket.
     /// </summary>
     public override async Task OnDisconnectedAsync(Exception p_Exception)
     {
@@ -133,6 +137,26 @@ public class RankedHub(IMediator p_Mediator, ICacheService p_CacheService) : Hub
             if (v_Guid != Guid.Empty)
             {
                 await p_CacheService.SetAsync(RedisKeys.User.UserConnected(v_Guid), false);
+
+                // If the user was in an active ranked party, trigger forfeit automatically
+                string v_RankedPartyId = await p_CacheService.GetAsync<string>(RedisKeys.User.UserRanked(v_Guid));
+                if (!string.IsNullOrEmpty(v_RankedPartyId) && Guid.TryParse(v_RankedPartyId, out Guid v_PartyId))
+                {
+                    Party v_Party = await p_CacheService.GetAsync<Party>(RedisKeys.Ranked.ById(v_PartyId));
+                    if (v_Party is { InProgress: true })
+                    {
+                        try
+                        {
+                            GiveUpRankedRequest v_GiveUpRequest = new(v_Guid);
+                            _ = await p_Mediator.Send(v_GiveUpRequest);
+                        }
+                        catch (Exception v_Ex)
+                        {
+                            // Log but don't rethrow — disconnection handler must not throw
+                            p_Logger.LogError(v_Ex, "[RankedHub] Auto-forfeit failed for user {UserId}", v_Guid);
+                        }
+                    }
+                }
             }
         }
         await base.OnDisconnectedAsync(p_Exception);
