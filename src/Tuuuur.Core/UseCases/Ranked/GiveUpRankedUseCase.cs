@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Tuuuur.Core.Configuration;
 using Tuuuur.Core.Requests.Ranked;
 using Tuuuur.Core.Responses;
 using Tuuuur.Domain.Bo;
@@ -14,7 +15,8 @@ internal class GiveUpRankedUseCase(
     IUnitOfWork p_UnitOfWork,
     ILogger<GiveUpRankedUseCase> p_Logger,
     ICacheService p_CacheService,
-    IRankedNotificationService p_RankedNotificationService) :
+    IRankedNotificationService p_RankedNotificationService,
+    RankedConfiguration p_RankedConfiguration) :
     ADbUseCase<GiveUpRankedRequest, EmptyResponse>(p_Logger, p_UnitOfWork)
 {
     protected override async Task<EmptyResponse> HandleLogic(GiveUpRankedRequest p_Request, CancellationToken p_CancellationToken)
@@ -47,14 +49,19 @@ internal class GiveUpRankedUseCase(
         Question v_Question = await p_CacheService.SortedSetGetByIndexAsync<Question>(
             RedisKeys.Ranked.Questions(v_Party.Id),
             p_Index: v_CurrentIndex, p_CancellationToken: p_CancellationToken);
-        
-        await p_CacheService.PublishAsync(
-            RedisKeys.Ranked.PartyQuestionAllAnsweredChannel(v_Party.Id, v_Question.Id),
-            true,
-            p_CancellationToken
-        );
-        
-        await p_CacheService.SetAsync(RedisKeys.Ranked.PlayerForfeited(v_PartyId), v_QuittingUser, p_CancellationToken: p_CancellationToken);
+
+        // Mark the player as forfeited first so the game loop detects it even if no question is loaded yet
+        await p_CacheService.SetAsync(RedisKeys.Ranked.PlayerForfeited(v_PartyId), v_QuittingUser, p_RankedConfiguration.PartyTtl, p_CancellationToken);
+
+        // Only unblock the current round's wait if a question is already in progress
+        if (v_Question is not null)
+        {
+            await p_CacheService.PublishAsync(
+                RedisKeys.Ranked.PartyQuestionAllAnsweredChannel(v_Party.Id, v_Question.Id),
+                true,
+                p_CancellationToken
+            );
+        }
 
         User v_OtherUser = v_Party.PartyUsers.FirstOrDefault(p_P => p_P.IdUser != v_QuittingUser.Id)?.User;
 
