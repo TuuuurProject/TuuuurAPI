@@ -60,11 +60,11 @@ internal class RankedLogicUseCase(
         }        
         if (!v_IsP1Connected)
         {
-            await p_CacheService.SetAsync(RedisKeys.Ranked.PlayerForfeited(v_Party.Id), v_Player1, p_CancellationToken: p_CancellationToken);
+            await p_CacheService.SetAsync(RedisKeys.Ranked.PlayerForfeited(v_Party.Id), v_Player1, p_RankedConfiguration.PartyTtl, p_CancellationToken);
         }
         else if (!v_IsP2Connected)
         {
-            await p_CacheService.SetAsync(RedisKeys.Ranked.PlayerForfeited(v_Party.Id), v_Player2, p_CancellationToken: p_CancellationToken);
+            await p_CacheService.SetAsync(RedisKeys.Ranked.PlayerForfeited(v_Party.Id), v_Player2, p_RankedConfiguration.PartyTtl, p_CancellationToken);
         }
         
         List<(Question Value, int Score)> v_ExistingQuestions =
@@ -84,7 +84,7 @@ internal class RankedLogicUseCase(
                 v_ExistingQuestions.Select(p_P => p_P.Value.Id).ToList(),
                 p_CancellationToken);
         _ = await p_CacheService.SortedSetAddAsync(RedisKeys.Ranked.Questions(v_Party.Id), v_CurrentQuestion,
-            p_Score: v_CurrentIndex, p_CancellationToken: p_CancellationToken);
+            p_Score: v_CurrentIndex, p_Expiration: p_RankedConfiguration.PartyTtl, p_CancellationToken: p_CancellationToken);
         v_CurrentQuestion.ClearAnswer();
         // Send countdown (3, 2, 1)
         for (int v_Seconds = 3; v_Seconds > 0; v_Seconds--)
@@ -110,7 +110,8 @@ internal class RankedLogicUseCase(
             await p_CacheService.SetAsync(
                 RedisKeys.Ranked.QuestionUserAnswer(v_Party.Id, v_LocalQuestion.Id, p_User.Id),
                 v_UserPartyQuestion,
-                p_CancellationToken: p_CancellationToken
+                p_RankedConfiguration.PartyTtl,
+                p_CancellationToken
             );
             // Create a shuffled copy of answers for this user
             int v_Seed = v_UserPartyQuestion.AnswersOrder.GetHashCode();
@@ -164,14 +165,46 @@ internal class RankedLogicUseCase(
         if (v_Upq1 != null) v_Upq1.Correct = v_P1Correct;
         if (v_Upq2 != null) v_Upq2.Correct = v_P2Correct;
         // Delta rule
-        // - One correct, one wrong → winner keeps their score (delta = 0), loser loses winner's score × multiplier
-        // - Both correct or both wrong → no change (delta = 0)
-        int v_Delta1 = (!v_P1Correct && v_P2Correct)
-            ? -(int)(v_RawScore2 * v_DamageMultiplier) // loser loses winner's score
-            : 0; // winner or draw: no change
-        int v_Delta2 = (!v_P2Correct && v_P1Correct)
-            ? -(int)(v_RawScore1 * v_DamageMultiplier) // loser loses winner's score
-            : 0; // winner or draw: no change
+        // - One correct, one wrong → loser loses winner's score × multiplier
+        // - Both correct → the slower player loses (faster score − slower score) × multiplier
+        // - Both wrong   → no change (delta = 0)
+        int v_Delta1;
+        int v_Delta2;
+        if (!v_P1Correct && v_P2Correct)
+        {
+            // P1 wrong, P2 correct → P1 is the loser
+            v_Delta1 = -(int)(v_RawScore2 * v_DamageMultiplier);
+            v_Delta2 = 0;
+        }
+        else if (!v_P2Correct && v_P1Correct)
+        {
+            // P2 wrong, P1 correct → P2 is the loser
+            v_Delta1 = 0;
+            v_Delta2 = -(int)(v_RawScore1 * v_DamageMultiplier);
+        }
+        else if (v_P1Correct && v_P2Correct && v_RawScore1 != v_RawScore2)
+        {
+            // Both correct but different speeds: the slower loses the score gap × multiplier
+            int v_ScoreDiff = Math.Abs(v_RawScore1 - v_RawScore2);
+            if (v_RawScore1 > v_RawScore2)
+            {
+                // P1 was faster → P2 loses the difference
+                v_Delta1 = 0;
+                v_Delta2 = -(int)(v_ScoreDiff * v_DamageMultiplier);
+            }
+            else
+            {
+                // P2 was faster → P1 loses the difference
+                v_Delta1 = -(int)(v_ScoreDiff * v_DamageMultiplier);
+                v_Delta2 = 0;
+            }
+        }
+        else
+        {
+            // Both wrong, or both correct with same score → no change
+            v_Delta1 = 0;
+            v_Delta2 = 0;
+        }
         // Reshuffle answers copies
         Question v_Q1 = v_CurrentQuestion.Copy();
         Question v_Q2 = v_CurrentQuestion.Copy();
@@ -239,21 +272,21 @@ internal class RankedLogicUseCase(
             v_Upq1 != null
                 ? p_CacheService.SetAsync(
                     RedisKeys.Ranked.QuestionUserAnswer(v_Party.Id, v_CurrentQuestion.Id, v_Player1.Id), v_Upq1,
-                    p_CancellationToken: p_CancellationToken)
+                    p_RankedConfiguration.PartyTtl, p_CancellationToken)
                 : Task.CompletedTask,
             v_Existing1.User != null
                 ? p_CacheService.SortedSetAddAsync(RedisKeys.Ranked.Scores(v_Party.Id), v_Existing1.User, v_Total1,
-                    p_CancellationToken: p_CancellationToken)
+                    p_RankedConfiguration.PartyTtl, p_CancellationToken)
                 : Task.FromResult(false),
             // Player 2
             v_Upq2 != null
                 ? p_CacheService.SetAsync(
                     RedisKeys.Ranked.QuestionUserAnswer(v_Party.Id, v_CurrentQuestion.Id, v_Player2.Id), v_Upq2,
-                    p_CancellationToken: p_CancellationToken)
+                    p_RankedConfiguration.PartyTtl, p_CancellationToken)
                 : Task.CompletedTask,
             v_Existing2.User != null
                 ? p_CacheService.SortedSetAddAsync(RedisKeys.Ranked.Scores(v_Party.Id), v_Existing2.User, v_Total2,
-                    p_CancellationToken: p_CancellationToken)
+                    p_RankedConfiguration.PartyTtl, p_CancellationToken)
                 : Task.FromResult(false)
         );
         // Send updated scores
@@ -285,7 +318,7 @@ internal class RankedLogicUseCase(
             // Start the next question
             await p_CacheService.SetAsync(
                 RedisKeys.Ranked.CurrentQuestionIndex(v_Party.Id),
-                v_CurrentIndex + 1, p_CancellationToken: p_CancellationToken);
+                v_CurrentIndex + 1, p_RankedConfiguration.PartyTtl, p_CancellationToken);
             // Loop to others questions
             await p_Mediator.Send(p_Request, p_CancellationToken);
         }
@@ -332,23 +365,24 @@ internal class RankedLogicUseCase(
         // Player 1
         await p_CacheService.SetAsync(
                 RedisKeys.Ranked.QuestionUserAnswer(p_Party.Id, p_Question.Id, p_Player1.Id), v_Upq1,
-                p_CancellationToken: p_CancellationToken);
+                p_RankedConfiguration.PartyTtl, p_CancellationToken);
         _ = await p_CacheService.SortedSetAddAsync(RedisKeys.Ranked.Scores(p_Party.Id), p_Player1, p_RankedConfiguration.InitialRankedScore - v_Upq1.Score,
-                p_CancellationToken: p_CancellationToken);
+                p_RankedConfiguration.PartyTtl, p_CancellationToken);
         
         // Player 2
         await p_CacheService.SetAsync(
             RedisKeys.Ranked.QuestionUserAnswer(p_Party.Id, p_Question.Id, p_Player2.Id), v_Upq2,
-            p_CancellationToken: p_CancellationToken);
+            p_RankedConfiguration.PartyTtl, p_CancellationToken);
         _ = await p_CacheService.SortedSetAddAsync(RedisKeys.Ranked.Scores(p_Party.Id), p_Player2, p_RankedConfiguration.InitialRankedScore - v_Upq2.Score,
-            p_CancellationToken: p_CancellationToken);
+            p_RankedConfiguration.PartyTtl, p_CancellationToken);
         
         // Update the forfeited player's score to 0
         await p_CacheService.SortedSetAddAsync(
             RedisKeys.Ranked.Scores(p_Party.Id),
             p_ForfeitedUser,
             0,
-            p_CancellationToken: p_CancellationToken
+            p_RankedConfiguration.PartyTtl,
+            p_CancellationToken
         );
         
         v_Scores = await p_CacheService.SortedSetGetAllWithScoresAsync<User>(
@@ -404,7 +438,7 @@ internal class RankedLogicUseCase(
         await p_NotificationService.NotifyUserWinAsync(v_Winner.Id, +v_EloDeltaWinner);
         await p_NotificationService.NotifyUserLooseAsync(v_Loser.Id, -v_EloDeltaLoser);
         p_Party.InProgress = false;
-        await p_CacheService.SetAsync(RedisKeys.Ranked.ById(p_Party.Id), p_Party, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAsync(RedisKeys.Ranked.ById(p_Party.Id), p_Party, p_RankedConfiguration.PartyTtl, p_CancellationToken);
         // ── Save party to database ──────────────────────
         List<Question> v_Questions = await p_CacheService.SortedSetRangeByRankAsync<Question>(
             RedisKeys.Ranked.Questions(p_Party.Id),
@@ -471,7 +505,7 @@ internal class RankedLogicUseCase(
     private async Task<EmptyResponse> CancelPartyLogicAsync(Party p_Party, User p_Player1, User p_Player2, CancellationToken p_CancellationToken)
     {
         p_Party.InProgress = false;
-        await p_CacheService.SetAsync(RedisKeys.Ranked.ById(p_Party.Id), p_Party, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAsync(RedisKeys.Ranked.ById(p_Party.Id), p_Party, p_RankedConfiguration.PartyTtl, p_CancellationToken);
         // Save party to database
         List<Question> v_Questions = await p_CacheService.SortedSetRangeByRankAsync<Question>(
             RedisKeys.Ranked.Questions(p_Party.Id),

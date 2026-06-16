@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Tuuuur.Core.Configuration;
 using Tuuuur.Core.Requests.Ranked;
 using Tuuuur.Core.Responses;
 using Tuuuur.Domain.Bo;
@@ -14,6 +15,7 @@ internal class AnswerQuestionRankedUseCase(
     IUnitOfWork p_UnitOfWork,
     ICacheService p_CacheService,
     IRankedNotificationService p_NotificationService,
+    RankedConfiguration p_RankedConfiguration,
     ILogger<AnswerQuestionRankedUseCase> p_Logger)
     : ADbUseCase<AnswerQuestionRankedRequest, EmptyResponse>(p_Logger, p_UnitOfWork)
 {
@@ -55,10 +57,10 @@ internal class AnswerQuestionRankedUseCase(
         v_UserPartyQuestion.IdAnswer = p_Request.AnswerId;
         v_UserPartyQuestion.DtAnsweredAt = DateTime.Now;
 
-        await p_CacheService.SetAsync(RedisKeys.Ranked.QuestionUserAnswer(v_Party.Id, v_Question.Id, p_Request.UserId), v_UserPartyQuestion, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAsync(RedisKeys.Ranked.QuestionUserAnswer(v_Party.Id, v_Question.Id, p_Request.UserId), v_UserPartyQuestion, p_RankedConfiguration.PartyTtl, p_CancellationToken);
 
         // Add user to the answered set for early round termination
-        await p_CacheService.SetAddAsync(RedisKeys.Ranked.PartyQuestionAnswered(v_Party.Id, v_Question.Id), p_Request.UserId, p_CancellationToken: p_CancellationToken);
+        await p_CacheService.SetAddAsync(RedisKeys.Ranked.PartyQuestionAnswered(v_Party.Id, v_Question.Id), p_Request.UserId, p_RankedConfiguration.PartyTtl, p_CancellationToken);
 
         // Check if all players have answered
         long v_AnsweredCount = await p_CacheService.SetLengthAsync(RedisKeys.Ranked.PartyQuestionAnswered(v_Party.Id, v_Question.Id), p_CancellationToken);

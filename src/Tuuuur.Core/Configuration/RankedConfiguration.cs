@@ -38,5 +38,14 @@ public class RankedConfiguration : IServiceConfiguration
     /// </summary>
     public int DefaultElo { get; set; } = 1000;
 
+    /// <summary>
+    /// TTL applied to every party-related Redis key (party data, scores, questions,
+    /// per-user answers, player forfeit flag, etc.).
+    /// Acts as a safety net so orphaned keys are automatically evicted if the party
+    /// logic crashes or is interrupted.
+    /// Default: 1 hour.
+    /// </summary>
+    public TimeSpan PartyTtl { get; set; } = TimeSpan.FromHours(1);
+
     public string GetSectionName() => SectionName;
 }
